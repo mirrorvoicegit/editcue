@@ -444,6 +444,7 @@ html,body,.shell{background:#fff!important}
 .cue-range-heads{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin:0 0 6px}
 .cue-range-head{border:0;background:transparent!important;padding:0;text-align:left;font-size:11px;line-height:1.5;font-weight:750;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
 .cue-range-head:hover{text-decoration:underline;text-underline-offset:2px}
+.cue-range-head.kind-cut{color:#262828;font-weight:800}
 .cue-range-head.kind-short{color:#B42027}
 .cue-range-head.kind-highlight{color:#4D28A0}
 .cue-range-head.kind-card,.cue-range-head.kind-visual,.cue-range-head.kind-textcard{color:#171717}
@@ -568,8 +569,9 @@ function rowMarkup(r,i){
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
  // 標示分軌：片段用途（短影音／精彩片段）、畫面素材（圖卡／字卡）、處理說明。
  // 當短影音和圖卡重疊時，短影音台詞顯示紅字，圖卡仍維持唯一的黃色底色。
- const intro=firstMarks.filter(a=>['short','highlight','card','visual','textcard'].includes(a.kind));
- const orderedIntro=[...intro.filter(a=>a.kind==='short'||a.kind==='highlight'),...intro.filter(a=>['card','visual','textcard'].includes(a.kind))];
+ // 刪除、精彩片段、短影音及圖卡都統一在範圍首句顯示字幕編號與時間，不再使用只有一個「剪掉」的小標籤。
+ const intro=firstMarks.filter(a=>['cut','short','highlight','card','visual','textcard'].includes(a.kind));
+ const orderedIntro=[...intro.filter(a=>a.kind==='cut'),...intro.filter(a=>a.kind==='short'||a.kind==='highlight'),...intro.filter(a=>['card','visual','textcard'].includes(a.kind))];
  const otherMarks=firstMarks.filter(a=>!intro.includes(a));
  const head=orderedIntro.length?`<div class="cue-range-heads">${orderedIntro.map(a=>`<button type="button" class="cue-range-head kind-${a.kind}" data-cue="${escapeHtml(a.id)}" title="點擊修改標示">${escapeHtml(cueRangeLabel(a))}</button>`).join('')}</div>`:'';
  const noteDetails=firstMarks.filter(a=>a.detail||(!a.assetId&&a.title)||a.referenceAssetId);
