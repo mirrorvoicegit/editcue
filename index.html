@@ -647,6 +647,23 @@ html,body,.shell{background:#fff!important}
 .cue-index-excerpt{font-size:12px;color:#555;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cue-index-empty{font-size:12px;text-align:center;color:#777;padding:30px 16px}
 @media(max-width:720px){.cue-index-panel{max-height:min(80dvh,710px)}.cue-index-trigger{padding:4px;font-size:10.5px}}
+
+/* v5.7：黃色代表精彩片段；薄荷綠色代表圖卡。 */
+.txrow.range-yellow:not(.mark-cut),.txrow.range-yellow:hover:not(.mark-cut),.txrow.range-green:not(.mark-cut){background:#B8F0D2!important;box-shadow:inset 4px 0 #27785B!important}
+.txrow.range-highlight:not(.mark-cut),.txrow.range-highlight:hover:not(.mark-cut){background:#FFEB00!important;box-shadow:inset 4px 0 #171717!important}
+.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:linear-gradient(90deg,#B8F0D2 0 15px,#FFEB00 15px 100%)!important;box-shadow:inset 4px 0 #27785B!important}
+.txrow.ink-highlight:not(.mark-cut) .speech{color:#171717!important;font-weight:500!important}
+.txrow.ink-short:not(.mark-cut) .speech{color:#E00000!important;font-weight:600!important}
+.txrow.ink-textcard:not(.mark-cut) .speech,.txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:#0054C8!important;font-weight:700!important}
+.cue-range-head.kind-highlight,.tag.highlight{color:#171717!important;background:#FFEB00!important}
+.cue-summary-item.kind-highlight{background:#FFEB00!important;border-color:#171717!important}
+.cue-summary-item.kind-highlight .cue-summary-title{color:#171717!important}
+.cue-summary-item.kind-card,.cue-summary-item.kind-visual{background:#B8F0D2!important;border-color:#27785B!important}
+.cue-summary-item.kind-card .cue-summary-title,.cue-summary-item.kind-visual .cue-summary-title{color:#171717!important}
+.cue-summary-item.kind-textcard,.cue-summary-item.kind-textcard .cue-summary-title{color:#0054C8!important;border-color:#0054C8!important}
+.txrow.range-preview.preview-highlight{background:#FFEB00!important;box-shadow:inset 4px 0 #111!important}
+.txrow.range-preview.preview-card,.txrow.range-preview.preview-visual{background:#B8F0D2!important;box-shadow:inset 4px 0 #27785B!important}
+.txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 4px 0 #0054C8!important}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -812,7 +829,7 @@ function rowMarkup(r,i){
  const highlight=anns.some(a=>a.kind==='highlight'),isShort=!cut&&anns.some(a=>a.kind==='short');
  const highlightClass=highlight?' range-highlight':'';
  const isTextcard=!cut&&anns.some(a=>a.kind==='textcard');
- const inkClass=!cut?(isTextcard?' ink-textcard':highlight?' ink-highlight':isShort?' ink-short':''):'';
+ const inkClass=!cut?(isTextcard?' ink-textcard':isShort?' ink-short':highlight?' ink-highlight':''):'';
  // 起點及終點獨立調整，避免第一個把手誤改最後一句；重疊時按需顯示。
  const adjustable=['cut','highlight','short','card','visual','textcard'];
  const startingCues=anns.filter(a=>adjustable.includes(a.kind)&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
@@ -983,7 +1000,7 @@ function renderCueIndex(){
   const count=kind==='all'?items.length:items.filter(x=>x.category===kind).length;
   return '<button type="button" class="cue-index-filter'+(cueIndexFilter===kind?' active':'')+'" data-index-filter="'+kind+'" aria-pressed="'+String(cueIndexFilter===kind)+'">'+label+'<span>'+count+'</span></button>';
  }).join('');
- const ink={cut:'#555',card:'#B09A08',textcard:'#0047FF',highlight:'#009B3E',short:'#E00000',other:'#555'};
+ const ink={cut:'#555',card:'#27785B',textcard:'#0054C8',highlight:'#171717',short:'#E00000',other:'#555'};
  $('cueIndexItems').innerHTML=visible.length?visible.map(item=>
   '<button class="cue-index-item" type="button" data-index-target="'+String(item.from)+'" style="border-left-color:'+ink[item.category]+'">'
   +'<div class="cue-index-first"><span class="cue-index-name" style="color:'+ink[item.category]+'">'+escapeHtml(item.name)+'</span>'
@@ -1298,16 +1315,18 @@ function cueGroupText(group){
  return header+main+(simultaneousNames.length?'（同時：'+simultaneousNames.join('、')+'）':'');
 }
 
+function isMixedCueRow(uid){const acts=annotationsForRow(uid);return acts.some(a=>a.kind==='highlight')&&acts.some(a=>a.kind==='card'||a.kind==='visual')}
 function colorForRow(uid){const acts=annotationsForRow(uid);
  if(acts.some(a=>a.kind==='cut'))return 'D9D9D9';
- if(acts.some(a=>a.kind==='card'||a.kind==='visual'))return 'FFF26B';
+ if(acts.some(a=>a.kind==='highlight'))return 'FFEB00';
+ if(acts.some(a=>a.kind==='card'||a.kind==='visual'))return 'B8F0D2';
  return null;
 }
 function textColorForRow(uid){const acts=annotationsForRow(uid);
  if(acts.some(a=>a.kind==='cut'))return null;
- if(acts.some(a=>a.kind==='textcard'))return '0047FF';
- if(acts.some(a=>a.kind==='highlight'))return '009B3E';
+ if(acts.some(a=>a.kind==='textcard'))return '0054C8';
  if(acts.some(a=>a.kind==='short'))return 'E00000';
+ if(acts.some(a=>a.kind==='highlight'||a.kind==='card'||a.kind==='visual'))return '171717';
  return null;
 }
 function isGraphicBoundary(uid){const i=rows.findIndex(r=>r.uid===uid);if(i<1)return false;
@@ -1315,7 +1334,7 @@ function isGraphicBoundary(uid){const i=rows.findIndex(r=>r.uid===uid);if(i<1)re
  const previous=visualCardFor(rows[i-1].uid);
  return !!(current&&previous&&current.id!==previous.id&&isFirstCueRow(current,uid));
 }
-function wordDividerPr(){return '<w:pBdr><w:top w:val="dashed" w:sz="8" w:space="4" w:color="93815C"/></w:pBdr>'}
+function wordRowBorderPr(divider=false,mixed=false){return divider||mixed?'<w:pBdr>'+(divider?'<w:top w:val="dashed" w:sz="8" w:space="4" w:color="93815C"/>':'')+(mixed?'<w:left w:val="single" w:sz="20" w:space="4" w:color="B8F0D2"/>':'')+'</w:pBdr>':''}
 function addWordTopDivider(p,xml){let pr=[...p.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='pPr');
  if(!pr){pr=xml.createElementNS(W,'w:pPr');p.insertBefore(pr,p.firstChild)}
  let bd=[...pr.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='pBdr');
@@ -1324,13 +1343,22 @@ function addWordTopDivider(p,xml){let pr=[...p.childNodes].find(n=>n.nodeType===
  if(!top){top=xml.createElementNS(W,'w:top');bd.appendChild(top)}
  for(const [key,val] of [['val','dashed'],['sz','8'],['space','4'],['color','93815C']])top.setAttributeNS(W,'w:'+key,val);
 }
+function addWordMixedCueBorder(p,xml){
+ let pr=[...p.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='pPr');
+ if(!pr){pr=xml.createElementNS(W,'w:pPr');p.insertBefore(pr,p.firstChild)}
+ let bd=[...pr.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='pBdr');
+ if(!bd){bd=xml.createElementNS(W,'w:pBdr');pr.appendChild(bd)}
+ let left=[...bd.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='left');
+ if(!left){left=xml.createElementNS(W,'w:left');bd.appendChild(left)}
+ for(const [key,val] of [['val','single'],['sz','20'],['space','4'],['color','B8F0D2']])left.setAttributeNS(W,'w:'+key,val)
+}
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
 function cueGroupParagraph(group){
  const first=sourceRowAt(group[0]);const start=first?.first;
  const intro=`後製指示｜字幕 ${start?.seq||'?'}｜${start?.start||''}`;
- const run=(text,color='333333',bold=false)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}${bold&&color==='009B3E'?'<w:u w:val="single"/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
+ const run=(text,color='333333',bold=false,fill=null)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}${fill?'<w:shd w:val="clear" w:fill="'+fill+'"/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
  const br='<w:r><w:br/></w:r>';
- const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0047FF',highlight:'009B3E',short:'E00000',captions:'B12B32',other:'B12B32',move:'333333'};
+ const cueColor={cut:'555555',card:'171717',visual:'171717',textcard:'0054C8',highlight:'171717',short:'E00000',captions:'B12B32',other:'B12B32',move:'333333'};
  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
  let contents=run(intro,'555555',true);
  for(const cue of group){
@@ -1338,7 +1366,7 @@ function cueGroupParagraph(group){
   const t=names[cue.kind]||findKind(cue.kind).label;
   const asset=assetById(cue.assetId);const name=asset?'｜圖卡_'+deliveryAssetNumber(cue).padStart(3,'0')+'.png'+(asset.slideNumber?'（原稿第'+asset.slideNumber+'頁）':''):'';
   const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
-  contents+=br+run('■ '+t+(cue.kind==='card'||cue.kind==='visual'?' '+deliveryAssetNumber(cue):cue.kind==='textcard'?' '+cueOrdinal(cue):''),cueColor[cue.kind]||'333333',true)+run('｜'+range+name,'555555')+(detail?run('｜'+detail,cueColor[cue.kind]||'333333'): '');
+  contents+=br+run('■ '+t+(cue.kind==='card'||cue.kind==='visual'?' '+deliveryAssetNumber(cue):cue.kind==='textcard'?' '+cueOrdinal(cue):''),cueColor[cue.kind]||'333333',true,cue.kind==='highlight'?'FFEB00':(cue.kind==='card'||cue.kind==='visual')?'B8F0D2':null)+run('｜'+range+name,'555555')+(detail?run('｜'+detail,cueColor[cue.kind]||'333333'): '');
  }
  return `<w:p><w:pPr><w:spacing w:before="90" w:after="70" w:line="305"/></w:pPr>${contents}</w:p>`;
 }
@@ -1346,10 +1374,10 @@ function cueParagraph(a){return cueGroupParagraph([a])}
 
 function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
 
-function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null){
+function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null,mixed=false){
  if(!text)return `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>`;
- let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>${inkColor==='009B3E'?'<w:u w:val="single"/>':''}`:'');
- return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>${divider?wordDividerPr():''}</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/>${pr}</w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
+ let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>`:'');
+ return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>${wordRowBorderPr(divider,mixed)}</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/>${pr}</w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
 }
 function sourceLineMap(lines){const out=new Map();let i=0,idx=0;
  // 同步字幕編號與時間碼定位。不是字幕行的內容一律原樣保留。
@@ -1400,7 +1428,7 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const modified=isSpeech&&uid?rows.find(r=>r.uid===uid)?.editedText:null;
  const rowIndex=uid?rows.findIndex(r=>r.uid===uid):-1,rec=rowIndex>=0?sourceMap.get(rowIndex):null;
  const divider=!!(rec&&i===rec.from&&isGraphicBoundary(uid));
- parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null));insertRed(notesAfter.get(i));});
+ parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null,!!(isSpeech&&uid&&isMixedCueRow(uid))));insertRed(notesAfter.get(i));});
  return makeBlankWord(parts,media);
 }
 
@@ -1440,6 +1468,7 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
  if(clr&&speechIndex!==undefined&&ps[speechIndex])appendShadingToParagraph(ps[speechIndex],clr,xml,rowIsCut(r.uid));
  const textInk=textColorForRow(r.uid);if(textInk&&parts.length&&ps[parts.at(-1)])appendTextColorToParagraph(ps[parts.at(-1)],textInk,xml);
  if(isGraphicBoundary(r.uid)&&parts.length&&ps[parts[0]])addWordTopDivider(ps[parts[0]],xml);
+  if(isMixedCueRow(r.uid)&&speechIndex!==undefined&&ps[speechIndex])addWordMixedCueBorder(ps[speechIndex],xml);
 }
  const toNode=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return xml.importNode(frag.getElementsByTagNameNS(W,'p')[0],true)};
  for(const [p,entries] of cueBefore){const cues=entries.map(e=>e.cue);const paras=[cueGroupParagraph(cues)];for(const a of cues){const ref=mediaById.get(a.referenceAssetId);if(ref)paras.push(wImagePara(ref))}for(const str of paras)p.parentNode.insertBefore(toNode(str),p)}
