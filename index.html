@@ -519,6 +519,41 @@ html,body,.shell{background:#fff!important}
 .cue-manage-actions .cue-cancel{color:#fff;background:#111}.cue-manage-actions button:hover{outline:2px solid #111;outline-offset:2px}
 .cue-manage-help{font-size:11px;color:#555;padding:10px 14px;border-top:1px solid #111}
 @media(max-width:720px){.cue-manage-panel{max-height:55vh;box-shadow:3px 3px 0 #111}}
+
+/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=粉紅字。 */
+.txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #DC007B!important}
+.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #DC007B!important}
+.txrow.ink-textcard:not(.mark-cut) .speech{color:#0054C8!important;font-weight:700!important}
+.txrow.ink-highlight:not(.mark-cut) .speech{color:#D00070!important;font-weight:700!important}
+.txrow.ink-short:not(.mark-cut) .speech{color:#B42027!important;font-weight:600!important}
+.txrow.range-short.ink-highlight:not(.mark-cut) .speech,.txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:inherit}
+.txrow.range-short.ink-highlight:not(.mark-cut) .speech{color:#D00070!important}
+.txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:#0054C8!important}
+.cue-summary{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:0 0 8px;max-width:100%}
+.cue-summary-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px;min-height:29px;border:1px solid #222;background:rgba(255,255,255,.94);padding:3px 5px;max-width:100%;font-size:11px;color:#444}
+.cue-summary-title{font-size:12px;font-weight:800;line-height:1.35;border:0;background:transparent;padding:2px 3px;cursor:pointer;white-space:nowrap;color:#111}
+.cue-summary-title:hover{text-decoration:underline;text-underline-offset:3px}
+.cue-summary-range{font-size:10px;font-weight:550;color:#565656;white-space:normal}
+.cue-summary-context{font-size:10px;color:#555;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cue-summary-item.kind-textcard{border-color:#0054C8}
+.cue-summary-item.kind-textcard .cue-summary-title{color:#0054C8}
+.cue-summary-item.kind-highlight{border-color:#D00070}
+.cue-summary-item.kind-highlight .cue-summary-title{color:#D00070}
+.cue-summary-item.kind-short{border-color:#B42027}
+.cue-summary-item.kind-short .cue-summary-title{color:#B42027}
+.cue-summary-item.kind-cut{border-color:#555}
+.cue-summary-item.kind-cut .cue-summary-title{color:#333}
+.cue-summary-item.kind-card,.cue-summary-item.kind-visual{border-color:#8B681A}
+.cue-summary-item.kind-card .cue-summary-title,.cue-summary-item.kind-visual .cue-summary-title{color:#705109}
+.cue-mini-preview{border:1px solid #aaa;background:#fff;padding:1px;line-height:0;cursor:zoom-in}
+.cue-mini-preview img{width:68px;height:39px;object-fit:contain;background:#fff}
+.cue-mini-preview:hover{border-color:#111}
+.range-handle-group .range-handle{width:22px!important;min-width:22px!important;height:26px!important;font-size:10px!important;letter-spacing:0!important;cursor:ns-resize!important}
+.txrow .range-handle-group{opacity:.35;transition:opacity .15s ease}
+.txrow:hover .range-handle-group,.txrow.selected .range-handle-group,.range-handle-group:focus-within{opacity:1}
+.txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #D00070!important}
+.txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 5px 0 #0054C8!important}
+@media(max-width:720px){.txrow .range-handle-group{opacity:1}.cue-summary-item{max-width:100%}.cue-summary-context{max-width:140px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -623,7 +658,7 @@ function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').v
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
 function selectionIndices(){return [...selected].sort((a,b)=>a-b)}
 function setSelection(set){selected=new Set(set);paintSelection();renderInspector()}
-function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0);
+function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0&&!window._showInspector&&!editId);
  const cutCount=s.filter(i=>rows[i]&&rowIsCut(rows[i].uid)).length;
  const cutTool=$('toolBar').querySelector('[data-kind="cut"]'),cutText=cutTool?.querySelector('span');
  const allCut=s.length>0&&cutCount===s.length;
@@ -645,29 +680,36 @@ function visualCardFor(uid){return noteOrder().find(a=>(a.kind==='card'||a.kind=
 function isFirstCueRow(a,uid){return sourceRowAt(a)?.first?.uid===uid}
 function rowMarkup(r,i){
  const anns=annotationsForRow(r.uid),cut=anns.some(a=>a.kind==='cut');
- const graphic=visualCardFor(r.uid)||anns.find(a=>a.kind==='textcard');
- const previousGraphic=i>0?(visualCardFor(rows[i-1].uid)||annotationsForRow(rows[i-1].uid).find(a=>a.kind==='textcard')):null;
+ const graphic=visualCardFor(r.uid);
+ const previousGraphic=i>0?visualCardFor(rows[i-1].uid):null;
  const shade=graphic?' range-yellow':'';
  const graphicSeparator=graphic&&previousGraphic&&graphic.id!==previousGraphic.id&&isFirstCueRow(graphic,r.uid)?' graphic-separator':'';
  const highlight=anns.some(a=>a.kind==='highlight'),isShort=!cut&&anns.some(a=>a.kind==='short');
- const highlightClass=!graphic&&highlight?' range-highlight':'';
- // 每種區間需求都能從末端調整範圍；同一句若有兩種需求，分別顯示把手。
+ const highlightClass=highlight?' range-highlight':'';
+ const isTextcard=!cut&&anns.some(a=>a.kind==='textcard');
+ const inkClass=!cut?(isTextcard?' ink-textcard':highlight?' ink-highlight':isShort?' ink-short':''):'';
+ // 起點及終點獨立調整，避免第一個把手誤改最後一句；重疊時按需顯示。
  const adjustable=['cut','highlight','short','card','visual','textcard'];
+ const startingCues=anns.filter(a=>adjustable.includes(a.kind)&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
  const endingCues=anns.filter(a=>adjustable.includes(a.kind)&&sourceRowAt(a)?.last?.uid===r.uid);
- // 長範圍的第一句也放置把手，避免末句在螢幕外時無法調整。
- const firstCutCues=anns.filter(a=>a.kind==='cut'&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
- const rangeHandles=[...firstCutCues,...endingCues];
- const rangeControls=rangeHandles.length?`<div class="range-handle-group">${rangeHandles.map(a=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" type="button" aria-label="調整${escapeHtml(findKind(a.kind).label)}範圍" title="拖曳調整${escapeHtml(findKind(a.kind).label)}的結束字幕">↕</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
+ const handles=[...startingCues.map(a=>({a,boundary:'start'})),...endingCues.map(a=>({a,boundary:'end'}))];
+ const rangeControls=handles.length?`<div class="range-handle-group">${handles.map(({a,boundary})=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" data-range-boundary="${boundary}" type="button" aria-label="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}" title="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}">${boundary==='start'?'起':'迄'}</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
- // 標示分軌：片段用途（短影音／精彩片段）、畫面素材（圖卡／字卡）、處理說明。
- // 當短影音和圖卡重疊時，短影音台詞顯示紅字，圖卡仍維持唯一的黃色底色。
- // 刪除、精彩片段、短影音及圖卡都統一在範圍首句顯示字幕編號與時間，不再使用只有一個「剪掉」的小標籤。
+ // 每個字幕起點只有一組後製指示。各需求仍保有自己的字幕範圍，重疊時不互相覆蓋。
  const intro=firstMarks.filter(a=>['cut','short','highlight','card','visual','textcard'].includes(a.kind));
- const orderedIntro=[...intro.filter(a=>a.kind==='cut'),...intro.filter(a=>a.kind==='short'||a.kind==='highlight'),...intro.filter(a=>['card','visual','textcard'].includes(a.kind))];
+ const priority={cut:0,card:1,visual:1,textcard:2,highlight:3,short:4};
+ const orderedIntro=intro.slice().sort((a,b)=>(priority[a.kind]??9)-(priority[b.kind]??9));
  const otherMarks=firstMarks.filter(a=>!intro.includes(a));
- const head=orderedIntro.length?`<div class="cue-range-heads">${orderedIntro.map(a=>`<button type="button" class="cue-range-head kind-${a.kind}" data-cue="${escapeHtml(a.id)}" title="點擊修改標示">${escapeHtml(cueRangeLabel(a))}</button>`).join('')}</div>`:'';
- const noteDetails=firstMarks.filter(a=>a.detail||(!a.assetId&&a.title)||a.referenceAssetId);
- return `<div class="txrow${anns.length?' hasmarks':''}${cut?' mark-cut':''}${shade}${graphicSeparator}${highlightClass}${isShort?' range-short':''}${selected.has(i)?' selected':''}" data-i="${i}" draggable="false">
+ const head=orderedIntro.length?`<div class="cue-summary" aria-label="本段後製指示">${orderedIntro.map(a=>{
+  const range=sourceRowAt(a),asset=assetById(a.assetId);
+  const base=a.kind==='card'||a.kind==='visual'?'插入圖卡':a.kind==='textcard'?'插入字卡':a.kind==='highlight'?'精彩片段':a.kind==='short'?'短影音':'剪掉';
+  const seq=range?String(range.first.seq||range.firstIndex+1)+(range.firstIndex===range.lastIndex?'':'–'+String(range.last.seq||range.lastIndex+1)):'?';
+  const time=range?.first?.start?asClock(range.first.start)+'–'+asClock(range.last.end):'';
+  const context=a.kind==='card'||a.kind==='visual'?(asset?(asset.slideNumber?'原始投影片第 '+asset.slideNumber+' 頁':asset.name):'未指定素材'):(a.detail||a.title||'').slice(0,50);
+  return `<div class="cue-summary-item kind-${a.kind}"><button class="cue-summary-title" type="button" data-cue="${escapeHtml(a.id)}" title="修改${base}">${escapeHtml(base)}${a.kind==='card'||a.kind==='visual'?' '+escapeHtml(deliveryAssetNumber(a)):a.kind==='textcard'?' '+escapeHtml(cueOrdinal(a)):''}</button><span class="cue-summary-range">字幕 ${escapeHtml(seq)} · ${escapeHtml(time)}</span>${context?`<span class="cue-summary-context">${escapeHtml(context)}</span>`:''}${asset?.dataUrl&&(a.kind==='card'||a.kind==='visual')?`<button class="cue-mini-preview" type="button" data-preview-cue="${escapeHtml(asset.id)}" title="預覽${escapeHtml(asset.name)}"><img src="${asset.dataUrl}" alt="${escapeHtml(asset.name)}"></button>`:''}</div>`;
+ }).join('')}</div>`:'';
+ const noteDetails=firstMarks.filter(a=>['captions','other','move'].includes(a.kind)&&(a.detail||a.title||a.referenceAssetId));
+ return `<div class="txrow${anns.length?' hasmarks':''}${cut?' mark-cut':''}${shade}${graphicSeparator}${highlightClass}${isShort?' range-short':''}${inkClass}${selected.has(i)?' selected':''}" data-i="${i}" draggable="false">
  <div class="time">${r.start?escapeHtml(asClock(r.start)):'—'}<div class="line-number">${escapeHtml(r.seq||i+1)}</div></div>
  <div class="txbody">${head}<div class="speech" data-speech-index="${i}" title="雙擊即可修改錯字">${renderSearchSpeech(r.text||'（無台詞）',i)}</div>
  ${otherMarks.length?`<div class="rowtags">${otherMarks.map(a=>`<button class="tag ${a.kind}" data-cue="${escapeHtml(a.id)}" title="點選修改或移除">${escapeHtml(findKind(a.kind).label)}${assetById(a.assetId)?' · '+escapeHtml(window._exportCodes?.get(a.assetId)||assetById(a.assetId).code):''}</button>`).join('')}</div>`:''}
@@ -785,7 +827,7 @@ function refreshAll(){
  else selected=new Set([...selected].filter(i=>Number.isInteger(i)&&i>=0&&i<rows.length));
  renderRows();renderCounters();renderAssets();renderCueList();paintSelection();renderInspector();
 }
-function setKind(k){kindId=k;window._showInspector=['move','card','captions','visual','other','textcard'].includes(k);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===k));renderInspector()}
+function setKind(k){kindId=k;window._showInspector=['move','card','captions','visual','other','textcard'].includes(k);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===k));if(window._showInspector)$('toolBar').classList.remove('open');renderInspector()}
 function renderInspector(){const host=$('inspectorBody');$('inspector').classList.toggle('hasselection',!!editId||!!window._showInspector);const s=selectionIndices(),editing=annotations.find(a=>a.id===editId);$('pickedCount').textContent=s.length+' 段';$('inspectorTitle').textContent=editing?'修改標示':'標示需求';if(!s.length&&!editing){$('inspector').classList.remove('hasselection');window._showInspector=false;host.className='emptyedit';host.innerHTML='先選取台詞，再新增標示';return}host.className='';if(window._showInspector||editing){$('inspector').classList.add('hasselection');positionInspector()} const first=rows[s[0]],last=rows[s.at(-1)];const interval=first?.start?asClock(first.start)+' – '+asClock(last.end):s.length+' 段';const chosen=editing?.kind||kindId;
 host.innerHTML=`<div class="clipmeta"><span style="font-size:20px">${chosen==='cut'?'✕':chosen==='card'?'▣':chosen==='move'?'↔':'✦'}</span><div><strong>${escapeHtml(findKind(chosen).label)}</strong><br><span>${escapeHtml(interval)}</span></div></div>
 <div class="field"><label class="fieldlabel" for="noteDetail">處理說明 ${chosen==='cut'?'(optional)':''}</label><textarea id="noteDetail" placeholder="${chosen==='move'?'移到哪段後面？':chosen==='cut'?'刪除原因（可留空）':chosen==='card'?'顯示方式、圖卡文字（選填）':chosen==='textcard'?'輸入字卡上要顯示的文字':'需要怎麼處理？'}">${escapeHtml(editing?.detail||'')}</textarea></div>
@@ -813,7 +855,7 @@ function insertGraphic(id,inds=selectionIndices()){
  annotations.push({id:'cue'+Date.now()+Math.random().toString(36).slice(2),kind:'card',title:a.name,detail:'',reference:'',assetId:id,rowIds:ids});
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
 }
-function editCue(id){closeCueManager();const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
+function editCue(id){closeCueManager();const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;$('toolBar').classList.remove('open');const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
 function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
 function importText(text,name='Pasted transcript'){const s=safeText(text);if(!s.trim())return; if(rows.length&&!confirm('Replace current transcript with pasted text? Save your draft first if needed.'))return;parsePlain(s);const loadedRows=rows;loadContent({title:name,source:name,loadedRows,rawSource:s,inputType:'txt'});toast(loadedRows.length+' 段已匯入')}
 function saveProject(){if(!rows.length&&!assets.length){toast('尚無可儲存的資料');return}download(cleanFileName($('docTitle').value)+'.editcue.json',new Blob([JSON.stringify(serializable())],{type:'application/json;charset=utf-8'}));toast('工作檔已儲存')}
@@ -993,6 +1035,12 @@ function noteOrder(){if(cachedNoteOrder)return cachedNoteOrder;
 }
 function sourceRowAt(a){const ids=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0).sort((x,y)=>x-y);return ids.length?{first:rows[ids[0]],last:rows[ids[ids.length-1]],firstIndex:ids[0],lastIndex:ids.at(-1)}:null}
 // 每個剪輯指示都顯示原始字幕編號與起訖時間，避免只剩時間、找不到對應字幕。
+// 畫面左側與交付檔共用同一組『實際使用順序』編號；素材庫的 G 編號只是原始識別。
+function deliveryAssetNumber(a){
+ if(!a?.assetId)return cueOrdinal(a);
+ const pos=orderedUsedAssets().findIndex(asset=>asset.id===a.assetId);
+ return String(pos>=0?pos+1:1).padStart(2,'0');
+}
 function cueOrdinal(a){
  const group=a.kind==='card'||a.kind==='visual'?'card':a.kind;
  return String(noteOrder().filter(x=>(x.kind==='card'||x.kind==='visual'?'card':x.kind)===group).findIndex(x=>x.id===a.id)+1).padStart(2,'0');
@@ -1043,15 +1091,21 @@ function cueGroupText(group){
  return header+main+(simultaneousNames.length?'（同時：'+simultaneousNames.join('、')+'）':'');
 }
 
-function colorForRow(uid){const acts=noteOrder().filter(a=>a.rowIds.includes(uid));
+function colorForRow(uid){const acts=annotationsForRow(uid);
  if(acts.some(a=>a.kind==='cut'))return 'D9D9D9';
- if(acts.some(a=>['card','visual','textcard'].includes(a.kind)))return 'FFF26B';
- if(acts.some(a=>a.kind==='highlight'))return 'E3D8FF';
+ if(acts.some(a=>a.kind==='card'||a.kind==='visual'))return 'FFF26B';
+ return null;
+}
+function textColorForRow(uid){const acts=annotationsForRow(uid);
+ if(acts.some(a=>a.kind==='cut'))return null;
+ if(acts.some(a=>a.kind==='textcard'))return '0054C8';
+ if(acts.some(a=>a.kind==='highlight'))return 'D00070';
+ if(acts.some(a=>a.kind==='short'))return 'B42027';
  return null;
 }
 function isGraphicBoundary(uid){const i=rows.findIndex(r=>r.uid===uid);if(i<1)return false;
- const current=visualCardFor(uid)||annotationsForRow(uid).find(a=>a.kind==='textcard');
- const previous=visualCardFor(rows[i-1].uid)||annotationsForRow(rows[i-1].uid).find(a=>a.kind==='textcard');
+ const current=visualCardFor(uid);
+ const previous=visualCardFor(rows[i-1].uid);
  return !!(current&&previous&&current.id!==previous.id&&isFirstCueRow(current,uid));
 }
 function wordDividerPr(){return '<w:pBdr><w:top w:val="dashed" w:sz="8" w:space="4" w:color="93815C"/></w:pBdr>'}
@@ -1065,18 +1119,29 @@ function addWordTopDivider(p,xml){let pr=[...p.childNodes].find(n=>n.nodeType===
 }
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
 function cueGroupParagraph(group){
- const text=cueGroupText(group);
- // 無底色、明確的黑字標頭；「特殊需求」仍使用紅字，不與台詞標色混淆。
- const color=group.every(a=>a.kind==='captions'||a.kind==='other')?'B42027':'191919';
- return `<w:p><w:pPr><w:spacing w:before="90" w:after="45" w:line="290"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:b/><w:color w:val="${color}"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
+ const first=sourceRowAt(group[0]);const start=first?.first;
+ const intro=`後製指示｜字幕 ${start?.seq||'?'}｜${start?.start||''}`;
+ const run=(text,color='333333',bold=false)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
+ const br='<w:r><w:br/></w:r>';
+ const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0054C8',highlight:'D00070',short:'B42027',captions:'B12B32',other:'B12B32',move:'333333'};
+ const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
+ let contents=run(intro,'555555',true);
+ for(const cue of group){
+  const x=sourceRowAt(cue),range=x?`字幕 ${x.first.seq||x.firstIndex+1}${x.firstIndex===x.lastIndex?'':'–'+(x.last.seq||x.lastIndex+1)}｜${x.first.start}–${x.last.end}`:'';
+  const t=names[cue.kind]||findKind(cue.kind).label;
+  const asset=assetById(cue.assetId);const name=asset?'｜圖卡_'+deliveryAssetNumber(cue).padStart(3,'0')+'.png'+(asset.slideNumber?'（原稿第'+asset.slideNumber+'頁）':''):'';
+  const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
+  contents+=br+run('■ '+t+(cue.kind==='card'||cue.kind==='visual'?' '+deliveryAssetNumber(cue):cue.kind==='textcard'?' '+cueOrdinal(cue):''),cueColor[cue.kind]||'333333',true)+run('｜'+range+name,'555555')+(detail?run('｜'+detail,cueColor[cue.kind]||'333333'): '');
+ }
+ return `<w:p><w:pPr><w:spacing w:before="90" w:after="70" w:line="305"/></w:pPr>${contents}</w:p>`;
 }
 function cueParagraph(a){return cueGroupParagraph([a])}
 
 function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
 
-function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,shortText=false){
+function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null){
  if(!text)return `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>`;
- let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(shortText?'<w:color w:val="B42027"/><w:b/>':'');
+ let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>`:'');
  return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>${divider?wordDividerPr():''}</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/>${pr}</w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
 }
 function sourceLineMap(lines){const out=new Map();let i=0,idx=0;
@@ -1128,7 +1193,7 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const modified=isSpeech&&uid?rows.find(r=>r.uid===uid)?.editedText:null;
  const rowIndex=uid?rows.findIndex(r=>r.uid===uid):-1,rec=rowIndex>=0?sourceMap.get(rowIndex):null;
  const divider=!!(rec&&i===rec.from&&isGraphicBoundary(uid));
- parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,!!(isSpeech&&uid&&rowIsShort(uid))));insertRed(notesAfter.get(i));});
+ parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null));insertRed(notesAfter.get(i));});
  return makeBlankWord(parts,media);
 }
 
@@ -1166,7 +1231,7 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
  for(const r of rows){const clr=colorForRow(r.uid),parts=r.paragraphIndices||[];
  const speechIndex=parts.at(-1);
  if(clr&&speechIndex!==undefined&&ps[speechIndex])appendShadingToParagraph(ps[speechIndex],clr,xml,rowIsCut(r.uid));
- if(rowIsShort(r.uid)&&parts.length&&ps[parts.at(-1)])appendTextColorToParagraph(ps[parts.at(-1)],'B42027',xml);
+ const textInk=textColorForRow(r.uid);if(textInk&&parts.length&&ps[parts.at(-1)])appendTextColorToParagraph(ps[parts.at(-1)],textInk,xml);
  if(isGraphicBoundary(r.uid)&&parts.length&&ps[parts[0]])addWordTopDivider(ps[parts[0]],xml);
 }
  const toNode=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return xml.importNode(frag.getElementsByTagNameNS(W,'p')[0],true)};
@@ -1355,6 +1420,7 @@ document.addEventListener('pointercancel',()=>{transcriptPointerRange=null});
 $('transcript').addEventListener('click',e=>{
  if(e.target.closest('.red-note'))return;
  const h=e.target.closest('[data-range-id]');if(h)return;
+ const image=e.target.closest('[data-preview-cue]');if(image){e.stopPropagation();openAssetPreview(image.dataset.previewCue);return}
  const cue=e.target.closest('[data-cue]');if(cue){e.stopPropagation();editCue(cue.dataset.cue);return}
  if(suppressClickOnce){suppressClickOnce=false;return}
  const row=e.target.closest('.txrow');if(row){
@@ -1440,12 +1506,12 @@ $('transcript').addEventListener('pointerdown',e=>{
  const h=e.target.closest('[data-range-id]');if(!h)return;
  e.preventDefault();e.stopPropagation();let a=annotations.find(x=>x.id===h.dataset.rangeId),info=a&&sourceRowAt(a);
  if(!a||!info)return;
- rangeDrag={id:a.id,kind:a.kind,start:info.firstIndex,end:info.lastIndex,originalEnd:info.lastIndex};
+ rangeDrag={id:a.id,kind:a.kind,boundary:h.dataset.rangeBoundary||'end',start:info.firstIndex,end:info.lastIndex,originalStart:info.firstIndex,originalEnd:info.lastIndex};
  document.body.classList.add('resizing-range');
 });
 document.addEventListener('pointermove',e=>{
  if(!rangeDrag)return;const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.txrow');
- if(!hit)return;const target=+hit.dataset.i;rangeDrag.end=Math.max(rangeDrag.start,target);
+ if(!hit)return;const target=+hit.dataset.i;if(rangeDrag.boundary==='start')rangeDrag.start=Math.min(target,rangeDrag.end);else rangeDrag.end=Math.max(rangeDrag.start,target);
  clearDropTargets();for(let i=rangeDrag.start;i<=rangeDrag.end;i++){
   const row=$('transcript').querySelector(`.txrow[data-i="${i}"]`);
   if(row)row.classList.add('range-preview','preview-'+rangeDrag.kind);
@@ -1465,7 +1531,12 @@ document.addEventListener('pointerup',e=>{
   )).map(x=>sourceRowAt(x)?.firstIndex).filter(n=>Number.isInteger(n)&&n>range.originalEnd);
   if(next.length)end=Math.min(end,Math.min(...next)-1);
  }
- const newIds=rows.slice(range.start,end+1).map(r=>r.uid);
+ let start=range.start;
+ if(start<range.originalStart&&a.kind!=='cut'){
+  const blockers=annotations.filter(x=>x.id!==a.id&&(x.kind==='cut'||x.kind===a.kind)).map(x=>sourceRowAt(x)?.lastIndex).filter(n=>Number.isInteger(n)&&n<range.originalStart);
+  if(blockers.length)start=Math.max(start,Math.max(...blockers)+1);
+ }
+ const newIds=rows.slice(start,end+1).map(r=>r.uid);
  if(newIds.length===a.rowIds.length&&newIds.every((id,i)=>id===a.rowIds[i]))return;
  pushUndo();
  if(a.kind==='cut')replaceExcludedIds(new Set(newIds));
