@@ -583,6 +583,38 @@ html,body,.shell{background:#fff!important}
 .fast-mark-apply:disabled{background:#aaa;border-color:#aaa;color:#fff}
 .fast-mark-cancel{background:#fff;color:#111;border:1px solid #111;min-height:42px;padding:0 13px;font-size:12px;font-weight:700}
 @media(max-width:720px){.fast-mark-panel{top:64px;max-height:calc(100dvh - 80px);box-shadow:4px 4px 0 #111}.fast-mark-trigger{padding:5px 6px;font-size:10px}.fast-mark-body{padding:12px}}
+
+ .fast-mark-body textarea[hidden]{display:none!important}
+/* 字幕編號跳轉：與搜尋不同，僅定位，不會更動台詞或篩選內容。 */
+.jump-field{height:34px;display:flex;align-items:center;flex-shrink:0;border:1px solid #111;background:#fff}
+.jump-field label{font-size:11px;font-weight:750;white-space:nowrap;padding:0 6px 0 9px}
+.jump-field input{width:62px;min-width:0;height:100%;background:#fff;border:0;outline:0;border-radius:0;font-size:12px;font-variant-numeric:tabular-nums;color:#111;padding:0 3px}
+.jump-field input::placeholder{color:#999}.jump-field:focus-within{outline:2px solid #111;outline-offset:1px}
+.jump-field button{height:100%;width:29px;min-width:29px;border:0;border-left:1px solid #111;background:#fff;font-size:18px;line-height:1;cursor:pointer;color:#111}
+.jump-field button:hover{background:#111;color:#fff}
+.txrow.jump-target{outline:3px solid #111!important;outline-offset:-3px!important;position:relative;z-index:2}
+.fast-mark-panel{width:min(650px,calc(100vw - 24px))}
+.fast-mark-rows{display:flex;flex-direction:column;gap:12px}
+.fast-range-row{border:1px solid #111;padding:12px;background:#fff}
+.fast-range-row-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:9px}
+.fast-range-fields{display:grid;grid-template-columns:minmax(72px,1fr) 10px minmax(72px,1fr) minmax(130px,1.7fr) 29px;gap:7px;align-items:end}
+.fast-range-fields label,.fast-extra-field label{font-size:11px;font-weight:700;display:block;margin:0 0 5px}
+.fast-range-fields input,.fast-range-fields select,.fast-extra-field input,.fast-extra-field select{border:1px solid #111;background:#fff;border-radius:0;height:36px;padding:0 8px;width:100%;min-width:0;font-size:13px;outline-offset:1px;color:#111}
+.fast-range-arrow{align-self:end;height:36px;line-height:36px;text-align:center;font-weight:800;color:#555}
+.fast-row-delete{height:36px;width:29px;min-width:29px;border:1px solid #111;background:#fff;font-size:19px;font-weight:400;color:#111}
+.fast-row-delete:hover{background:#111;color:#fff}.fast-row-delete:disabled{opacity:.3}
+.fast-extra-field{margin-top:10px}
+.fast-row-preview{margin-top:10px;border-top:1px dashed #999;padding-top:9px;font-size:11px;line-height:1.6;color:#333}
+.fast-row-preview strong{display:block;color:#111;font-size:11px;font-weight:800}
+.fast-row-preview.error{color:#aa1722}.fast-row-preview.error strong{color:#a41920}
+.fast-row-preview.warn{color:#70530e}
+.fast-add-row{height:35px;padding:0 12px;background:#fff;border:1px dashed #111;margin-top:12px;text-align:center;font-size:12px;font-weight:800;width:100%}
+.fast-add-row:hover{background:#111;color:#fff}
+.fast-mark-summary{display:flex;justify-content:space-between;gap:12px;padding-top:12px;margin-top:12px;border-top:1px solid #111;font-size:12px}
+.fast-mark-summary strong{font-weight:800}.fast-mark-summary span{color:#555}
+@media(max-width:920px){.jump-field label{display:none}.jump-field input{width:55px}.jump-field button{width:27px;min-width:27px}.search{width:130px}}
+@media(max-width:720px){.jump-field input{width:48px}.jump-field button{width:24px;min-width:24px}.jump-field{height:30px}.toolbarright{gap:3px}.search{width:min(110px,28vw)}.fast-mark-panel{top:58px;max-height:calc(100dvh - 70px)}}
+@media(max-width:520px){.fast-range-fields{grid-template-columns:minmax(52px,1fr) 9px minmax(52px,1fr) 29px;row-gap:9px}.fast-range-fields .fast-kind-col{grid-column:1/4;grid-row:2}.fast-row-delete{grid-column:4;grid-row:1;align-self:end}.fast-mark-body{padding:12px}.fast-range-row{padding:10px}.fast-mark-head{padding:10px 12px}.jump-field input{width:45px}.toolbarleft .count{display:none}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -599,7 +631,7 @@ html,body,.shell{background:#fff!important}
 <div class="body">
  <section class="left">
   <div class="workspace card" id="workArea">
-   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><button type="button" id="fastMarkBtn" class="fast-mark-trigger" title="直接輸入字幕編號範圍，批次建立標示" aria-haspopup="dialog" aria-controls="fastMarkPanel" aria-expanded="false">＋ 快速標示</button><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿" autocomplete="off" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
+   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><button type="button" id="fastMarkBtn" class="fast-mark-trigger" title="直接輸入字幕編號範圍，批次建立標示" aria-haspopup="dialog" aria-controls="fastMarkPanel" aria-expanded="false">＋ 快速標示</button><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><div class="jump-field" role="group" aria-label="跳至字幕編號"><label for="jumpInput">跳至</label><input id="jumpInput" type="text" inputmode="numeric" autocomplete="off" placeholder="# 編號" aria-label="輸入字幕編號後按 Enter 跳轉"><button type="button" id="jumpGo" title="跳至指定字幕" aria-label="跳至指定字幕">↵</button></div><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿" autocomplete="off" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
  <div class="search-panel-head"><span id="searchCount" aria-live="polite">輸入關鍵字搜尋</span><div class="search-panel-nav"><button type="button" id="searchPrev" title="上一處" aria-label="上一處">↑</button><button type="button" id="searchNext" title="下一處" aria-label="下一處">↓</button><button type="button" id="replaceToggle" title="開啟取代功能">取代</button></div></div>
  <div class="search-replace" id="searchReplace"><label for="replaceInput">取代為</label><input id="replaceInput" type="text" placeholder="輸入正確文字" autocomplete="off"><div class="search-replace-actions"><button type="button" id="replaceOne">取代這一筆</button><button type="button" id="replaceAll">全部取代</button></div><span class="search-replace-hint">僅修改台詞，不更動字幕編號與時間碼 · 可復原</span></div>
  </div></div><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
@@ -626,11 +658,12 @@ html,body,.shell{background:#fff!important}
 
 <div id="fastMarkPanel" class="fast-mark-panel hidden" role="dialog" aria-label="快速標示字幕範圍" aria-modal="false">
  <div class="fast-mark-head"><div><strong>快速標示</strong><small>使用逐字稿左側的字幕編號</small></div><button class="fast-mark-close" type="button" id="fastMarkClose" aria-label="關閉快速標示">×</button></div>
- <div class="fast-mark-body"><label for="fastMarkCommands">每行一則標示</label><textarea id="fastMarkCommands" spellcheck="false" placeholder="1-10 剪掉
-220-336 插入圖卡
-340-352 精彩片段" aria-describedby="fastMarkHint"></textarea>
-  <div id="fastMarkHint" class="fast-mark-hint">支援：剪掉、插入圖卡、插入字卡、精彩片段、短影音、特殊需求。圖卡可加素材編號，例如 <code>220-336 圖卡 G05</code>；未指定的素材可以之後再補。</div>
-  <div class="fast-mark-preview"><div class="fast-mark-preview-head"><span>套用前確認</span><span id="fastMarkCount">尚未輸入</span></div><div id="fastMarkPreviewList" class="fast-mark-preview-list" role="status" aria-live="polite"><div class="fast-mark-item">輸入範圍後，會顯示對應的台詞與檢查結果</div></div></div>
+ <div class="fast-mark-body">
+  <div id="fastMarkRows" class="fast-mark-rows" aria-label="快速標示項目"></div>
+  <button type="button" id="fastMarkAddRow" class="fast-add-row">＋ 新增一段</button>
+  <textarea id="fastMarkCommands" hidden aria-hidden="true" tabindex="-1"></textarea>
+  <div class="fast-mark-summary" aria-live="polite"><strong>確認標示</strong><span id="fastMarkCount">尚未輸入</span></div>
+  <div id="fastMarkPreviewList" class="visually-hidden" aria-live="off"></div>
  </div>
  <div class="fast-mark-footer"><button type="button" class="fast-mark-apply" id="fastMarkApply" disabled>建立標示</button><button type="button" class="fast-mark-cancel" id="fastMarkCancel">取消</button></div>
 </div>
@@ -695,6 +728,29 @@ function nextAssetCode(){let n=1;while(assets.some(x=>x.code==='G'+String(n).pad
 function prettyText(a){const i=rows.find(r=>r.uid===a.rowIds[0]),j=rows.find(r=>r.uid===a.rowIds.at(-1));return i?.start?asClock(i.start)+'–'+asClock(j?.end):'Lines '+(i?.seq||'?')+'–'+(j?.seq||'?')}
 function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').value||'未命名節目',sourceName,sourceType,sourceRawText,originalDocxBase64,rows,assets,annotations,redNotes,preset:PRESET}}
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
+
+let jumpTimer=null;
+function jumpToSubtitle(number){
+ const raw=String(number??'').trim();
+ if(!/^\d{1,6}$/.test(raw)){toast('請輸入逐字稿左側的字幕編號');return false}
+ if(!rows.length){toast('請先上傳逐字稿');return false}
+ const target=Number(raw),indices=rows.map((r,i)=>Number(r.seq||i+1)===target?i:-1).filter(i=>i>=0);
+ if(indices.length!==1){toast(indices.length?'這個字幕編號重複，無法精確跳轉':`找不到字幕編號 ${target}`);return false}
+ // 搜尋篩選可能讓字幕從畫面消失；跳轉時先恢復完整逐字稿。
+ if($('searchInput').value.trim()){$('searchInput').value='';searchOpen=false;replaceExpanded=false;searchActiveIndex=0;recomputeSearchRecords();refreshSearchPanel();renderRows()}
+ document.querySelectorAll('.txrow.jump-target').forEach(el=>el.classList.remove('jump-target'));
+ const i=indices[0],el=$('transcript').querySelector(`.txrow[data-i="${i}"]`);
+ if(!el){toast('暫時無法定位這段字幕');return false}
+ // 不採用長距離 smooth 動畫，確保跳至第 800 段也能立即抵達。
+ el.scrollIntoView({block:'center',behavior:'instant'});
+ el.classList.add('jump-target');clearTimeout(jumpTimer);
+ jumpTimer=setTimeout(()=>el.classList.remove('jump-target'),2300);
+ $('jumpInput').value=String(target);
+ return true;
+}
+$('jumpGo').addEventListener('click',()=>jumpToSubtitle($('jumpInput').value));
+$('jumpInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();jumpToSubtitle(e.currentTarget.value)}else if(e.key==='Escape'){e.currentTarget.blur()}});
+
 function selectionIndices(){return [...selected].sort((a,b)=>a-b)}
 function setSelection(set){selected=new Set(set);paintSelection();renderInspector()}
 function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0&&!window._showInspector&&!editId);
@@ -1426,11 +1482,70 @@ function quickCue(type){
 
 // 快速標示支援長字幕範圍，採「只新增、不切換取消」以避免重複輸入時誤撤銷。
 let fastMarkOpen=false,fastMarkPlans=[];
+let fastRowNextId=1,fastRows=[newFastRow()];
+function newFastRow(){return {id:fastRowNextId++,from:'',to:'',kind:'cut',assetId:'',detail:''}}
+const FAST_ACTIONS={cut:'剪掉',card:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',captions:'特殊需求',other:'其他備註'};
+function renderFastInputs(){
+ $('fastMarkRows').innerHTML=fastRows.map((r,n)=>{
+  const options=Object.entries(FAST_ACTIONS).map(([k,label])=>`<option value="${k}" ${r.kind===k?'selected':''}>${label}</option>`).join('');
+  const extra=r.kind==='card'?`<div class="fast-extra-field"><label>素材（可以之後再補）</label><select data-fast-id="${r.id}" data-fast-field="assetId"><option value="">稍後指定圖卡</option>${assets.map(a=>`<option value="${escapeHtml(a.id)}" ${r.assetId===a.id?'selected':''}>${escapeHtml(a.code+' · '+(a.pptSource?'第'+a.slideNumber+'頁':a.name))}</option>`).join('')}</select></div>`:
+   ['textcard','captions','other'].includes(r.kind)?`<div class="fast-extra-field"><label>${r.kind==='textcard'?'字卡文字':'處理說明'}（可以之後再補）</label><input type="text" data-fast-id="${r.id}" data-fast-field="detail" placeholder="${r.kind==='textcard'?'輸入要呈現的文字':'補充需求'}" value="${escapeHtml(r.detail)}"></div>`:'';
+  return `<div class="fast-range-row" data-fast-row="${r.id}"><div class="fast-range-row-head"><span>標示 ${String(n+1).padStart(2,'0')}</span></div><div class="fast-range-fields"><div><label for="fast-from-${r.id}">起點字幕</label><input id="fast-from-${r.id}" type="text" inputmode="numeric" placeholder="例如 220" data-fast-id="${r.id}" data-fast-field="from" value="${escapeHtml(r.from)}"></div><div class="fast-range-arrow">—</div><div><label for="fast-to-${r.id}">終點字幕</label><input id="fast-to-${r.id}" type="text" inputmode="numeric" placeholder="例如 336" data-fast-id="${r.id}" data-fast-field="to" value="${escapeHtml(r.to)}"></div><div class="fast-kind-col"><label for="fast-kind-${r.id}">標示類型</label><select id="fast-kind-${r.id}" data-fast-id="${r.id}" data-fast-field="kind">${options}</select></div><button type="button" class="fast-row-delete" data-fast-remove="${r.id}" aria-label="移除這一列" title="移除這一列" ${fastRows.length===1?'disabled':''}>×</button></div>${extra}<div class="fast-row-preview" data-fast-preview="${r.id}">填入起點和終點，立即預覽字幕</div></div>`;
+ }).join('');
+}
+function syncFastInputs(){
+ const commands=[];
+ for(const r of fastRows){
+  if(!r.from.trim()&&!r.to.trim())continue;
+  let cmd=`${r.from.trim()}${r.to.trim()&&r.to.trim()!==r.from.trim()?'-'+r.to.trim():''} ${FAST_ACTIONS[r.kind]||'剪掉'}`;
+  if(r.kind==='card'&&r.assetId){const a=assetById(r.assetId);cmd+=' '+(a?.code||'【素材已移除】')}
+  if(['textcard','captions','other'].includes(r.kind)&&r.detail.trim())cmd+='：'+r.detail.trim().replace(/\n/g,' ');
+  commands.push(cmd);
+ }
+ $('fastMarkCommands').value=commands.join('\n');
+}
+function paintFastRowPreviews(plans){
+ let cursor=0;
+ for(const r of fastRows){const el=$('fastMarkRows').querySelector(`[data-fast-preview="${r.id}"]`);if(!el)continue;
+  const started=!!r.from.trim()||!!r.to.trim();
+  if(!started){el.className='fast-row-preview';el.textContent='填入字幕編號後，這裡會顯示對應台詞';continue}
+  const p=plans[cursor++];if(!p){el.textContent='請輸入完整的字幕編號';continue}
+  const error=!!p.errors?.length;
+  el.className='fast-row-preview'+(error?' error':p.warnings?.length?' warn':'');
+  const samples=p.start!==undefined?`「${rows[p.start]?.text?.slice(0,37)||''}」${p.start!==p.end?' → 「'+(rows[p.end]?.text?.slice(0,37)||'')+'」':''}`:'';
+  const summary=p.from!==undefined?`字幕 ${p.from}${p.from===p.to?'':'–'+p.to}${p.start!==undefined?'　'+asClock(rows[p.start]?.start)+'–'+asClock(rows[p.end]?.end):''}`:'範圍格式錯誤';
+  el.innerHTML=`<strong>${escapeHtml(summary)}</strong>${samples?`<div>${escapeHtml(samples)}</div>`:''}${(p.errors||[]).map(a=>`<div>${escapeHtml(a)}</div>`).join('')}${(p.warnings||[]).map(a=>`<div>${escapeHtml(a)}</div>`).join('')}`;
+ }
+}
+$('fastMarkRows').addEventListener('input',e=>{
+ const el=e.target.closest('[data-fast-field]');if(!el)return;
+ const r=fastRows.find(x=>x.id===Number(el.dataset.fastId));if(!r)return;
+ r[el.dataset.fastField]=el.value;
+ updateFastMarkPreview();
+});
+$('fastMarkRows').addEventListener('change',e=>{
+ const el=e.target.closest('[data-fast-field]');if(!el)return;
+ const r=fastRows.find(x=>x.id===Number(el.dataset.fastId));if(!r)return;
+ r[el.dataset.fastField]=el.value;
+ if(el.dataset.fastField==='kind')renderFastInputs();
+ updateFastMarkPreview();
+});
+$('fastMarkRows').addEventListener('click',e=>{
+ const b=e.target.closest('[data-fast-remove]');if(!b)return;
+ fastRows=fastRows.filter(r=>r.id!==Number(b.dataset.fastRemove));if(!fastRows.length)fastRows=[newFastRow()];
+ renderFastInputs();updateFastMarkPreview();
+});
+$('fastMarkAddRow').addEventListener('click',()=>{
+ if(fastRows.length>=80){toast('一次最多建立 80 則標示');return}
+ const row=newFastRow();fastRows.push(row);renderFastInputs();updateFastMarkPreview();
+ $('fastMarkRows').querySelector(`#fast-from-${row.id}`)?.focus();
+});
+
 function setFastMarkOpen(open){
  fastMarkOpen=!!open;
  const panel=$('fastMarkPanel'),btn=$('fastMarkBtn');
  panel.classList.toggle('hidden',!fastMarkOpen);btn.setAttribute('aria-expanded',String(fastMarkOpen));
- if(fastMarkOpen){closeCueManager();$('toolBar').classList.remove('open');updateFastMarkPreview();requestAnimationFrame(()=>$('fastMarkCommands').focus());}
+ if(fastMarkOpen){closeCueManager();$('toolBar').classList.remove('open');renderFastInputs();updateFastMarkPreview();requestAnimationFrame(()=>$('fastMarkRows').querySelector('[data-fast-field=from]')?.focus());}
  else {if(selected.size&&!window._showInspector&&!editId)paintSelection();btn.focus()}
 }
 function parseFastMarkLine(line,lineNumber,seqIndex,ambiguous){
@@ -1474,6 +1589,7 @@ function parseFastMarkLine(line,lineNumber,seqIndex,ambiguous){
  return base;
 }
 function prepareFastMarkPlans(){
+ syncFastInputs();
  const text=$('fastMarkCommands').value;
  const commands=text.split(/\r?\n/).map((value,i)=>({value:value.trim(),line:i+1})).filter(x=>x.value);
  const seqIndex=new Map(),ambiguous=new Set();
@@ -1493,7 +1609,7 @@ function prepareFastMarkPlans(){
 }
 function updateFastMarkPreview(){
  if(!fastMarkOpen)return;
- const plans=prepareFastMarkPlans();fastMarkPlans=plans;
+ const plans=prepareFastMarkPlans();fastMarkPlans=plans;paintFastRowPreviews(plans);
  const errors=plans.filter(p=>p.errors?.length),ready=plans.filter(p=>p.ids&&!p.errors?.length&&!p.skip);
  $('fastMarkCount').textContent=plans.length?(errors.length?`${errors.length} 則需修正`:`可建立 ${ready.length} 則`):'尚未輸入';
  $('fastMarkApply').disabled=!ready.length||!!errors.length;
@@ -1525,15 +1641,15 @@ function applyFastMarkPlans(){
  }
  mergeContiguousCuts();for(const k of ['highlight','short'])mergeAdjacentQuickCues(k);
  editId=null;window._showInspector=false;setSelection([]);refreshAll();markDirty();
- setFastMarkOpen(false);$('fastMarkCommands').value='';
+ setFastMarkOpen(false);fastRows=[newFastRow()];$('fastMarkCommands').value='';
  const el=$('transcript').querySelector(`.txrow[data-i="${firstIndex}"]`);if(el)el.scrollIntoView({block:'center',behavior:'smooth'});
  toast(`已新增 ${created} 則標示${pending?' · '+pending+' 則內容待補':''} · Ctrl+Z 可整批復原`);
 }
 $('fastMarkBtn').addEventListener('click',()=>{if(!rows.length){toast('請先匯入逐字稿');return}setFastMarkOpen(!fastMarkOpen)});
 $('fastMarkClose').addEventListener('click',()=>setFastMarkOpen(false));
 $('fastMarkCancel').addEventListener('click',()=>setFastMarkOpen(false));
-$('fastMarkCommands').addEventListener('input',updateFastMarkPreview);
-$('fastMarkCommands').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setFastMarkOpen(false)}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();applyFastMarkPlans()}});
+
+$('fastMarkRows').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();setFastMarkOpen(false)}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();applyFastMarkPlans()}});
 $('fastMarkApply').addEventListener('click',applyFastMarkPlans);
 document.addEventListener('pointerdown',e=>{if(fastMarkOpen&&!e.target.closest('#fastMarkPanel,#fastMarkBtn'))setFastMarkOpen(false)});
 
