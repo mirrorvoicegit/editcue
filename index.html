@@ -497,7 +497,28 @@ html,body,.shell{background:#fff!important}
 .txrow.range-preview.preview-short:not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #B42027!important}
 .txrow.range-preview.preview-card,.txrow.range-preview.preview-visual,.txrow.range-preview.preview-textcard{background:#FFF26B!important;box-shadow:inset 4px 0 #111!important}
 @media(max-width:720px){.txrow{grid-template-columns:62px minmax(0,1fr) 24px!important}.range-handle-group{grid-column:3}}
+/* 剪掉區間首尾都能找到調整點；顏色只用黑白線條，避免與標示色混淆。 */
+.range-handle-group .range-handle{border:1px solid #111!important;background:#fff!important;color:#111!important;cursor:ns-resize!important}
+.range-handle-group .range-handle:hover{background:#111!important;color:#fff!important}
+.tool.cut-undo-selection{font-weight:800;border-left:1px solid #111!important}
+.tool.cut-undo-selection[hidden]{display:none!important}
 
+/* 只在使用者有需要時出現管理面板；保留黑線與純白的工作台語言。 */
+#toolBar{max-width:calc(100vw - 16px)!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:thin!important}
+#manageCuesBtn{border:1.5px solid #111!important;color:#111!important;background:#fff!important;font-weight:750!important}
+#manageCuesBtn:hover,#manageCuesBtn[aria-expanded="true"]{color:#fff!important;background:#111!important}
+#manageCuesBtn[hidden]{display:none!important}
+.cue-manage-panel{position:fixed;z-index:7000;width:min(420px,calc(100vw - 24px));max-height:min(520px,75vh);overflow:auto;background:#fff;border:2px solid #111;color:#111;box-shadow:5px 5px 0 #111;padding:0;overscroll-behavior:contain}
+.cue-manage-head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding:12px 14px;gap:12px}
+.cue-manage-head b{font-size:14px}.cue-manage-head small{font-size:11px;font-weight:500;color:#555}
+.cue-manage-close{border:0;background:#fff;color:#111;font-size:20px;line-height:1;padding:2px 6px}
+.cue-manage-list{display:grid;gap:0}.cue-manage-item{padding:12px 14px;border-bottom:1px solid #111;display:grid;gap:8px}
+.cue-manage-item:last-child{border-bottom:0}.cue-manage-name{font-weight:750;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.cue-manage-scope{font-size:11px;color:#555;line-height:1.4}.cue-manage-actions{display:flex;gap:8px}
+.cue-manage-actions button{font-size:12px;font-weight:700;min-height:33px;padding:5px 12px;border:1.5px solid #111;background:#fff;color:#111;flex:1}
+.cue-manage-actions .cue-cancel{color:#fff;background:#111}.cue-manage-actions button:hover{outline:2px solid #111;outline-offset:2px}
+.cue-manage-help{font-size:11px;color:#555;padding:10px 14px;border-top:1px solid #111}
+@media(max-width:720px){.cue-manage-panel{max-height:55vh;box-shadow:3px 3px 0 #111}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -519,10 +540,12 @@ html,body,.shell{background:#fff!important}
  <div class="search-replace" id="searchReplace"><label for="replaceInput">取代為</label><input id="replaceInput" type="text" placeholder="輸入正確文字" autocomplete="off"><div class="search-replace-actions"><button type="button" id="replaceOne">取代這一筆</button><button type="button" id="replaceAll">全部取代</button></div><span class="search-replace-hint">僅修改台詞，不更動字幕編號與時間碼 · 可復原</span></div>
  </div></div><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
    <div class="tools" id="toolBar" role="toolbar" aria-label="選取文字後的標示工具">
-    <button class="tool" data-kind="cut" title="灰底、台詞刪除線">✕ <span>剪掉</span></button>
+    <button class="tool cue-manage-trigger" id="manageCuesBtn" type="button" aria-expanded="false" aria-controls="cueManagePanel" title="查看、修改或取消這一段的標示" hidden>☷ <span>管理／取消標示</span></button>
+     <button class="tool" data-kind="cut" title="未標示時剪掉；已標示時可取消" aria-label="剪掉">✕ <span>剪掉</span></button>
     <button class="tool" data-kind="highlight" title="選取精彩片段">✧ <span>精彩片段</span></button><button class="tool" data-kind="short" title="選取短影音範圍；以文字顏色標記，不額外增加底色">▸ <span>短影音</span></button><button class="tool" data-kind="textcard" title="指定插入字卡及文字內容">▤ <span>插入字卡</span></button>
     <button class="tool" data-kind="captions" title="說明後製特效，也可以附上參考圖片">✎ <span>特殊需求</span></button>
     <button class="tool" data-kind="red-note" title="在選取段落後插入醒目備註">＋ <span>其他備註</span></button>
+     
    </div>
    <div class="selectionstrip"><span id="selectionInfo">點選台詞或反白選字</span><button id="selectAllBtn" class="hidden" title="選取所有字幕段落">全選</button></div>
    <div class="transcript" id="transcript"><div class="blank" id="emptyState"><div class="blankicon"><svg class="ic" style="width:29px;height:29px"><use href="#i-file"/></svg></div><h2>請上傳檔案</h2><label class="blankbtn native-upload">選擇檔案<input class="native-upload-input" type="file" data-native-upload="all" accept=".docx,.srt,.vtt,.txt,.json,.pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple aria-label="選擇檔案上傳"></label><span class="blanksmall">可上傳逐字稿、圖片、PPTX、PDF 與工作檔（JSON）</span></div></div>
@@ -537,6 +560,7 @@ html,body,.shell{background:#fff!important}
 </div>
 </div>
 
+<div id="cueManagePanel" class="cue-manage-panel hidden" role="dialog" aria-label="管理目前選取範圍的標示"></div>
 <div id="previewModal" class="preview-modal" aria-hidden="true" role="dialog" aria-label="圖片預覽">
  <div class="preview-surface"><button class="preview-close" id="previewClose" aria-label="關閉圖片預覽">×</button><img id="previewImage" alt="圖卡預覽"><div id="previewCaption"></div></div>
  </div><div id="toast" class="toast hidden" role="status"></div>
@@ -567,8 +591,8 @@ const HISTORY_MAX=60;
 function historySnapshot(){return JSON.stringify({annotations,redNotes,editedRows:rows.map(r=>({uid:r.uid,text:r.text,editedText:r.editedText}))});}
 function updateUndoButtons(){if($('undoBtn'))$('undoBtn').disabled=!undoStack.length;if($('redoBtn'))$('redoBtn').disabled=!redoStack.length}
 function pushUndo(){undoStack.push(historySnapshot());if(undoStack.length>HISTORY_MAX)undoStack.shift();redoStack=[];updateUndoButtons()}
-function undoAction(){if(!undoStack.length)return;redoStack.push(historySnapshot());const h=JSON.parse(undoStack.pop());annotations=h.annotations;redNotes=h.redNotes;if(h.editedRows){const byId=new Map(h.editedRows.map(r=>[r.uid,r]));for(const r of rows){const old=byId.get(r.uid);if(old){r.text=old.text;r.editedText=old.editedText}}}setSelection([]);refreshAll();markDirty();updateUndoButtons();toast('已復原')}
-function redoAction(){if(!redoStack.length)return;undoStack.push(historySnapshot());const h=JSON.parse(redoStack.pop());annotations=h.annotations;redNotes=h.redNotes;setSelection([]);refreshAll();markDirty();updateUndoButtons();toast('已重做')}
+function undoAction(){if(!undoStack.length)return;closeCueManager();redoStack.push(historySnapshot());const h=JSON.parse(undoStack.pop());annotations=h.annotations;redNotes=h.redNotes;if(h.editedRows){const byId=new Map(h.editedRows.map(r=>[r.uid,r]));for(const r of rows){const old=byId.get(r.uid);if(old){r.text=old.text;r.editedText=old.editedText}}}setSelection([]);refreshAll();markDirty();updateUndoButtons();toast('已復原')}
+function redoAction(){if(!redoStack.length)return;undoStack.push(historySnapshot());const h=JSON.parse(redoStack.pop());annotations=h.annotations;redNotes=h.redNotes;if(h.editedRows){const byId=new Map(h.editedRows.map(r=>[r.uid,r]));for(const r of rows){const old=byId.get(r.uid);if(old){r.text=old.text;r.editedText=old.editedText}}}closeCueManager();setSelection([]);refreshAll();markDirty();updateUndoButtons();toast('已重做')}
 function newCueId(){return 'cue'+Date.now()+Math.random().toString(36).slice(2)}
 function rowIsCut(uid){return annotations.some(a=>a.kind==='cut'&&a.rowIds.includes(uid))}
 function rowIsShort(uid){return !rowIsCut(uid)&&annotations.some(a=>a.kind==='short'&&a.rowIds.includes(uid))}
@@ -599,7 +623,22 @@ function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').v
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
 function selectionIndices(){return [...selected].sort((a,b)=>a-b)}
 function setSelection(set){selected=new Set(set);paintSelection();renderInspector()}
-function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0);if(s.length&&rows.length)positionSelectionTools();$('pickedCount').textContent=s.length+' 段';$('selectionInfo').textContent=s.length?(s.length+' 段已選取 · '+(rows[s[0]]?.start?asClock(rows[s[0]].start)+' → '+asClock(rows[s.at(-1)].end):'段 '+(s[0]+1)+'–'+(s.at(-1)+1))):'點選台詞 · Shift 可連選';$('clearBtn').style.visibility=s.length?'visible':'hidden';$('selectAllBtn').classList.toggle('hidden',!rows.length);for(const el of $('transcript').querySelectorAll('.txrow')){const i=+el.dataset.i,hit=selected.has(i);el.classList.toggle('selected',hit);el.classList.toggle('sel-first',hit&&!selected.has(i-1));el.classList.toggle('sel-last',hit&&!selected.has(i+1));}}
+function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0);
+ const cutCount=s.filter(i=>rows[i]&&rowIsCut(rows[i].uid)).length;
+ const cutTool=$('toolBar').querySelector('[data-kind="cut"]'),cutText=cutTool?.querySelector('span');
+ const allCut=s.length>0&&cutCount===s.length;
+ if(cutText)cutText.textContent=allCut?'取消剪掉':'剪掉';
+ if(cutTool){cutTool.title=allCut?'取消選取範圍的剪掉標示':cutCount?'補上尚未標示剪掉的字幕':'將選取範圍標示為剪掉';cutTool.setAttribute('aria-label',allCut?'取消剪掉':'剪掉')}
+
+ // 快速標示的所有字幕已套用時，同一個按鈕會明確寫出「取消」，混合狀態只會補上標示。
+ for(const kind of ['highlight','short']){const button=$('toolBar').querySelector(`[data-kind="${kind}"]`),text=button?.querySelector('span');if(!button||!text)continue;
+  const count=s.filter(i=>annotations.some(a=>a.kind===kind&&a.rowIds.includes(rows[i].uid))).length;
+  const full=s.length>0&&count===s.length;const label=kind==='highlight'?'精彩片段':'短影音';
+  text.textContent=full?'取消'+label:label;button.title=full?'取消選取範圍的'+label:'標記'+label;
+ }
+ const manage=$('manageCuesBtn');if(manage)manage.hidden=!(s.length&&currentSelectionCues().length);
+ if(!s.length)closeCueManager();else if(cueManagerOpen)renderCueManager();
+ if(s.length&&rows.length)positionSelectionTools();$('pickedCount').textContent=s.length+' 段';$('selectionInfo').textContent=s.length?(s.length+' 段已選取 · '+(rows[s[0]]?.start?asClock(rows[s[0]].start)+' → '+asClock(rows[s.at(-1)].end):'段 '+(s[0]+1)+'–'+(s.at(-1)+1))):'點選台詞 · Shift 可連選';$('clearBtn').style.visibility=s.length?'visible':'hidden';$('selectAllBtn').classList.toggle('hidden',!rows.length);for(const el of $('transcript').querySelectorAll('.txrow')){const i=+el.dataset.i,hit=selected.has(i);el.classList.toggle('selected',hit);el.classList.toggle('sel-first',hit&&!selected.has(i-1));el.classList.toggle('sel-last',hit&&!selected.has(i+1));}}
 function toggleRow(index,e={}){if(e.shiftKey&&anchor>=0){const a=Math.min(anchor,index),b=Math.max(anchor,index),n=e.metaKey||e.ctrlKey?new Set(selected):new Set();for(let x=a;x<=b;x++)n.add(x);setSelection(n)}else if(e.metaKey||e.ctrlKey){let n=new Set(selected);n.has(index)?n.delete(index):n.add(index);setSelection(n);anchor=index}else{if(selected.size===1&&selected.has(index)){setSelection([])}else setSelection([index]);anchor=index}}
 function annotationsForRow(id){return noteOrder().filter(a=>a.rowIds.includes(id))}
 function visualCardFor(uid){return noteOrder().find(a=>(a.kind==='card'||a.kind==='visual')&&a.rowIds.includes(uid))}
@@ -615,7 +654,10 @@ function rowMarkup(r,i){
  // 每種區間需求都能從末端調整範圍；同一句若有兩種需求，分別顯示把手。
  const adjustable=['cut','highlight','short','card','visual','textcard'];
  const endingCues=anns.filter(a=>adjustable.includes(a.kind)&&sourceRowAt(a)?.last?.uid===r.uid);
- const rangeControls=endingCues.length?`<div class="range-handle-group">${endingCues.map(a=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" type="button" aria-label="調整${escapeHtml(findKind(a.kind).label)}範圍" title="拖曳調整${escapeHtml(findKind(a.kind).label)}的結束字幕">↕</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
+ // 長範圍的第一句也放置把手，避免末句在螢幕外時無法調整。
+ const firstCutCues=anns.filter(a=>a.kind==='cut'&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
+ const rangeHandles=[...firstCutCues,...endingCues];
+ const rangeControls=rangeHandles.length?`<div class="range-handle-group">${rangeHandles.map(a=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" type="button" aria-label="調整${escapeHtml(findKind(a.kind).label)}範圍" title="拖曳調整${escapeHtml(findKind(a.kind).label)}的結束字幕">↕</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
  // 標示分軌：片段用途（短影音／精彩片段）、畫面素材（圖卡／字卡）、處理說明。
  // 當短影音和圖卡重疊時，短影音台詞顯示紅字，圖卡仍維持唯一的黃色底色。
@@ -750,10 +792,10 @@ host.innerHTML=`<div class="clipmeta"><span style="font-size:20px">${chosen==='c
 ${chosen==='card'||chosen==='visual'?`<div class="field"><label class="fieldlabel" for="noteAsset">圖卡</label><select id="noteAsset"><option value="">選擇圖卡（可選填）</option>${assets.map(a=>`<option value="${escapeHtml(a.id)}" ${(editing?.assetId||assetChoice)===a.id?'selected':''}>${escapeHtml(a.code+' · '+a.name)}</option>`).join('')}</select></div>`:''}
 ${chosen==='captions'?`<div class="field"><span class="fieldlabel">參考圖片（選填）</span><div class="reference-drop" id="referenceDrop" tabindex="0">${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId))?`<img src="${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).dataUrl}" alt="參考圖片"><span> ${escapeHtml(assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).name)}</span><button type="button" id="clearReference">×</button>`:'拖曳、貼上參考圖，或按下面的按鈕上傳'}</div><div class="reference-actions"><label class="ref-native-pick" for="referenceImageInput" id="browseReference" role="button" tabindex="0" title="從電腦選取圖片">選取檔案</label><button class="subtle" type="button" id="pasteReference" title="貼上剪貼簿的圖片">貼上圖片</button></div><div class="reference-feedback" id="referenceFeedback" role="status">點一下虛線框後，按 Ctrl+V 也可以貼上圖片</div></div>`:''}
 <div class="field"><label class="fieldlabel" for="noteTitle">備註名稱（選填）</label><input id="noteTitle" placeholder="${chosen==='move'?'例如：移到第三段前':chosen==='card'?'圖卡標題':'備註名稱'}" value="${escapeHtml(editing?.title||'')}"></div>
-<div class="applyrow"><button class="apply" id="applyCue">${editing?'儲存修改':'新增標示'}</button><button class="subtle" id="cancelCue">取消</button></div>${editing?'<button class="delete" id="deleteCue">刪除此標示</button>':''}`;
+<div class="applyrow"><button class="apply" id="applyCue">${editing?'儲存修改':'新增標示'}</button><button class="subtle" id="cancelCue">取消</button></div>${editing?'<button class="delete" id="deleteCue" title="只取消這一則標示，其他需求不受影響">取消這則標示</button>':''}`;
 $('pasteReference')?.addEventListener('click',pasteReferenceFromClipboard);$('browseReference')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('referenceImageInput').click()}});$('referenceDrop')?.addEventListener('click',e=>{if(!e.target.closest('button'))e.currentTarget.focus()});$('clearReference')?.addEventListener('click',()=>{referenceChoice='__CLEAR__';renderInspector()});$('applyCue').onclick=applyCue;$('cancelCue').onclick=()=>{editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);renderInspector()};requestAnimationFrame(positionInspector);if(editing)$('deleteCue').onclick=()=>{pushUndo();annotations=annotations.filter(a=>a.id!==editing.id);editId=null;setSelection([]);refreshAll();markDirty();toast('標示已移除')};}
 function applyCue(){const s=selectionIndices(),previous=annotations.find(a=>a.id===editId);if(!s.length){toast('請先選取逐字稿段落');return}const type=previous?.kind||kindId,detail=$('noteDetail').value.trim(),assetId=$('noteAsset')?.value||'',title=$('noteTitle').value.trim();if(type==='move'&&!detail){toast('Specify where this section should move');$('noteDetail').focus();return}if(type==='card'&&!detail&&!assetId&&!title){toast('Choose a graphic or enter an instruction');return}
-const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail,title,reference:'',assetId,referenceAssetId:type==='captions'?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
+const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail,title,reference:'',assetId,referenceAssetId:type==='captions'?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
 function insertGraphic(id,inds=selectionIndices()){
  if(!inds.length){assetChoice=id;setKind('card');toast('請先選取逐字稿，或將圖片拖入指定台詞');return}
  const a=assetById(id);if(!a)return;
@@ -771,7 +813,7 @@ function insertGraphic(id,inds=selectionIndices()){
  annotations.push({id:'cue'+Date.now()+Math.random().toString(36).slice(2),kind:'card',title:a.name,detail:'',reference:'',assetId:id,rowIds:ids});
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
 }
-function editCue(id){const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
+function editCue(id){closeCueManager();const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
 function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
 function importText(text,name='Pasted transcript'){const s=safeText(text);if(!s.trim())return; if(rows.length&&!confirm('Replace current transcript with pasted text? Save your draft first if needed.'))return;parsePlain(s);const loadedRows=rows;loadContent({title:name,source:name,loadedRows,rawSource:s,inputType:'txt'});toast(loadedRows.length+' 段已匯入')}
 function saveProject(){if(!rows.length&&!assets.length){toast('尚無可儲存的資料');return}download(cleanFileName($('docTitle').value)+'.editcue.json',new Blob([JSON.stringify(serializable())],{type:'application/json;charset=utf-8'}));toast('工作檔已儲存')}
@@ -1176,18 +1218,105 @@ function replaceExcludedIds(blockedIds){
  // 剪掉的台詞不再承載其他標示；被中斷的原有範圍自動分成兩段。
  annotations=annotations.flatMap(a=>a.kind==='cut'?[a]:splitContiguousCue(a,a.rowIds.filter(id=>!blockedIds.has(id))));
 }
+function mergeContiguousCuts(){
+ // 把互相重疊或相鄰的刪除範圍整理成一筆，保留原有剪輯說明及最早的標示 ID。
+ const other=annotations.filter(a=>a.kind!=='cut'),cuts=annotations.filter(a=>a.kind==='cut');
+ const indexed=cuts.map(a=>({cue:a,idx:[...new Set(a.rowIds)].map(uid=>rows.findIndex(r=>r.uid===uid)).filter(i=>i>=0).sort((x,y)=>x-y)})).filter(x=>x.idx.length).sort((a,b)=>a.idx[0]-b.idx[0]);
+ const merged=[];
+ for(const item of indexed){
+  const last=merged.at(-1),start=item.idx[0];
+  if(last&&start<=last.last+1){
+   const union=new Set([...last.indices,...item.idx]);last.indices=[...union].sort((a,b)=>a-b);last.last=last.indices.at(-1);
+   for(const key of ['detail','title']){const a=(last.cue[key]||'').trim(),b=(item.cue[key]||'').trim();if(b&&!a)last.cue[key]=b;else if(b&&a!==b&&!a.split('；').includes(b))last.cue[key]=a+'；'+b;}
+  }else merged.push({cue:{...item.cue},indices:[...item.idx],last:item.idx.at(-1)});
+ }
+ annotations=[...other,...merged.map(x=>({...x.cue,rowIds:x.indices.map(i=>rows[i].uid)}))];
+}
+let cueManagerOpen=false;
+function currentSelectionCues(){
+ const ids=new Set(selectionIndices().map(i=>rows[i]?.uid).filter(Boolean));
+ if(!ids.size)return [];
+ const cues=noteOrder().filter(a=>a.rowIds.some(uid=>ids.has(uid))).map(a=>({type:'cue',id:a.id,info:a}));
+ const notes=redNotes.filter(n=>n.afterUid&&ids.has(n.afterUid)).map(n=>({type:'red-note',id:n.id,info:n}));
+ return [...cues,...notes];
+}
+function closeCueManager(){cueManagerOpen=false;const panel=$('cueManagePanel');if(panel){panel.classList.add('hidden');panel.innerHTML=''}const b=$('manageCuesBtn');if(b)b.setAttribute('aria-expanded','false')}
+function positionCueManager(){
+ const panel=$('cueManagePanel'),button=$('manageCuesBtn');if(!panel||!button||!cueManagerOpen)return;
+ const rect=button.getBoundingClientRect(),width=panel.offsetWidth,height=panel.offsetHeight;
+ panel.style.left=Math.max(10,Math.min(innerWidth-width-10,rect.left))+'px';
+ let top=rect.bottom+9;if(top+height>innerHeight-10)top=Math.max(10,rect.top-height-9);
+ panel.style.top=Math.max(10,Math.min(innerHeight-height-10,top))+'px';
+}
+function renderCueManager(){
+ const panel=$('cueManagePanel');if(!panel||!cueManagerOpen)return;
+ const items=currentSelectionCues(),chosen=new Set(selectionIndices().map(i=>rows[i]?.uid));
+ if(!items.length){closeCueManager();return}
+ const selections=selectionIndices(),first=rows[selections[0]],last=rows[selections.at(-1)];
+ const scope=first&&last?`字幕 ${first.seq||selections[0]+1}${first.uid===last.uid?'':'–'+(last.seq||selections.at(-1)+1)}`:'已選取範圍';
+ panel.innerHTML=`<div class="cue-manage-head"><div><b>管理已套用標示</b><br><small>${escapeHtml(scope)} · ${items.length} 則</small></div><button type="button" class="cue-manage-close" data-manage-close aria-label="關閉標示管理">×</button></div><div class="cue-manage-list">${items.map(item=>{
+  if(item.type==='red-note')return `<div class="cue-manage-item"><div class="cue-manage-name">其他備註｜${escapeHtml(item.info.text||'空白備註')}</div><div class="cue-manage-actions"><button type="button" class="cue-cancel" data-manage-remove-note="${escapeHtml(item.id)}">取消這則備註</button></div></div>`;
+  const a=item.info,count=a.rowIds.filter(id=>chosen.has(id)).length,all=a.rowIds.length===count;
+  const asset=assetById(a.assetId),label=findKind(a.kind).label+(asset?' · '+asset.name:'');
+  return `<div class="cue-manage-item"><div class="cue-manage-name">${escapeHtml(label)}</div><div class="cue-manage-scope">${escapeHtml(cueRangeLabel(a))}</div><div class="cue-manage-actions"><button type="button" data-manage-edit="${escapeHtml(item.id)}">修改</button><button type="button" class="cue-cancel" data-manage-remove="${escapeHtml(item.id)}">${all?'取消這則標示':`取消所選 ${count} 段`}</button></div></div>`;
+ }).join('')}</div><div class="cue-manage-help">只取消指定標示，其他重疊需求會保留。誤刪可按 Ctrl+Z 復原。</div>`;
+ panel.classList.remove('hidden');requestAnimationFrame(positionCueManager);
+}
+function cancelCueSelection(id,selectedIds){
+ const cue=annotations.find(a=>a.id===id);if(!cue)return;
+ const selectedSet=new Set(selectedIds),hit=cue.rowIds.filter(uid=>selectedSet.has(uid));if(!hit.length)return;
+ pushUndo();annotations=annotations.flatMap(a=>a.id===id?splitContiguousCue(a,a.rowIds.filter(uid=>!selectedSet.has(uid))):[a]);
+ if(cue.kind==='cut')mergeContiguousCuts();
+ cachedNoteOrder=null;closeCueManager();window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(`已取消${findKind(cue.kind).label}的 ${hit.length} 段標示 · 可復原`);
+}
+function cancelKindForIds(kind,ids){
+ const target=new Set(ids),affected=annotations.filter(a=>a.kind===kind&&a.rowIds.some(uid=>target.has(uid)));
+ if(!affected.length)return false;
+ pushUndo();annotations=annotations.flatMap(a=>a.kind===kind?splitContiguousCue(a,a.rowIds.filter(uid=>!target.has(uid))):[a]);
+ if(kind==='cut')mergeContiguousCuts();
+ cachedNoteOrder=null;closeCueManager();window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(`已取消${findKind(kind).label} · 可復原`);return true;
+}
+$('manageCuesBtn').addEventListener('click',e=>{e.stopPropagation();cueManagerOpen=!cueManagerOpen;if(cueManagerOpen)renderCueManager();else closeCueManager()});
+$('cueManagePanel').addEventListener('click',e=>{
+ const close=e.target.closest('[data-manage-close]');if(close){closeCueManager();return}
+ const edit=e.target.closest('[data-manage-edit]');if(edit){closeCueManager();editCue(edit.dataset.manageEdit);return}
+ const remove=e.target.closest('[data-manage-remove]');if(remove){const ids=selectionIndices().map(i=>rows[i].uid);cancelCueSelection(remove.dataset.manageRemove,ids);return}
+ const removeNote=e.target.closest('[data-manage-remove-note]');if(removeNote){const id=removeNote.dataset.manageRemoveNote;if(!redNotes.some(n=>n.id===id))return;pushUndo();redNotes=redNotes.filter(n=>n.id!==id);closeCueManager();setSelection([]);refreshAll();markDirty();toast('已取消其他備註 · 可復原')}
+});
+document.addEventListener('pointerdown',e=>{if(cueManagerOpen&&!e.target.closest('#cueManagePanel,#manageCuesBtn'))closeCueManager()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&cueManagerOpen)closeCueManager()});
+window.addEventListener('resize',()=>{if(cueManagerOpen)positionCueManager()});
+function mergeAdjacentQuickCues(kind){
+ const matching=annotations.filter(a=>a.kind===kind&&!a.detail&&!a.title&&!a.assetId&&!a.referenceAssetId),others=annotations.filter(a=>!matching.includes(a));
+ const ordered=matching.map(a=>({cue:a,positions:a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0).sort((x,y)=>x-y)})).filter(x=>x.positions.length).sort((a,b)=>a.positions[0]-b.positions[0]);
+ const groups=[];for(const item of ordered){const prev=groups.at(-1);if(prev&&item.positions[0]<=prev.positions.at(-1)+1){prev.positions=[...new Set([...prev.positions,...item.positions])].sort((a,b)=>a-b)}else groups.push({cue:item.cue,positions:[...item.positions]})}
+ annotations=[...others,...groups.map(x=>({...x.cue,rowIds:x.positions.map(i=>rows[i].uid)}))];
+}
+function cancelCutsForIds(ids){
+ const affected=new Set(ids);
+ if(!annotations.some(a=>a.kind==='cut'&&a.rowIds.some(id=>affected.has(id))))return false;
+ pushUndo();annotations=annotations.flatMap(a=>a.kind==='cut'?splitContiguousCue(a,a.rowIds.filter(id=>!affected.has(id))):[a]);
+ mergeContiguousCuts();window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast('已取消選取範圍的剪掉 · 可復原');return true;
+}
 function quickCue(type){
  const s=selectionIndices();if(!s.length){toast('請先選取逐字稿');return}
  const ids=s.map(i=>rows[i].uid);
  if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再選其他標示');return}
  const covered=new Set(annotations.filter(a=>a.kind===type).flatMap(a=>a.rowIds));
  const fresh=ids.filter(id=>!covered.has(id));
+ // 全選的字幕已經是「剪掉」時，再按一次直接取消；混合選取則補上還未剪的字幕。
+ if(!fresh.length&&['cut','highlight','short'].includes(type)){cancelKindForIds(type,ids);return}
  if(!fresh.length){toast('這個範圍已標示過');setSelection([]);return}
+ if(type==='cut'){
+  const other=annotations.filter(a=>a.kind!=='cut'&&a.rowIds.some(uid=>fresh.includes(uid)));
+  if(other.length&&!confirm(`所選字幕有 ${other.length} 則其他需求。標示「剪掉」會一併移除重疊部分，確定繼續？`))return;
+ }
  pushUndo();
  if(type==='cut')replaceExcludedIds(new Set(fresh));
- // 只有整段的第一句保留標籤，其餘字幕靠底色和刪除線辨識。
  annotations.push(...splitContiguousCue({id:newCueId(),kind:type,detail:'',title:'',reference:'',assetId:'',rowIds:fresh},fresh));
- window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉':'已標示精彩片段');
+ if(type==='cut')mergeContiguousCuts();
+ if(['highlight','short'].includes(type))mergeAdjacentQuickCues(type);
+ window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉（相鄰區間已合併）':type==='short'?'已標示短影音':'已標示精彩片段');
 }
 
 $('toolBar').addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b)return;const k=b.dataset.kind;editId=null;setKind(k);if(k==='red-note'){insertRedNote();return}if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)});
@@ -1326,8 +1455,8 @@ document.addEventListener('pointerup',e=>{
  if(!rangeDrag)return;const range=rangeDrag;rangeDrag=null;document.body.classList.remove('resizing-range');
  clearDropTargets();const a=annotations.find(x=>x.id===range.id);if(!a)return;
  let end=range.end;
- // 只在延長範圍時避開後續不可重疊的需求；原有重疊標示不會被縮短。
- if(end>range.originalEnd){
+ // 延長剪掉時，允許與另一段剪掉相接並自動合併；非刪除需求沿用原本的衝突限制。
+ if(end>range.originalEnd&&a.kind!=='cut'){
   const graphics=['card','visual','textcard'];
   const next=annotations.filter(x=>x.id!==a.id&&(
     (graphics.includes(a.kind)&&graphics.includes(x.kind))||
@@ -1341,6 +1470,7 @@ document.addEventListener('pointerup',e=>{
  pushUndo();
  if(a.kind==='cut')replaceExcludedIds(new Set(newIds));
  a.rowIds=newIds;
+ if(a.kind==='cut')mergeContiguousCuts();
  refreshAll();markDirty();toast(findKind(a.kind).label+'範圍已更新');
 });
 $('searchInput').addEventListener('focus',()=>{searchOpen=true;refreshSearchPanel()});
