@@ -446,7 +446,7 @@ html,body,.shell{background:#fff!important}
 .cue-range-head:hover{text-decoration:underline;text-underline-offset:2px}
 .cue-range-head.kind-cut{color:#262828;font-weight:800}
 .cue-range-head.kind-short{color:#B42027}
-.cue-range-head.kind-highlight{color:#4D28A0}
+.cue-range-head.kind-highlight{color:#6D28D9}
 .cue-range-head.kind-card,.cue-range-head.kind-visual,.cue-range-head.kind-textcard{color:#171717}
 .txrow.range-yellow .cue-range-head.kind-short{color:#94101A}
 #toolBar{position:fixed!important;z-index:1000!important;left:8px;top:8px;right:auto!important;max-width:calc(100vw - 16px)!important;width:max-content;overflow-x:auto;overscroll-behavior:contain;}
@@ -520,14 +520,14 @@ html,body,.shell{background:#fff!important}
 .cue-manage-help{font-size:11px;color:#555;padding:10px 14px;border-top:1px solid #111}
 @media(max-width:720px){.cue-manage-panel{max-height:55vh;box-shadow:3px 3px 0 #111}}
 
-/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=粉紅字。 */
-.txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #DC007B!important}
-.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #DC007B!important}
+/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=紫羅蘭字。 */
+.txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #6D28D9!important}
+.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #6D28D9!important}
 .txrow.ink-textcard:not(.mark-cut) .speech{color:#0054C8!important;font-weight:700!important}
-.txrow.ink-highlight:not(.mark-cut) .speech{color:#D00070!important;font-weight:700!important}
+.txrow.ink-highlight:not(.mark-cut) .speech{color:#6D28D9!important;font-weight:700!important}
 .txrow.ink-short:not(.mark-cut) .speech{color:#B42027!important;font-weight:600!important}
 .txrow.range-short.ink-highlight:not(.mark-cut) .speech,.txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:inherit}
-.txrow.range-short.ink-highlight:not(.mark-cut) .speech{color:#D00070!important}
+.txrow.range-short.ink-highlight:not(.mark-cut) .speech{color:#6D28D9!important}
 .txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:#0054C8!important}
 .cue-summary{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:0 0 8px;max-width:100%}
 .cue-summary-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px;min-height:29px;border:1px solid #222;background:rgba(255,255,255,.94);padding:3px 5px;max-width:100%;font-size:11px;color:#444}
@@ -537,8 +537,8 @@ html,body,.shell{background:#fff!important}
 .cue-summary-context{font-size:10px;color:#555;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cue-summary-item.kind-textcard{border-color:#0054C8}
 .cue-summary-item.kind-textcard .cue-summary-title{color:#0054C8}
-.cue-summary-item.kind-highlight{border-color:#D00070}
-.cue-summary-item.kind-highlight .cue-summary-title{color:#D00070}
+.cue-summary-item.kind-highlight{border-color:#6D28D9}
+.cue-summary-item.kind-highlight .cue-summary-title{color:#6D28D9}
 .cue-summary-item.kind-short{border-color:#B42027}
 .cue-summary-item.kind-short .cue-summary-title{color:#B42027}
 .cue-summary-item.kind-cut{border-color:#555}
@@ -551,7 +551,7 @@ html,body,.shell{background:#fff!important}
 .range-handle-group .range-handle{width:22px!important;min-width:22px!important;height:26px!important;font-size:10px!important;letter-spacing:0!important;cursor:ns-resize!important}
 .txrow .range-handle-group{opacity:.35;transition:opacity .15s ease}
 .txrow:hover .range-handle-group,.txrow.selected .range-handle-group,.range-handle-group:focus-within{opacity:1}
-.txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #D00070!important}
+.txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #6D28D9!important}
 .txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 5px 0 #0054C8!important}
 @media(max-width:720px){.txrow .range-handle-group{opacity:1}.cue-summary-item{max-width:100%}.cue-summary-context{max-width:140px}}
 
@@ -615,6 +615,11 @@ html,body,.shell{background:#fff!important}
 @media(max-width:920px){.jump-field label{display:none}.jump-field input{width:55px}.jump-field button{width:27px;min-width:27px}.search{width:130px}}
 @media(max-width:720px){.jump-field input{width:48px}.jump-field button{width:24px;min-width:24px}.jump-field{height:30px}.toolbarright{gap:3px}.search{width:min(110px,28vw)}.fast-mark-panel{top:58px;max-height:calc(100dvh - 70px)}}
 @media(max-width:520px){.fast-range-fields{grid-template-columns:minmax(52px,1fr) 9px minmax(52px,1fr) 29px;row-gap:9px}.fast-range-fields .fast-kind-col{grid-column:1/4;grid-row:2}.fast-row-delete{grid-column:4;grid-row:1;align-self:end}.fast-mark-body{padding:12px}.fast-range-row{padding:10px}.fast-mark-head{padding:10px 12px}.jump-field input{width:45px}.toolbarleft .count{display:none}}
+
+/* 素材支援格式的資訊提示，不另加背景色塊。 */
+.asset-info{display:inline-block;vertical-align:middle;margin-left:3px;color:#222;border:1px solid #111;border-radius:50%;height:17px;width:17px;line-height:15px;font-size:11px;font-weight:750;text-align:center;position:relative;cursor:help}
+.asset-info:focus-visible{outline:2px solid #111;outline-offset:2px}
+.asset-info:hover:after,.asset-info:focus:after{content:attr(data-tip);position:absolute;left:0;top:23px;background:#111;color:#fff;z-index:100;white-space:nowrap;font-size:12px;line-height:1.4;padding:7px 9px;font-weight:500;box-shadow:3px 3px 0 #bbb}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -650,7 +655,7 @@ html,body,.shell{background:#fff!important}
  </section>
  <aside class="right">
   <section class="card asidecard inspector" id="inspector"><div class="asidehead"><h2 id="inspectorTitle">標示需求</h2><span class="countbadge" id="pickedCount">0 段</span></div><div id="inspectorBody" class="emptyedit">先選取台詞，再新增標示</div></section>
-  <section class="card asidecard assets" id="assetPanel"><div class="asidehead"><h2>圖片、投影片與 PDF <span class="countbadge" id="assetCount">0</span></h2><label class="asset-add native-upload" id="addAssetBtn" role="button" tabindex="0" title="新增圖片、投影片或 PDF" data-tip="新增圖片、投影片或 PDF" aria-label="新增圖片、投影片或 PDF">＋<input class="native-upload-input" type="file" data-native-upload="images" accept=".pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*,application/pdf" multiple aria-label="新增圖片與投影片"></label></div><div id="pptStatus" class="hidden"></div><div class="assetlist" id="assetList"></div></section>
+  <section class="card asidecard assets" id="assetPanel"><div class="asidehead"><h2>圖卡素材 <span class="countbadge" id="assetCount">0</span> <span class="asset-info" tabindex="0" role="img" aria-label="支援上傳圖片、PPTX 投影片與 PDF" title="支援上傳圖片、PPTX 投影片與 PDF" data-tip="支援圖片、PPTX 投影片與 PDF">ⓘ</span></h2><label class="asset-add native-upload" id="addAssetBtn" role="button" tabindex="0" title="新增圖片、投影片或 PDF" data-tip="新增圖片、投影片或 PDF" aria-label="新增圖片、投影片或 PDF">＋<input class="native-upload-input" type="file" data-native-upload="images" accept=".pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*,application/pdf" multiple aria-label="新增圖片與投影片"></label></div><div id="pptStatus" class="hidden"></div><div class="assetlist" id="assetList"></div></section>
   <section class="card asidecard notes-card" hidden><div class="asidehead" style="margin-bottom:8px"><h2>已標示</h2><span class="countbadge" id="cueCount">0</span></div><div class="notes-list" id="notesList"><div class="notes-empty">尚無標示</div></div></section>
  </aside>
 </div>
@@ -1194,7 +1199,7 @@ function colorForRow(uid){const acts=annotationsForRow(uid);
 function textColorForRow(uid){const acts=annotationsForRow(uid);
  if(acts.some(a=>a.kind==='cut'))return null;
  if(acts.some(a=>a.kind==='textcard'))return '0054C8';
- if(acts.some(a=>a.kind==='highlight'))return 'D00070';
+ if(acts.some(a=>a.kind==='highlight'))return '6D28D9';
  if(acts.some(a=>a.kind==='short'))return 'B42027';
  return null;
 }
@@ -1218,7 +1223,7 @@ function cueGroupParagraph(group){
  const intro=`後製指示｜字幕 ${start?.seq||'?'}｜${start?.start||''}`;
  const run=(text,color='333333',bold=false)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
  const br='<w:r><w:br/></w:r>';
- const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0054C8',highlight:'D00070',short:'B42027',captions:'B12B32',other:'B12B32',move:'333333'};
+ const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0054C8',highlight:'6D28D9',short:'B42027',captions:'B12B32',other:'B12B32',move:'333333'};
  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
  let contents=run(intro,'555555',true);
  for(const cue of group){
