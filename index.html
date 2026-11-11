@@ -554,6 +554,35 @@ html,body,.shell{background:#fff!important}
 .txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #D00070!important}
 .txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 5px 0 #0054C8!important}
 @media(max-width:720px){.txrow .range-handle-group{opacity:1}.cue-summary-item{max-width:100%}.cue-summary-context{max-width:140px}}
+
+/* 快速標示：不佔用標頭高度，保持黑白工作台的線條語言。 */
+.fast-mark-trigger{border:1px solid #111;background:#fff;color:#111;padding:5px 10px;min-height:28px;white-space:nowrap;font-size:11px;font-weight:800;cursor:pointer;line-height:1.2}
+.fast-mark-trigger:hover,.fast-mark-trigger[aria-expanded="true"]{background:#111;color:#fff}
+.fast-mark-panel{position:fixed;top:95px;left:50%;transform:translateX(-50%);z-index:8500;width:min(520px,calc(100vw - 24px));max-height:min(78vh,710px);display:flex;flex-direction:column;background:#fff;border:2px solid #111;box-shadow:7px 7px 0 #111;color:#111}
+.fast-mark-panel.hidden{display:none}
+.fast-mark-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:2px solid #111}
+.fast-mark-head strong{font-size:16px;font-weight:850}.fast-mark-head small{display:block;font-size:11px;font-weight:500;margin-top:3px;color:#555}
+.fast-mark-close{border:0;background:transparent;color:#111;font-size:25px;min-width:32px;height:30px;line-height:1}
+.fast-mark-body{padding:14px 16px;overflow:auto;overscroll-behavior:contain}
+.fast-mark-body label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}
+.fast-mark-body textarea{display:block;width:100%;min-height:111px;max-height:250px;resize:vertical;background:white;color:#111;border:1.5px solid #111;padding:10px 12px;line-height:1.7;font-size:14px;font-variant-numeric:tabular-nums;border-radius:0}
+.fast-mark-body textarea::placeholder{color:#8a8a8a}
+.fast-mark-hint{font-size:11px;color:#555;margin:8px 0 11px;line-height:1.5}
+.fast-mark-hint code{font-family:inherit;font-weight:800;color:#111}
+.fast-mark-preview{border-top:1px solid #111;margin-top:12px}
+.fast-mark-preview-head{font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.fast-mark-preview-list{max-height:240px;overflow:auto;border:1px solid #111}
+.fast-mark-item{padding:9px 11px;border-bottom:1px solid #bbb;font-size:12px;line-height:1.5}
+.fast-mark-item:last-child{border-bottom:0}.fast-mark-item strong{font-weight:800}
+.fast-mark-item small{display:block;color:#555;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.fast-mark-item.error{border-left:4px solid #b32127}.fast-mark-item.error strong,.fast-mark-item.error small{color:#a41920}
+.fast-mark-item.skipped{color:#666}.fast-mark-item.skipped strong{color:#555}
+.fast-mark-item .fast-mark-alert{color:#a41920;margin-top:3px;font-weight:750}
+.fast-mark-footer{border-top:2px solid #111;padding:11px 16px;display:flex;gap:9px;align-items:center}
+.fast-mark-apply{flex:1;background:#111;color:#fff;border:1px solid #111;min-height:42px;font-size:13px;font-weight:800}
+.fast-mark-apply:disabled{background:#aaa;border-color:#aaa;color:#fff}
+.fast-mark-cancel{background:#fff;color:#111;border:1px solid #111;min-height:42px;padding:0 13px;font-size:12px;font-weight:700}
+@media(max-width:720px){.fast-mark-panel{top:64px;max-height:calc(100dvh - 80px);box-shadow:4px 4px 0 #111}.fast-mark-trigger{padding:5px 6px;font-size:10px}.fast-mark-body{padding:12px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -570,7 +599,7 @@ html,body,.shell{background:#fff!important}
 <div class="body">
  <section class="left">
   <div class="workspace card" id="workArea">
-   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿" autocomplete="off" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
+   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><button type="button" id="fastMarkBtn" class="fast-mark-trigger" title="直接輸入字幕編號範圍，批次建立標示" aria-haspopup="dialog" aria-controls="fastMarkPanel" aria-expanded="false">＋ 快速標示</button><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿" autocomplete="off" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
  <div class="search-panel-head"><span id="searchCount" aria-live="polite">輸入關鍵字搜尋</span><div class="search-panel-nav"><button type="button" id="searchPrev" title="上一處" aria-label="上一處">↑</button><button type="button" id="searchNext" title="下一處" aria-label="下一處">↓</button><button type="button" id="replaceToggle" title="開啟取代功能">取代</button></div></div>
  <div class="search-replace" id="searchReplace"><label for="replaceInput">取代為</label><input id="replaceInput" type="text" placeholder="輸入正確文字" autocomplete="off"><div class="search-replace-actions"><button type="button" id="replaceOne">取代這一筆</button><button type="button" id="replaceAll">全部取代</button></div><span class="search-replace-hint">僅修改台詞，不更動字幕編號與時間碼 · 可復原</span></div>
  </div></div><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
@@ -595,6 +624,16 @@ html,body,.shell{background:#fff!important}
 </div>
 </div>
 
+<div id="fastMarkPanel" class="fast-mark-panel hidden" role="dialog" aria-label="快速標示字幕範圍" aria-modal="false">
+ <div class="fast-mark-head"><div><strong>快速標示</strong><small>使用逐字稿左側的字幕編號</small></div><button class="fast-mark-close" type="button" id="fastMarkClose" aria-label="關閉快速標示">×</button></div>
+ <div class="fast-mark-body"><label for="fastMarkCommands">每行一則標示</label><textarea id="fastMarkCommands" spellcheck="false" placeholder="1-10 剪掉
+220-336 插入圖卡
+340-352 精彩片段" aria-describedby="fastMarkHint"></textarea>
+  <div id="fastMarkHint" class="fast-mark-hint">支援：剪掉、插入圖卡、插入字卡、精彩片段、短影音、特殊需求。圖卡可加素材編號，例如 <code>220-336 圖卡 G05</code>；未指定的素材可以之後再補。</div>
+  <div class="fast-mark-preview"><div class="fast-mark-preview-head"><span>套用前確認</span><span id="fastMarkCount">尚未輸入</span></div><div id="fastMarkPreviewList" class="fast-mark-preview-list" role="status" aria-live="polite"><div class="fast-mark-item">輸入範圍後，會顯示對應的台詞與檢查結果</div></div></div>
+ </div>
+ <div class="fast-mark-footer"><button type="button" class="fast-mark-apply" id="fastMarkApply" disabled>建立標示</button><button type="button" class="fast-mark-cancel" id="fastMarkCancel">取消</button></div>
+</div>
 <div id="cueManagePanel" class="cue-manage-panel hidden" role="dialog" aria-label="管理目前選取範圍的標示"></div>
 <div id="previewModal" class="preview-modal" aria-hidden="true" role="dialog" aria-label="圖片預覽">
  <div class="preview-surface"><button class="preview-close" id="previewClose" aria-label="關閉圖片預覽">×</button><img id="previewImage" alt="圖卡預覽"><div id="previewCaption"></div></div>
@@ -837,7 +876,7 @@ ${chosen==='captions'?`<div class="field"><span class="fieldlabel">參考圖片�
 <div class="applyrow"><button class="apply" id="applyCue">${editing?'儲存修改':'新增標示'}</button><button class="subtle" id="cancelCue">取消</button></div>${editing?'<button class="delete" id="deleteCue" title="只取消這一則標示，其他需求不受影響">取消這則標示</button>':''}`;
 $('pasteReference')?.addEventListener('click',pasteReferenceFromClipboard);$('browseReference')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('referenceImageInput').click()}});$('referenceDrop')?.addEventListener('click',e=>{if(!e.target.closest('button'))e.currentTarget.focus()});$('clearReference')?.addEventListener('click',()=>{referenceChoice='__CLEAR__';renderInspector()});$('applyCue').onclick=applyCue;$('cancelCue').onclick=()=>{editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);renderInspector()};requestAnimationFrame(positionInspector);if(editing)$('deleteCue').onclick=()=>{pushUndo();annotations=annotations.filter(a=>a.id!==editing.id);editId=null;setSelection([]);refreshAll();markDirty();toast('標示已移除')};}
 function applyCue(){const s=selectionIndices(),previous=annotations.find(a=>a.id===editId);if(!s.length){toast('請先選取逐字稿段落');return}const type=previous?.kind||kindId,detail=$('noteDetail').value.trim(),assetId=$('noteAsset')?.value||'',title=$('noteTitle').value.trim();if(type==='move'&&!detail){toast('Specify where this section should move');$('noteDetail').focus();return}if(type==='card'&&!detail&&!assetId&&!title){toast('Choose a graphic or enter an instruction');return}
-const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail,title,reference:'',assetId,referenceAssetId:type==='captions'?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
+const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail:(type==='card'&&assetId&&detail==='【待指定圖卡素材】')?'':detail,title,reference:'',assetId,referenceAssetId:type==='captions'?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
 function insertGraphic(id,inds=selectionIndices()){
  if(!inds.length){assetChoice=id;setKind('card');toast('請先選取逐字稿，或將圖片拖入指定台詞');return}
  const a=assetById(id);if(!a)return;
@@ -1383,6 +1422,120 @@ function quickCue(type){
  if(['highlight','short'].includes(type))mergeAdjacentQuickCues(type);
  window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉（相鄰區間已合併）':type==='short'?'已標示短影音':'已標示精彩片段');
 }
+
+
+// 快速標示支援長字幕範圍，採「只新增、不切換取消」以避免重複輸入時誤撤銷。
+let fastMarkOpen=false,fastMarkPlans=[];
+function setFastMarkOpen(open){
+ fastMarkOpen=!!open;
+ const panel=$('fastMarkPanel'),btn=$('fastMarkBtn');
+ panel.classList.toggle('hidden',!fastMarkOpen);btn.setAttribute('aria-expanded',String(fastMarkOpen));
+ if(fastMarkOpen){closeCueManager();$('toolBar').classList.remove('open');updateFastMarkPreview();requestAnimationFrame(()=>$('fastMarkCommands').focus());}
+ else {if(selected.size&&!window._showInspector&&!editId)paintSelection();btn.focus()}
+}
+function parseFastMarkLine(line,lineNumber,seqIndex,ambiguous){
+ const base={lineNumber,raw:line,errors:[],warnings:[],skip:false};
+ const normalized=line.replace(/[０-９]/g,c=>String(c.charCodeAt(0)-65296)).replace(/[－—–〜～]/g,'-').replace(/\u3000/g,' ').trim();
+ const m=normalized.match(/^(\d{1,6})(?:\s*(?:-|~|至|到)\s*(\d{1,6}))?\s+(.+)$/);
+ if(!m){base.errors.push('格式應為「1-10 剪掉」或「220-336 插入圖卡」');return base}
+ const from=Number(m[1]),to=Number(m[2]||m[1]);
+ base.from=from;base.to=to;
+ if(from>to){base.errors.push('起點不能大於終點');return base}
+ if(ambiguous.has(from)||ambiguous.has(to)){base.errors.push('字幕編號重複，無法精確指定範圍');return base}
+ const start=seqIndex.get(from),end=seqIndex.get(to);
+ if(start===undefined||end===undefined){base.errors.push(`找不到字幕編號 ${start===undefined?from:to}`);return base}
+ if(start>end){base.errors.push('這份逐字稿的字幕編號順序不正確');return base}
+ base.start=start;base.end=end;base.ids=rows.slice(start,end+1).map(r=>r.uid);
+ const action=m[3].trim();
+ const names=[['插入圖卡','card'],['插入圖片','card'],['圖卡','card'],['圖片','card'],['插入字卡','textcard'],['字卡','textcard'],['精彩片段','highlight'],['精華片段','highlight'],['精彩','highlight'],['短影音','short'],['剪掉','cut'],['刪除','cut'],['特殊需求','captions'],['其他備註','other']];
+ const found=names.find(([label])=>action===label||action.startsWith(label+' ')||action.startsWith(label+'：')||action.startsWith(label+':'));
+ if(!found){base.errors.push('不支援的標示種類；請使用剪掉、圖卡、字卡、精彩片段、短影音或特殊需求');return base}
+ base.kind=found[1];base.label=found[0];let extra=action.slice(found[0].length).trim().replace(/^[:：]\s*/,'').trim();
+ if(base.kind==='card'){
+  if(extra){const material=assets.find(a=>a.code?.toLowerCase()===extra.toLowerCase());if(!material){base.errors.push('找不到素材 '+extra+'；請輸入右側的 G 編號或先不指定');return base}base.assetId=material.id;base.assetLabel=material.code+' · '+material.name}
+  else{base.assetId='';base.warnings.push('圖卡尚未指定素材，可先建立範圍再補上')}
+ } else if(base.kind==='textcard'||base.kind==='captions'||base.kind==='other'){
+  base.detail=extra||'';if(!extra)base.warnings.push(base.kind==='textcard'?'字卡文字尚未填寫': '詳細需求尚未填寫');
+ }else if(extra){base.errors.push('這項標示不需要附加參數');return base}
+ if(base.kind!=='cut'&&base.ids.some(rowIsCut))base.errors.push('範圍包含已剪掉的字幕，請先取消刪除或調整編號');
+ if(base.kind==='card'||base.kind==='textcard'){
+  const overlaps=annotations.some(a=>a.kind===base.kind&&a.rowIds.some(id=>base.ids.includes(id)));
+  if(overlaps)base.errors.push('範圍已有同類標示，請從原標示修改，避免重疊');
+ }
+ if(base.kind==='cut'){
+  base.collisionCount=annotations.filter(a=>a.kind!=='cut'&&a.rowIds.some(id=>base.ids.includes(id))).length;
+  if(base.collisionCount)base.warnings.push('剪掉將移除 '+base.collisionCount+' 則重疊需求');
+ }
+ if(['cut','highlight','short'].includes(base.kind)){
+  const covered=new Set(annotations.filter(a=>a.kind===base.kind).flatMap(a=>a.rowIds));
+  base.fresh=base.ids.filter(id=>!covered.has(id));
+  if(!base.fresh.length){base.skip=true;base.warnings.push('整段已標示，將略過，不會取消原標示')}
+ }
+ return base;
+}
+function prepareFastMarkPlans(){
+ const text=$('fastMarkCommands').value;
+ const commands=text.split(/\r?\n/).map((value,i)=>({value:value.trim(),line:i+1})).filter(x=>x.value);
+ const seqIndex=new Map(),ambiguous=new Set();
+ rows.forEach((row,i)=>{const n=Number(row.seq||i+1);if(!Number.isSafeInteger(n))return;if(seqIndex.has(n))ambiguous.add(n);else seqIndex.set(n,i)});
+ let plans=commands.slice(0,80).map(c=>parseFastMarkLine(c.value,c.line,seqIndex,ambiguous));
+ if(commands.length>80)plans.push({lineNumber:81,raw:'…',errors:['一次最多輸入 80 則，請分批操作'],warnings:[]});
+ // 批次內衝突提前攔下，避免一筆剪掉覆蓋另一筆新建的圖卡或字卡。
+ for(let i=0;i<plans.length;i++){const a=plans[i];if(a.errors?.length||!a.ids)continue;
+  for(let j=0;j<i;j++){const b=plans[j];if(b.errors?.length||!b.ids)continue;
+   const intersect=a.start<=b.end&&b.start<=a.end;if(!intersect)continue;
+   if((a.kind==='cut'&&b.kind!=='cut')||(b.kind==='cut'&&a.kind!=='cut'))a.errors.push('與第 '+b.lineNumber+' 行的標示衝突：剪掉不可與其他需求重疊');
+   else if(a.kind===b.kind&&a.start===b.start&&a.end===b.end){a.skip=true;a.warnings.push('與第 '+b.lineNumber+' 行完全相同，將略過重複輸入')}
+   else if(a.kind===b.kind&&['card','textcard'].includes(a.kind))a.errors.push('與第 '+b.lineNumber+' 行的同類標示重疊');
+  }
+ }
+ return plans;
+}
+function updateFastMarkPreview(){
+ if(!fastMarkOpen)return;
+ const plans=prepareFastMarkPlans();fastMarkPlans=plans;
+ const errors=plans.filter(p=>p.errors?.length),ready=plans.filter(p=>p.ids&&!p.errors?.length&&!p.skip);
+ $('fastMarkCount').textContent=plans.length?(errors.length?`${errors.length} 則需修正`:`可建立 ${ready.length} 則`):'尚未輸入';
+ $('fastMarkApply').disabled=!ready.length||!!errors.length;
+ $('fastMarkApply').textContent=ready.length?`建立 ${ready.length} 則標示`:'建立標示';
+ $('fastMarkPreviewList').innerHTML=plans.length?plans.map(p=>{
+  const kind=p.kind?findKind(p.kind).label:'無法辨識';
+  const label=p.from!==undefined?`字幕 ${p.from}${p.from===p.to?'':'–'+p.to}`:`第 ${p.lineNumber} 行`;
+  const first=rows[p.start],last=rows[p.end];
+  const interval=first?.start?` · ${asClock(first.start)}–${asClock(last.end)}`:'';
+  const sample=first?`「${(first.text||'').slice(0,36)}」${first!==last?' → 「'+(last.text||'').slice(0,36)+'」':''}`:p.raw;
+  return `<div class="fast-mark-item${p.errors?.length?' error':p.skip?' skipped':''}"><strong>${escapeHtml(label+' · '+kind+interval)}</strong>${p.assetLabel?`<small>素材：${escapeHtml(p.assetLabel)}</small>`:''}<small>${escapeHtml(sample)}</small>${(p.errors||[]).map(w=>`<div class="fast-mark-alert">${escapeHtml(w)}</div>`).join('')}${(p.warnings||[]).map(w=>`<div class="${p.skip?'':'fast-mark-alert'}">${escapeHtml(w)}</div>`).join('')}</div>`;
+ }).join(''):'<div class="fast-mark-item">輸入字幕編號和標示種類後，會先顯示對應台詞</div>';
+}
+function applyFastMarkPlans(){
+ const plans=prepareFastMarkPlans();const errors=plans.filter(p=>p.errors?.length),ready=plans.filter(p=>p.ids&&!p.errors?.length&&!p.skip);
+ if(errors.length||!ready.length){updateFastMarkPreview();toast(errors.length?'請先修正標示錯誤':'沒有需要新增的標示');return}
+ const risk=ready.filter(p=>p.kind==='cut'&&p.collisionCount).reduce((n,p)=>n+p.collisionCount,0);
+ if(risk&&!confirm('有刪除範圍和既有後製需求重疊。繼續會移除重疊部分的其他需求，確定要建立嗎？'))return;
+ // 一次批次操作只產生一筆復原紀錄。
+ pushUndo();let created=0,pending=0,firstIndex=ready[0].start;
+ for(const p of ready){
+  const kind=p.kind,ids=p.fresh||p.ids;
+  if(!ids.length)continue;
+  if(kind==='cut')replaceExcludedIds(new Set(ids));
+  const detail=kind==='card'&&!p.assetId?'【待指定圖卡素材】':kind==='textcard'&&!p.detail?'【待填入字卡文字】':p.detail||'';
+  const cue={id:newCueId(),kind,detail,title:'',reference:'',assetId:p.assetId||'',rowIds:ids};
+  annotations.push(...splitContiguousCue(cue,ids));
+  created++;if((kind==='card'&&!p.assetId)||(kind==='textcard'&&!p.detail))pending++;
+ }
+ mergeContiguousCuts();for(const k of ['highlight','short'])mergeAdjacentQuickCues(k);
+ editId=null;window._showInspector=false;setSelection([]);refreshAll();markDirty();
+ setFastMarkOpen(false);$('fastMarkCommands').value='';
+ const el=$('transcript').querySelector(`.txrow[data-i="${firstIndex}"]`);if(el)el.scrollIntoView({block:'center',behavior:'smooth'});
+ toast(`已新增 ${created} 則標示${pending?' · '+pending+' 則內容待補':''} · Ctrl+Z 可整批復原`);
+}
+$('fastMarkBtn').addEventListener('click',()=>{if(!rows.length){toast('請先匯入逐字稿');return}setFastMarkOpen(!fastMarkOpen)});
+$('fastMarkClose').addEventListener('click',()=>setFastMarkOpen(false));
+$('fastMarkCancel').addEventListener('click',()=>setFastMarkOpen(false));
+$('fastMarkCommands').addEventListener('input',updateFastMarkPreview);
+$('fastMarkCommands').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setFastMarkOpen(false)}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();applyFastMarkPlans()}});
+$('fastMarkApply').addEventListener('click',applyFastMarkPlans);
+document.addEventListener('pointerdown',e=>{if(fastMarkOpen&&!e.target.closest('#fastMarkPanel,#fastMarkBtn'))setFastMarkOpen(false)});
 
 $('toolBar').addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b)return;const k=b.dataset.kind;editId=null;setKind(k);if(k==='red-note'){insertRedNote();return}if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)});
 // 按住滑鼠拖曳字幕列即可選取整個段落範圍；時間碼、編號不被原生反白。
