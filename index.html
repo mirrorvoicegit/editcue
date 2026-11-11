@@ -489,6 +489,15 @@ html,body,.shell{background:#fff!important}
 .txrow.selected,.txrow.selected:not(.mark-cut):not(.range-yellow):not(.range-green):not(.range-highlight){outline:none!important;border-top-color:transparent!important;border-right-color:transparent!important;border-bottom-color:transparent!important;border-left:4px solid #111!important;border-radius:0!important}
 .txrow.selected.sel-first{border-top:1px solid #111!important}
 .txrow.selected.sel-last{border-bottom:1px solid #111!important}
+/* v5.3：各種範圍採用一致的末端調整把手，避免與剪輯標示底色混淆。 */
+.range-handle-group{display:flex;flex-direction:column;gap:3px;align-items:center;justify-self:end;align-self:center;min-width:18px}
+.range-handle-group .range-handle{display:grid;place-items:center;width:21px;min-width:21px;height:29px;padding:0;font-size:17px;font-weight:700;touch-action:none;user-select:none;-webkit-user-select:none}
+.txrow.range-preview.preview-cut{background:#D9D9D9!important;box-shadow:inset 4px 0 #333!important}
+.txrow.range-preview.preview-highlight{background:#E3D8FF!important;box-shadow:inset 4px 0 #333!important}
+.txrow.range-preview.preview-short:not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #B42027!important}
+.txrow.range-preview.preview-card,.txrow.range-preview.preview-visual,.txrow.range-preview.preview-textcard{background:#FFF26B!important;box-shadow:inset 4px 0 #111!important}
+@media(max-width:720px){.txrow{grid-template-columns:62px minmax(0,1fr) 24px!important}.range-handle-group{grid-column:3}}
+
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -603,7 +612,10 @@ function rowMarkup(r,i){
  const graphicSeparator=graphic&&previousGraphic&&graphic.id!==previousGraphic.id&&isFirstCueRow(graphic,r.uid)?' graphic-separator':'';
  const highlight=anns.some(a=>a.kind==='highlight'),isShort=!cut&&anns.some(a=>a.kind==='short');
  const highlightClass=!graphic&&highlight?' range-highlight':'';
- const card=visualCardFor(r.uid),cardLast=card&&card.rowIds.at(-1)===r.uid;
+ // 每種區間需求都能從末端調整範圍；同一句若有兩種需求，分別顯示把手。
+ const adjustable=['cut','highlight','short','card','visual','textcard'];
+ const endingCues=anns.filter(a=>adjustable.includes(a.kind)&&sourceRowAt(a)?.last?.uid===r.uid);
+ const rangeControls=endingCues.length?`<div class="range-handle-group">${endingCues.map(a=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" type="button" aria-label="調整${escapeHtml(findKind(a.kind).label)}範圍" title="拖曳調整${escapeHtml(findKind(a.kind).label)}的結束字幕">↕</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
  // 標示分軌：片段用途（短影音／精彩片段）、畫面素材（圖卡／字卡）、處理說明。
  // 當短影音和圖卡重疊時，短影音台詞顯示紅字，圖卡仍維持唯一的黃色底色。
@@ -619,7 +631,7 @@ function rowMarkup(r,i){
  ${otherMarks.length?`<div class="rowtags">${otherMarks.map(a=>`<button class="tag ${a.kind}" data-cue="${escapeHtml(a.id)}" title="點選修改或移除">${escapeHtml(findKind(a.kind).label)}${assetById(a.assetId)?' · '+escapeHtml(window._exportCodes?.get(a.assetId)||assetById(a.assetId).code):''}</button>`).join('')}</div>`:''}
  ${noteDetails.length?noteDetails.map(a=>`<div class="cue-inline-note" data-cue="${escapeHtml(a.id)}" title="點選修改標示">${a.detail?`<span class="cue-inline-text">${escapeHtml(a.detail)}</span>`:(!a.assetId&&a.title)?`<span class="cue-inline-text">${escapeHtml(a.title)}</span>`:''}${a.referenceAssetId&&assetById(a.referenceAssetId)?`<img src="${assetById(a.referenceAssetId).dataUrl}" alt="特殊需求參考圖片" class="cue-inline-image">`:''}</div>`).join(''):''}
  ${r.images?.length?'<div>'+r.images.slice(0,4).map(src=>`<img class="sourceimg" src="${src}" alt="原始參考圖片">`).join('')+'</div>':''}</div>
- ${cardLast?`<button class="range-handle" data-range-id="${escapeHtml(card.id)}" type="button" title="拖曳調整圖卡顯示範圍">↕</button>`:'<div class="rowchev">›</div>'}
+ ${rangeControls}
  </div>`;
 }
 function redNoteMarkup(note){return `<div class="red-note" data-red-id="${escapeHtml(note.id)}" draggable="false">
@@ -789,7 +801,7 @@ async function importPptx(file){if(file.size>120*1024*1024)throw Error('簡報�
  assets.push({needsReview:suspiciousRepeat,id:'ppt'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2),code:nextAssetCode(),name:file.name.replace(/\.pptx$/i,'')+' · 第'+(i+1)+'頁',fileName:file.name,dataUrl,width:1920,height:1080,pptSource:file.name,slideNumber:i+1});converted++;
  }catch(e){console.warn('第'+(i+1)+'頁轉換失敗',e);failures.push(i+1)}
  if(i%3===0){renderAssets();await new Promise(ok=>setTimeout(ok,0))}}
- renderAssets();markDirty();focusNewAsset(assets.at(-1)?.id);status.textContent=`${file.name} · 已加入 ${converted}/${count} 頁`+(failures.length?' · 轉換失敗頁：'+failures.join('、'):'')+' · 匯出前請確認圖卡字型與版面';
+ renderAssets();markDirty();focusNewAsset(assets.at(-1)?.id);status.textContent=`${file.name} · 已加入 ${converted}/${count} 頁`+(failures.length?' · 轉換失敗頁：'+failures.join('、'):'')+' · 注意：PPT 瀏覽器轉圖可能與原稿不同；正式圖卡建議改用 PDF 或 PNG';
  if(!converted)throw Error('簡報未成功轉成任何圖片');toast(`已匯入 ${converted} 張投影片，可直接拖曳`);
  }catch(e){status.textContent='PPTX 轉換失敗：'+e.message;toast('PPTX 轉換失敗：'+e.message);throw e}
 }
@@ -1139,13 +1151,15 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
  const used=orderedUsedAssets();const references=referenceImages().filter(a=>!used.some(u=>u.id===a.id));if(used.some(a=>a.needsReview)&&!confirm('部分 PPT 圖卡轉檔後與其他頁完全相同。請先逐張核對原始簡報，仍要匯出嗎？'))return;window._exportCodes=new Map(used.map((a,i)=>[a.id,'圖卡_'+String(i+1).padStart(3,'0')+'.png']));
  try{const docx=await makeDocxBlob(),docxData=new Uint8Array(await docx.arrayBuffer()),files={};
  files[cleanFileName($('docTitle').value)+'_後製需求單.docx']=docxData;
+ // ZIP 同時附上可完整還原的工作檔，包含素材與所有逐字稿標示。
+ files[cleanFileName($('docTitle').value)+'.editcue.json']=enc.encode(JSON.stringify(serializable()));
  const manifest=['後製圖卡清單','素材依照逐字稿首次使用順序編號','',...used.map((a,i)=>'圖卡_'+String(i+1).padStart(3,'0')+'.png'+'　→　'+a.name+(a.pptSource?'（'+a.pptSource+' 第'+a.slideNumber+'頁）':''))].join('\n');
  files['圖卡清單.txt']=manifest;for(let i=0;i<references.length;i++){const a=references[i],src=await sourceAsPngData(a);files['參考圖片/參考_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:src})}
  for(let i=0;i<used.length;i++){let a=used[i];let pngData=a.dataUrl;if(imageFormat(pngData)!=='image/png'){
  pngData=await new Promise((resolve,reject)=>{let img=new Image;img.onload=()=>{let can=document.createElement('canvas');can.width=img.naturalWidth;can.height=img.naturalHeight;can.getContext('2d').drawImage(img,0,0);resolve(can.toDataURL('image/png'))};img.onerror=reject;img.src=a.dataUrl})}
  files['圖片/圖卡_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:pngData});}
  const zip=zipStored(files);download(cleanFileName($('docTitle').value)+'_剪輯交付包.zip',zip);
- toast('已匯出 ZIP：Word + '+used.length+' 張圖卡'+(references.length?'、'+references.length+' 張參考圖片':''));
+ toast('已匯出 ZIP：Word、JSON 工作檔及 '+used.length+' 張圖卡'+(references.length?'、'+references.length+' 張參考圖片':''));
  }catch(e){console.error(e);toast('匯出失敗：'+e.message)}finally{window._exportCodes=null}
 }
 
@@ -1279,7 +1293,7 @@ document.addEventListener('pointercancel',()=>{pointerNoteDrag=null;draggingNote
 
 // 圖卡拖進單一字幕，虛線範圍就是落點；不再顯示全螢幕提示。
 function dragTargetAt(event){return event.target?.closest?.('.txrow')||null}
-function clearDropTargets(){$('transcript').querySelectorAll('.drop-target,.range-preview').forEach(el=>el.classList.remove('drop-target','range-preview'))}
+function clearDropTargets(){$('transcript').querySelectorAll('.drop-target,.range-preview').forEach(el=>{el.classList.remove('drop-target','range-preview','preview-cut','preview-highlight','preview-short','preview-card','preview-visual','preview-textcard')})}
 $('transcript').addEventListener('dragover',e=>{
  if(draggingNoteId)return;if(!activeAssetDrag&&!Array.from(e.dataTransfer.types||[]).includes('application/x-editcue-image'))return;
  e.preventDefault();e.dataTransfer.dropEffect='copy';
@@ -1297,23 +1311,37 @@ $('transcript').addEventListener('pointerdown',e=>{
  const h=e.target.closest('[data-range-id]');if(!h)return;
  e.preventDefault();e.stopPropagation();let a=annotations.find(x=>x.id===h.dataset.rangeId),info=a&&sourceRowAt(a);
  if(!a||!info)return;
- rangeDrag={id:a.id,start:info.firstIndex,end:info.lastIndex};
+ rangeDrag={id:a.id,kind:a.kind,start:info.firstIndex,end:info.lastIndex,originalEnd:info.lastIndex};
  document.body.classList.add('resizing-range');
 });
 document.addEventListener('pointermove',e=>{
  if(!rangeDrag)return;const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.txrow');
  if(!hit)return;const target=+hit.dataset.i;rangeDrag.end=Math.max(rangeDrag.start,target);
  clearDropTargets();for(let i=rangeDrag.start;i<=rangeDrag.end;i++){
-  const row=$('transcript').querySelector(`.txrow[data-i="${i}"]`);row?.classList.add('range-preview');
+  const row=$('transcript').querySelector(`.txrow[data-i="${i}"]`);
+  if(row)row.classList.add('range-preview','preview-'+rangeDrag.kind);
  }
 });
 document.addEventListener('pointerup',e=>{
  if(!rangeDrag)return;const range=rangeDrag;rangeDrag=null;document.body.classList.remove('resizing-range');
  clearDropTargets();const a=annotations.find(x=>x.id===range.id);if(!a)return;
  let end=range.end;
- const next=annotations.filter(x=>x.id!==a.id&&(x.kind==='card'||x.kind==='visual')).map(x=>sourceRowAt(x)?.firstIndex).filter(n=>n!==undefined&&n>range.start);
- if(next.length)end=Math.min(end,Math.min(...next)-1);
- pushUndo();a.rowIds=rows.slice(range.start,end+1).map(r=>r.uid);refreshAll();markDirty();toast('圖卡顯示範圍已更新');
+ // 只在延長範圍時避開後續不可重疊的需求；原有重疊標示不會被縮短。
+ if(end>range.originalEnd){
+  const graphics=['card','visual','textcard'];
+  const next=annotations.filter(x=>x.id!==a.id&&(
+    (graphics.includes(a.kind)&&graphics.includes(x.kind))||
+    (a.kind!=='cut'&&x.kind==='cut')||
+    x.kind===a.kind
+  )).map(x=>sourceRowAt(x)?.firstIndex).filter(n=>Number.isInteger(n)&&n>range.originalEnd);
+  if(next.length)end=Math.min(end,Math.min(...next)-1);
+ }
+ const newIds=rows.slice(range.start,end+1).map(r=>r.uid);
+ if(newIds.length===a.rowIds.length&&newIds.every((id,i)=>id===a.rowIds[i]))return;
+ pushUndo();
+ if(a.kind==='cut')replaceExcludedIds(new Set(newIds));
+ a.rowIds=newIds;
+ refreshAll();markDirty();toast(findKind(a.kind).label+'範圍已更新');
 });
 $('searchInput').addEventListener('focus',()=>{searchOpen=true;refreshSearchPanel()});
 $('searchInput').addEventListener('input',()=>{searchActiveIndex=0;searchOpen=true;renderRows()});
