@@ -450,6 +450,10 @@ html,body,.shell{background:#fff!important}
 .txrow.range-yellow .cue-range-head.kind-short{color:#94101A}
 #toolBar{position:fixed!important;z-index:1000!important;left:8px;top:8px;right:auto!important;max-width:calc(100vw - 16px)!important;width:max-content;overflow-x:auto;overscroll-behavior:contain;}
 @media(max-width:620px){#toolBar{max-width:calc(100vw - 12px)!important}.tool{min-height:36px}}
+
+/* EC 與逐字稿標題列共用高度與線條粗細，消除水平錯位。 */
+.railmark{height:66px;min-height:66px;flex:0 0 66px;padding:0;border-bottom:2px solid #111;box-sizing:border-box}
+@media(max-width:720px){.railmark{height:57px;min-height:57px;flex-basis:57px;padding:0}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -521,10 +525,12 @@ function newCueId(){return 'cue'+Date.now()+Math.random().toString(36).slice(2)}
 function rowIsCut(uid){return annotations.some(a=>a.kind==='cut'&&a.rowIds.includes(uid))}
 function rowIsShort(uid){return !rowIsCut(uid)&&annotations.some(a=>a.kind==='short'&&a.rowIds.includes(uid))}
 function cueRangeLabel(a){
- const type=a.kind==='short'?'短影音範圍':a.kind==='highlight'?'精彩片段':a.kind==='card'?'圖卡':a.kind==='textcard'?'字卡':findKind(a.kind).label;
- const code=a.assetId?(window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code||''):'';
- return type+(code?' · '+code:'')+'　'+prettyText(a);
+ const x=sourceRowAt(a),code=a.assetId?(window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code||''):'';
+ const title=a.kind==='short'?'短影音範圍':a.kind==='highlight'?'精彩片段':a.kind==='card'?'圖卡':a.kind==='textcard'?'字卡':findKind(a.kind).label;
+ const serial=x?(String(x.first.seq||x.firstIndex+1)+(x.firstIndex===x.lastIndex?'':'–'+String(x.last.seq||x.lastIndex+1))):'?';
+ return title+(code?' · '+code:'')+'　字幕 '+serial+'　'+prettyText(a);
 }
+
 
 
 // 保留原稿本體，匯出時僅附加標示，不重建段落或合併字幕。
@@ -827,13 +833,57 @@ function noteOrder(){if(cachedNoteOrder)return cachedNoteOrder;
  });
 }
 function sourceRowAt(a){const ids=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0).sort((x,y)=>x-y);return ids.length?{first:rows[ids[0]],last:rows[ids[ids.length-1]],firstIndex:ids[0],lastIndex:ids.at(-1)}:null}
-function cueLabel(a){const x=sourceRowAt(a);let t='【'+(a.kind==='short'?'短影音範圍':findKind(a.kind).label)+'】';const file=a.assetId?window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code:'';
- if(file)t+=' '+file;
- else if(a.title)t+=' '+a.title;
- if(x?.first?.start)t+='｜'+x.first.start+' → '+x.last.end;
- if(a.detail)t+='｜'+a.detail;
- return t;
+// 每個剪輯指示都顯示原始字幕編號與起訖時間，避免只剩時間、找不到對應字幕。
+function cueOrdinal(a){
+ const group=a.kind==='card'||a.kind==='visual'?'card':a.kind;
+ return String(noteOrder().filter(x=>(x.kind==='card'||x.kind==='visual'?'card':x.kind)===group).findIndex(x=>x.id===a.id)+1).padStart(2,'0');
 }
+function cueShortName(a){
+ if(a.kind==='card'||a.kind==='visual'){
+  const file=a.assetId?(window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code||''):'';
+  return file?(file.startsWith('圖卡_')?file:'圖卡 '+file):'圖卡 '+cueOrdinal(a);
+ }
+ if(a.kind==='textcard')return '字卡 '+cueOrdinal(a);
+ if(a.kind==='short')return '短影音 '+cueOrdinal(a);
+ if(a.kind==='highlight')return '精彩片段 '+cueOrdinal(a);
+ if(a.kind==='cut')return '剪掉';
+ return findKind(a.kind).label;
+}
+function cueLabel(a){
+ const x=sourceRowAt(a),label=cueShortName(a);
+ if(!x)return '【'+label+'】';
+ const seq=String(x.first.seq||x.firstIndex+1)+(x.firstIndex===x.lastIndex?'':'–'+String(x.last.seq||x.lastIndex+1));
+ const times=x.first.start?x.first.start+' → '+x.last.end:'';
+ const detail=(a.detail||'').trim(),title=(a.title||'').trim();
+ const extras=detail||(!a.assetId&&title?title:'');
+ return '【'+label+'】字幕 '+seq+(times?'｜'+times:'')+(extras?'｜'+extras:'');
+}
+// 同一個字幕起點，只寫一段合併後製需求；重疊內容提示仍在進行的其他標示。
+function cueGroupText(group){
+ if(!group.length)return '';
+ const ranges=group.map(sourceRowAt),first=ranges[0];
+ if(!first)return group.map(cueShortName).join(' ＋ ');
+ const sameEnd=ranges.every(r=>r?.lastIndex===first.lastIndex);
+ const startSeq=String(first.first.seq||first.firstIndex+1);
+ const endSeq=String(first.last.seq||first.lastIndex+1);
+ const header=sameEnd
+  ?'【字幕 '+startSeq+(first.firstIndex===first.lastIndex?'':'–'+endSeq)+'｜'+first.first.start+' → '+first.last.end+'】'
+  :'【字幕 '+startSeq+' 起｜'+first.first.start+'】';
+ const main=group.map((a,i)=>{
+  const range=ranges[i],end=range?.last;
+  let t=cueShortName(a);
+  if(!sameEnd&&end)t+='（至字幕 '+String(end.seq||range.lastIndex+1)+'／'+end.end+'）';
+  const extra=(a.detail||'').trim()||(!a.assetId?(a.title||'').trim():'');
+  return t+(extra?'：'+extra:'');
+ }).join(' ＋ ');
+ // 起點相同的需求只共用一份起始時間與字幕標號，避免重複標頭。
+ const idx=first.firstIndex;
+ const simultaneous=noteOrder().filter(a=>!group.some(g=>g.id===a.id)&&a.kind!=='cut'&&
+  sourceRowAt(a)?.firstIndex<idx&&a.rowIds.includes(rows[idx]?.uid));
+ const simultaneousNames=[...new Set(simultaneous.map(cueShortName))];
+ return header+main+(simultaneousNames.length?'（同時：'+simultaneousNames.join('、')+'）':'');
+}
+
 function colorForRow(uid){const acts=noteOrder().filter(a=>a.rowIds.includes(uid));
  if(acts.some(a=>a.kind==='cut'))return 'D9D9D9';
  if(acts.some(a=>['card','visual','textcard'].includes(a.kind)))return 'FFF26B';
@@ -855,7 +905,14 @@ function addWordTopDivider(p,xml){let pr=[...p.childNodes].find(n=>n.nodeType===
  for(const [key,val] of [['val','dashed'],['sz','8'],['space','4'],['color','93815C']])top.setAttributeNS(W,'w:'+key,val);
 }
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
-function cueParagraph(a){const c=a.kind==='cut'?'5D6064':a.kind==='highlight'?'5A468C':(['card','visual','textcard'].includes(a.kind)?'6B521D':'B22C32');return docxNoteParagraph(cueLabel(a),c)}
+function cueGroupParagraph(group){
+ const text=cueGroupText(group);
+ // 無底色、明確的黑字標頭；「特殊需求」仍使用紅字，不與台詞標色混淆。
+ const color=group.every(a=>a.kind==='captions'||a.kind==='other')?'B42027':'191919';
+ return `<w:p><w:pPr><w:spacing w:before="90" w:after="45" w:line="290"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:b/><w:color w:val="${color}"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
+}
+function cueParagraph(a){return cueGroupParagraph([a])}
+
 function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
 
 function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,shortText=false){
@@ -898,21 +955,21 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const mediaById=new Map(media.map(x=>[x.id,x]));
  for(const [i,rec] of sourceMap.entries()){for(let n=rec.from;n<=rec.to;n++)rowPerLine.set(n,rows[i].uid)}
  for(const a of noteOrder()){const bound=sourceRowAt(a);if(!bound)continue;let rec=sourceMap.get(bound.firstIndex);if(!rec)continue;let key=rec.to;
- if(!notesBefore.has(rec.from))notesBefore.set(rec.from,[]);notesBefore.get(rec.from).push({type:'cue',cue:a});}
+ if(!notesBefore.has(rec.from))notesBefore.set(rec.from,[]);notesBefore.get(rec.from).push(a);}
  for(const n of redNotes){let target=n.afterUid?rows.findIndex(r=>r.uid===n.afterUid):-1;
  const key=target<0?-1:sourceMap.get(target)?.to;
  if(key===undefined)continue;if(!notesAfter.has(key))notesAfter.set(key,[]);notesAfter.get(key).push({type:'red',note:n});}
- const parts=[];const insert=(entries)=>{for(const entry of entries||[]){if(entry.type==='red'){if(entry.note.text?.trim())parts.push(redNoteParagraph(entry.note.text))}
- else{parts.push(cueParagraph(entry.cue));const ref=mediaById.get(entry.cue.referenceAssetId);if(ref)parts.push(wImagePara(ref))}}};
- insert(notesAfter.get(-1));
- lines.forEach((text,i)=>{insert(notesBefore.get(i));const uid=rowPerLine.get(i),clr=uid?colorForRow(uid):null;const cut=uid&&rowIsCut(uid);
+ const parts=[];const insertCues=(list)=>{if(!list?.length)return;parts.push(cueGroupParagraph(list));for(const a of list){const ref=mediaById.get(a.referenceAssetId);if(ref)parts.push(wImagePara(ref))}};
+ const insertRed=(entries)=>{for(const entry of entries||[]){if(entry.note?.text?.trim())parts.push(redNoteParagraph(entry.note.text))}};
+ insertRed(notesAfter.get(-1));
+ lines.forEach((text,i)=>{insertCues(notesBefore.get(i));const uid=rowPerLine.get(i),clr=uid?colorForRow(uid):null;const cut=uid&&rowIsCut(uid);
  // 原始編號、時間碼、空行維持原樣；刪除線只作用在台詞行。
  let isSpeech=false;
  if(uid){const ri=rows.findIndex(r=>r.uid===uid),rec=sourceMap.get(ri);isSpeech=!!(rec&&i>=rec.from+2&&i<=rec.to&&text.trim())}
  const modified=isSpeech&&uid?rows.find(r=>r.uid===uid)?.editedText:null;
  const rowIndex=uid?rows.findIndex(r=>r.uid===uid):-1,rec=rowIndex>=0?sourceMap.get(rowIndex):null;
  const divider=!!(rec&&i===rec.from&&isGraphicBoundary(uid));
- parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!clr,clr,!!(cut&&isSpeech),divider,!!(isSpeech&&uid&&rowIsShort(uid))));insert(notesAfter.get(i));});
+ parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,!!(isSpeech&&uid&&rowIsShort(uid))));insertRed(notesAfter.get(i));});
  return makeBlankWord(parts,media);
 }
 
@@ -948,12 +1005,13 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
  texts[0].textContent=newText;for(const t of texts.slice(1))t.textContent='';
  }}}}}
  for(const r of rows){const clr=colorForRow(r.uid),parts=r.paragraphIndices||[];
- for(const i of parts){const p=ps[i];if(p&&clr)appendShadingToParagraph(p,clr,xml,rowIsCut(r.uid)&&i===parts.at(-1))}
+ const speechIndex=parts.at(-1);
+ if(clr&&speechIndex!==undefined&&ps[speechIndex])appendShadingToParagraph(ps[speechIndex],clr,xml,rowIsCut(r.uid));
  if(rowIsShort(r.uid)&&parts.length&&ps[parts.at(-1)])appendTextColorToParagraph(ps[parts.at(-1)],'B42027',xml);
  if(isGraphicBoundary(r.uid)&&parts.length&&ps[parts[0]])addWordTopDivider(ps[parts[0]],xml);
 }
  const toNode=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return xml.importNode(frag.getElementsByTagNameNS(W,'p')[0],true)};
- for(const [p,entries] of cueBefore){for(const e of entries){let paras=[cueParagraph(e.cue)];const ref=mediaById.get(e.cue.referenceAssetId);if(ref)paras.push(wImagePara(ref));for(const str of paras)p.parentNode.insertBefore(toNode(str),p)}}
+ for(const [p,entries] of cueBefore){const cues=entries.map(e=>e.cue);const paras=[cueGroupParagraph(cues)];for(const a of cues){const ref=mediaById.get(a.referenceAssetId);if(ref)paras.push(wImagePara(ref))}for(const str of paras)p.parentNode.insertBefore(toNode(str),p)}
  for(const [p,entries] of after){let last=p;for(const e of entries){let paras=e.type==='red'?[redNoteParagraph(e.note.text||'')]:[cueParagraph(e.cue)];
  const ref=e.type==='cue'?mediaById.get(e.cue.referenceAssetId):null;if(ref)paras.push(wImagePara(ref));
  for(const str of paras){const node=toNode(str);last.parentNode.insertBefore(node,last.nextSibling);last=node}}}
