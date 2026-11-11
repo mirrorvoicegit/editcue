@@ -393,7 +393,7 @@ html,body,.shell{background:#fff!important}
 .time{color:#555}
 .rowtags{margin-top:7px}
 .tag,.tag:hover{background:transparent!important;border:0!important}
-.tag.cut{color:#393939!important}.tag.highlight{color:#D00070!important}.tag.card,.tag.visual,.tag.textcard{color:#111!important}.tag.captions,.tag.other,.tag.move,.tag.short{color:#E00000!important}
+.tag.cut{color:#393939!important}.tag.highlight{color:#009B3E!important}.tag.card,.tag.visual,.tag.textcard{color:#111!important}.tag.captions,.tag.other,.tag.move,.tag.short{color:#E00000!important}
 .asidecard{padding:0 12px 10px;gap:0}
 .assets{flex:1;overflow:hidden}
 .asidehead{min-height:66px;margin:0 0 10px;padding:0 4px;border-bottom:2px solid #111!important;display:flex;align-items:center}
@@ -446,7 +446,7 @@ html,body,.shell{background:#fff!important}
 .cue-range-head:hover{text-decoration:underline;text-underline-offset:2px}
 .cue-range-head.kind-cut{color:#262828;font-weight:800}
 .cue-range-head.kind-short{color:#E00000}
-.cue-range-head.kind-highlight{color:#D00070}
+.cue-range-head.kind-highlight{color:#009B3E}
 .cue-range-head.kind-card,.cue-range-head.kind-visual,.cue-range-head.kind-textcard{color:#171717}
 .txrow.range-yellow .cue-range-head.kind-short{color:#E00000}
 #toolBar{position:fixed!important;z-index:1000!important;left:8px;top:8px;right:auto!important;max-width:calc(100vw - 16px)!important;width:max-content;overflow-x:auto;overscroll-behavior:contain;}
@@ -520,14 +520,14 @@ html,body,.shell{background:#fff!important}
 .cue-manage-help{font-size:11px;color:#555;padding:10px 14px;border-top:1px solid #111}
 @media(max-width:720px){.cue-manage-panel{max-height:55vh;box-shadow:3px 3px 0 #111}}
 
-/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=桃紅字。 */
-.txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #D00070!important}
-.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #D00070!important}
+/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=亮綠字。 */
+.txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #009B3E!important}
+.txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #009B3E!important}
 .txrow.ink-textcard:not(.mark-cut) .speech{color:#0047FF!important;font-weight:700!important}
-.txrow.ink-highlight:not(.mark-cut) .speech{color:#D00070!important;font-weight:700!important}
+.txrow.ink-highlight:not(.mark-cut) .speech{color:#009B3E!important;font-weight:700!important}
 .txrow.ink-short:not(.mark-cut) .speech{color:#E00000!important;font-weight:600!important}
 .txrow.range-short.ink-highlight:not(.mark-cut) .speech,.txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:inherit}
-.txrow.range-short.ink-highlight:not(.mark-cut) .speech{color:#D00070!important}
+.txrow.range-short.ink-highlight:not(.mark-cut) .speech{color:#009B3E!important}
 .txrow.range-short.ink-textcard:not(.mark-cut) .speech{color:#0047FF!important}
 .cue-summary{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:0 0 8px;max-width:100%}
 .cue-summary-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px;min-height:29px;border:1px solid #222;background:rgba(255,255,255,.94);padding:3px 5px;max-width:100%;font-size:11px;color:#444}
@@ -537,8 +537,8 @@ html,body,.shell{background:#fff!important}
 .cue-summary-context{font-size:10px;color:#555;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cue-summary-item.kind-textcard{border-color:#0047FF}
 .cue-summary-item.kind-textcard .cue-summary-title{color:#0047FF}
-.cue-summary-item.kind-highlight{border-color:#D00070}
-.cue-summary-item.kind-highlight .cue-summary-title{color:#D00070}
+.cue-summary-item.kind-highlight{border-color:#009B3E}
+.cue-summary-item.kind-highlight .cue-summary-title{color:#009B3E}
 .cue-summary-item.kind-short{border-color:#E00000}
 .cue-summary-item.kind-short .cue-summary-title{color:#E00000}
 .cue-summary-item.kind-cut{border-color:#555}
@@ -551,7 +551,7 @@ html,body,.shell{background:#fff!important}
 .range-handle-group .range-handle{width:22px!important;min-width:22px!important;height:26px!important;font-size:10px!important;letter-spacing:0!important;cursor:ns-resize!important}
 .txrow .range-handle-group{opacity:.35;transition:opacity .15s ease}
 .txrow:hover .range-handle-group,.txrow.selected .range-handle-group,.range-handle-group:focus-within{opacity:1}
-.txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #D00070!important}
+.txrow.range-preview.preview-highlight{background:#fff!important;box-shadow:inset 5px 0 #009B3E!important}
 .txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 5px 0 #0047FF!important}
 @media(max-width:720px){.txrow .range-handle-group{opacity:1}.cue-summary-item{max-width:100%}.cue-summary-context{max-width:140px}}
 
@@ -623,6 +623,30 @@ html,body,.shell{background:#fff!important}
 #searchPanel.jump-mode .search-panel-nav{display:none}
 #assetPanel .asset-plain-count{font-size:11px;font-weight:450;color:#666;margin-left:5px;vertical-align:baseline;font-variant-numeric:tabular-nums}
 @media(max-width:720px){#searchWrap .search{width:min(165px,38vw);max-width:100%}}
+
+/* 標示索引不佔用工作區高度，開啟後依字幕時間排序。 */
+.cue-index-trigger{background:#fff;border:0;border-bottom:1px solid transparent;color:#111;font-size:11px;font-weight:750;white-space:nowrap;padding:5px 6px;min-height:28px;cursor:pointer}
+.cue-index-trigger:hover,.cue-index-trigger[aria-expanded=true]{border-bottom-color:#111}
+.cue-index-panel{position:fixed;z-index:8100;display:flex;flex-direction:column;width:min(480px,calc(100vw - 22px));max-height:min(76dvh,690px);background:#fff;color:#111;border:1.5px solid #111;box-shadow:4px 4px 0 #0002}
+.cue-index-panel.hidden{display:none}
+.cue-index-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 14px 11px;border-bottom:1px solid #111}
+.cue-index-heading b{font-size:16px;font-weight:800}
+.cue-index-heading small{display:block;margin-top:4px;color:#777;font-size:11px}
+#cueIndexClose{border:0;background:#fff;font-size:24px;height:28px;min-width:28px;cursor:pointer;line-height:1}
+.cue-index-filters{display:flex;align-items:center;flex-wrap:wrap;gap:0 12px;border-bottom:1px solid #ddd;padding:7px 14px 5px}
+.cue-index-filter{font-size:11px;font-weight:700;color:#777;border:0;border-bottom:2px solid transparent;background:#fff;padding:7px 0;cursor:pointer;white-space:nowrap}
+.cue-index-filter.active{color:#111;border-bottom-color:#111}
+.cue-index-filter span{color:#888;font-size:10px;font-weight:450;margin-left:3px}
+.cue-index-items{overflow-y:auto;min-height:80px;overscroll-behavior:contain;padding:3px 0}
+.cue-index-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;border-left:4px solid #888;background:white;color:#111;padding:10px 14px 10px 12px;cursor:pointer}
+.cue-index-item:hover,.cue-index-item:focus-visible{background:#f5f5f5;outline:none}
+.cue-index-first{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.cue-index-name{font-size:12px;font-weight:800}
+.cue-index-number{font-size:11px;color:#444;font-variant-numeric:tabular-nums;text-align:right}
+.cue-index-time{font-size:10.5px;color:#777;font-variant-numeric:tabular-nums;margin-top:4px}
+.cue-index-excerpt{font-size:12px;color:#555;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cue-index-empty{font-size:12px;text-align:center;color:#777;padding:30px 16px}
+@media(max-width:720px){.cue-index-panel{max-height:min(80dvh,710px)}.cue-index-trigger{padding:4px;font-size:10.5px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -639,7 +663,7 @@ html,body,.shell{background:#fff!important}
 <div class="body">
  <section class="left">
   <div class="workspace card" id="workArea">
-   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><button type="button" id="fastMarkBtn" class="fast-mark-trigger" title="直接輸入字幕編號範圍，批次建立標示" aria-haspopup="dialog" aria-controls="fastMarkPanel" aria-expanded="false">＋ 快速標示</button><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或字幕編號" aria-label="搜尋台詞或輸入字幕編號跳轉" autocomplete="off" enterkeyhint="go" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
+   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><button type="button" id="fastMarkBtn" class="fast-mark-trigger" title="直接輸入字幕編號範圍，批次建立標示" aria-haspopup="dialog" aria-controls="fastMarkPanel" aria-expanded="false">＋ 快速標示</button><button type="button" id="cueIndexBtn" class="cue-index-trigger" title="依種類查找已做的標示" aria-haspopup="dialog" aria-controls="cueIndexPanel" aria-expanded="false">☷ 標示索引</button><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或字幕編號" aria-label="搜尋台詞或輸入字幕編號跳轉" autocomplete="off" enterkeyhint="go" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
  <div class="search-panel-head"><span id="searchCount" aria-live="polite">輸入關鍵字搜尋</span><div class="search-panel-nav"><button type="button" id="searchPrev" title="上一處" aria-label="上一處">↑</button><button type="button" id="searchNext" title="下一處" aria-label="下一處">↓</button><button type="button" id="replaceToggle" title="開啟取代功能">取代</button></div></div>
  <div class="search-replace" id="searchReplace"><label for="replaceInput">取代為</label><input id="replaceInput" type="text" placeholder="輸入正確文字" autocomplete="off"><div class="search-replace-actions"><button type="button" id="replaceOne">取代這一筆</button><button type="button" id="replaceAll">全部取代</button></div><span class="search-replace-hint">僅修改台詞，不更動字幕編號與時間碼 · 可復原</span></div>
  </div></div><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
@@ -675,7 +699,7 @@ html,body,.shell{background:#fff!important}
  </div>
  <div class="fast-mark-footer"><button type="button" class="fast-mark-apply" id="fastMarkApply" disabled>建立標示</button><button type="button" class="fast-mark-cancel" id="fastMarkCancel">取消</button></div>
 </div>
-<div id="cueManagePanel" class="cue-manage-panel hidden" role="dialog" aria-label="管理目前選取範圍的標示"></div>
+<div id="cueIndexPanel" class="cue-index-panel hidden" role="dialog" aria-label="標示索引" aria-modal="false"><div class="cue-index-heading"><div><b>標示索引</b><small id="cueIndexTotal">按種類查找已標示段落</small></div><button type="button" id="cueIndexClose" aria-label="關閉標示索引">×</button></div><div id="cueIndexFilters" class="cue-index-filters" role="group" aria-label="依標示種類篩選"></div><div id="cueIndexItems" class="cue-index-items"></div></div><div id="cueManagePanel" class="cue-manage-panel hidden" role="dialog" aria-label="管理目前選取範圍的標示"></div>
 <div id="previewModal" class="preview-modal" aria-hidden="true" role="dialog" aria-label="圖片預覽">
  <div class="preview-surface"><button class="preview-close" id="previewClose" aria-label="關閉圖片預覽">×</button><img id="previewImage" alt="圖卡預覽"><div id="previewCaption"></div></div>
  </div><div id="toast" class="toast hidden" role="status"></div>
@@ -925,11 +949,90 @@ function renderAssets(){
  }).join('')||'<div class="noassets">按右上角 ＋ 新增素材</div>';
  renderCounters();
 }
+
+// 標示索引只讀取目前已建立的標示，不修改工作檔。
+let cueIndexOpen=false,cueIndexFilter='all';
+const CUE_INDEX_TABS=[['all','全部'],['cut','剪掉'],['card','圖卡'],['textcard','字卡'],['highlight','精彩片段'],['short','短影音'],['other','其他']];
+function cueIndexCategory(kind){
+ if(kind==='card'||kind==='visual')return 'card';
+ return ['cut','textcard','highlight','short'].includes(kind)?kind:'other';
+}
+function cueIndexEntries(){
+ const items=[];
+ for(const cue of annotations){
+  const loc=sourceRowAt(cue);
+  if(!loc)continue;
+  const name=cue.kind==='card'||cue.kind==='visual'?'插入圖卡':cue.kind==='textcard'?'插入字卡':cue.kind==='other'?'其他備註':findKind(cue.kind).label;
+  const seqStart=loc.first.seq||loc.firstIndex+1,seqEnd=loc.last.seq||loc.lastIndex+1;
+  const asset=assetById(cue.assetId),extra=(cue.detail||cue.title||(asset?.name||'')).trim();
+  items.push({id:cue.id,category:cueIndexCategory(cue.kind),name,from:seqStart,to:seqEnd,at:loc.firstIndex,time:(loc.first.start||'')+' – '+(loc.last.end||''),excerpt:extra||loc.first.text||'',kind:cue.kind});
+ }
+ for(const note of redNotes){
+  const at=rows.findIndex(r=>r.uid===note.afterUid);
+  if(at<0)continue;
+  const r=rows[at];
+  items.push({id:'note:'+note.id,category:'other',name:'其他備註',from:r.seq||at+1,to:r.seq||at+1,at,time:r.start||'',excerpt:note.text||'',kind:'other'});
+ }
+ return items.sort((a,b)=>a.at-b.at||a.category.localeCompare(b.category));
+}
+function renderCueIndex(){
+ if(!cueIndexOpen)return;
+ const items=cueIndexEntries(),visible=cueIndexFilter==='all'?items:items.filter(x=>x.category===cueIndexFilter);
+ $('cueIndexTotal').textContent=items.length+' 則標示 · 點擊即可跳到對應字幕';
+ $('cueIndexFilters').innerHTML=CUE_INDEX_TABS.map(([kind,label])=>{
+  const count=kind==='all'?items.length:items.filter(x=>x.category===kind).length;
+  return '<button type="button" class="cue-index-filter'+(cueIndexFilter===kind?' active':'')+'" data-index-filter="'+kind+'" aria-pressed="'+String(cueIndexFilter===kind)+'">'+label+'<span>'+count+'</span></button>';
+ }).join('');
+ const ink={cut:'#555',card:'#B09A08',textcard:'#0047FF',highlight:'#009B3E',short:'#E00000',other:'#555'};
+ $('cueIndexItems').innerHTML=visible.length?visible.map(item=>
+  '<button class="cue-index-item" type="button" data-index-target="'+String(item.from)+'" style="border-left-color:'+ink[item.category]+'">'
+  +'<div class="cue-index-first"><span class="cue-index-name" style="color:'+ink[item.category]+'">'+escapeHtml(item.name)+'</span>'
+  +'<span class="cue-index-number">字幕 '+escapeHtml(String(item.from))+(item.from===item.to?'':'–'+escapeHtml(String(item.to)))+'</span></div>'
+  +'<div class="cue-index-time">'+escapeHtml(item.time)+'</div>'
+  +'<div class="cue-index-excerpt">'+escapeHtml(item.excerpt)+'</div></button>'
+ ).join(''):'<div class="cue-index-empty">目前沒有這一類標示</div>';
+}
+function positionCueIndex(){
+ if(!cueIndexOpen)return;
+ const trigger=$('cueIndexBtn'),panel=$('cueIndexPanel'),r=trigger.getBoundingClientRect();
+ const viewportWidth=document.documentElement.clientWidth,viewportHeight=window.innerHeight;
+ const panelWidth=Math.min(480,viewportWidth-22);
+ panel.style.left=Math.max(10,Math.min(r.left,viewportWidth-panelWidth-10))+'px';
+ panel.style.top=Math.max(10,Math.min(r.bottom+8,viewportHeight-Math.min(690,viewportHeight*.76)-10))+'px';
+}
+function setCueIndexOpen(open){
+ cueIndexOpen=!!open;
+ $('cueIndexPanel').classList.toggle('hidden',!cueIndexOpen);
+ $('cueIndexBtn').setAttribute('aria-expanded',String(cueIndexOpen));
+ if(cueIndexOpen){
+  if(fastMarkOpen)setFastMarkOpen(false);
+  closeCueManager();
+  renderCueIndex();positionCueIndex();
+ }
+}
+$('cueIndexBtn').addEventListener('click',()=>setCueIndexOpen(!cueIndexOpen));
+$('cueIndexClose').addEventListener('click',()=>setCueIndexOpen(false));
+$('cueIndexFilters').addEventListener('click',e=>{
+ const b=e.target.closest('[data-index-filter]');if(!b)return;
+ cueIndexFilter=b.dataset.indexFilter;renderCueIndex();
+});
+$('cueIndexItems').addEventListener('click',e=>{
+ const b=e.target.closest('[data-index-target]');if(!b)return;
+ const target=b.dataset.indexTarget;
+ setCueIndexOpen(false);
+ jumpToSubtitle(target);
+});
+document.addEventListener('pointerdown',e=>{
+ if(cueIndexOpen&&!e.target.closest('#cueIndexPanel,#cueIndexBtn'))setCueIndexOpen(false);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&cueIndexOpen)setCueIndexOpen(false)});
+window.addEventListener('resize',()=>{if(cueIndexOpen)positionCueIndex()});
+
 function refreshAll(){
  cachedNoteOrder=null;
  if(!rows.length){selected.clear();anchor=-1;lastSelectionRect=null;window._showInspector=false;editId=null;}
  else selected=new Set([...selected].filter(i=>Number.isInteger(i)&&i>=0&&i<rows.length));
- renderRows();renderCounters();renderAssets();renderCueList();paintSelection();renderInspector();
+ renderRows();renderCounters();renderAssets();renderCueList();paintSelection();renderInspector();if(cueIndexOpen)renderCueIndex();
 }
 function setKind(k){kindId=k;window._showInspector=['move','card','captions','visual','other','textcard'].includes(k);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===k));if(window._showInspector)$('toolBar').classList.remove('open');renderInspector()}
 function renderInspector(){const host=$('inspectorBody');$('inspector').classList.toggle('hasselection',!!editId||!!window._showInspector);const s=selectionIndices(),editing=annotations.find(a=>a.id===editId);$('pickedCount').textContent=s.length+' 段';$('inspectorTitle').textContent=editing?'修改標示':'標示需求';if(!s.length&&!editing){$('inspector').classList.remove('hasselection');window._showInspector=false;host.className='emptyedit';host.innerHTML='先選取台詞，再新增標示';return}host.className='';if(window._showInspector||editing){$('inspector').classList.add('hasselection');positionInspector()} const first=rows[s[0]],last=rows[s.at(-1)];const interval=first?.start?asClock(first.start)+' – '+asClock(last.end):s.length+' 段';const chosen=editing?.kind||kindId;
@@ -1203,7 +1306,7 @@ function colorForRow(uid){const acts=annotationsForRow(uid);
 function textColorForRow(uid){const acts=annotationsForRow(uid);
  if(acts.some(a=>a.kind==='cut'))return null;
  if(acts.some(a=>a.kind==='textcard'))return '0047FF';
- if(acts.some(a=>a.kind==='highlight'))return 'D00070';
+ if(acts.some(a=>a.kind==='highlight'))return '009B3E';
  if(acts.some(a=>a.kind==='short'))return 'E00000';
  return null;
 }
@@ -1225,9 +1328,9 @@ function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,colo
 function cueGroupParagraph(group){
  const first=sourceRowAt(group[0]);const start=first?.first;
  const intro=`後製指示｜字幕 ${start?.seq||'?'}｜${start?.start||''}`;
- const run=(text,color='333333',bold=false)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
+ const run=(text,color='333333',bold=false)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}${bold&&color==='009B3E'?'<w:u w:val="single"/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
  const br='<w:r><w:br/></w:r>';
- const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0047FF',highlight:'D00070',short:'E00000',captions:'B12B32',other:'B12B32',move:'333333'};
+ const cueColor={cut:'555555',card:'765900',visual:'765900',textcard:'0047FF',highlight:'009B3E',short:'E00000',captions:'B12B32',other:'B12B32',move:'333333'};
  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
  let contents=run(intro,'555555',true);
  for(const cue of group){
@@ -1245,7 +1348,7 @@ function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
 
 function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null){
  if(!text)return `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>`;
- let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>`:'');
+ let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>${inkColor==='009B3E'?'<w:u w:val="single"/>':''}`:'');
  return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>${divider?wordDividerPr():''}</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/>${pr}</w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
 }
 function sourceLineMap(lines){const out=new Map();let i=0,idx=0;
