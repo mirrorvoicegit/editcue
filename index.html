@@ -455,6 +455,40 @@ html,body,.shell{background:#fff!important}
 /* EC 與逐字稿標題列共用高度與線條粗細，消除水平錯位。 */
 .railmark{height:66px;min-height:66px;flex:0 0 66px;padding:0;border-bottom:2px solid #111;box-sizing:border-box}
 @media(max-width:720px){.railmark{height:57px;min-height:57px;flex-basis:57px;padding:0}}
+
+
+
+/* 搜尋、取代與整段標記：黑白介面不占用剪輯標示用色 */
+.txrow,.txrow .speech,.txrow .time,.txrow .line-number{user-select:none;-webkit-user-select:none}
+.txrow textarea,.txrow input{user-select:text!important;-webkit-user-select:text!important}
+::selection{background:#111;color:#fff}
+.txrow.selected,.txrow.selected:not(.mark-cut):not(.range-yellow):not(.range-green):not(.range-highlight){outline:2px solid #111!important;outline-offset:-2px;border-color:#111!important}
+.txrow.selected:not(.mark-cut):not(.range-yellow):not(.range-green):not(.range-highlight){background:#FAFAFA!important;box-shadow:inset 4px 0 #111!important}
+.search-wrap{position:relative;min-width:0}
+.search-panel{display:none;position:absolute;top:calc(100% + 7px);right:0;width:min(350px,calc(100vw - 90px));background:#fff;border:1.5px solid #111;box-shadow:4px 4px 0 rgba(0,0,0,.11);padding:11px 12px;z-index:1200;color:#111}
+.search-panel.open{display:block}
+.search-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;min-height:30px}
+.search-panel-nav{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.search-panel-nav button,.search-replace-actions button{background:#fff;border:1px solid #111;color:#111;padding:5px 9px;font-size:12px;font-weight:650;min-height:31px;cursor:pointer}
+.search-panel-nav button:hover:not(:disabled),.search-replace-actions button:hover:not(:disabled){background:#111;color:#fff}
+.search-panel button:disabled{border-color:#ccc;color:#aaa;cursor:default}
+.search-replace{display:none;border-top:1px solid #111;margin-top:10px;padding-top:11px}
+.search-replace.open{display:block}
+.search-replace label{display:block;font-size:11px;margin-bottom:6px;font-weight:700}
+.search-replace input{display:block;width:100%;height:35px;border:1px solid #111;border-radius:0;padding:7px 10px;background:white;color:#111}
+.search-replace input:focus{outline:2px solid #111;outline-offset:1px}
+.search-replace-actions{display:flex;gap:7px;margin-top:10px}
+.search-replace-actions button{flex:1}
+.search-replace-actions button:last-child{background:#111;color:#fff}
+.search-replace-actions button:last-child:hover:not(:disabled){background:#444}
+.search-replace-hint{display:block;color:#666;font-size:10.5px;margin-top:9px;line-height:1.5}
+.search-match{text-decoration:underline;text-decoration-color:#111;text-decoration-thickness:1px;text-underline-offset:3px}
+.search-match.active{outline:1.5px solid #111;outline-offset:2px;text-decoration-thickness:2px}
+@media(max-width:720px){.search-panel{position:fixed;top:64px;left:58px;right:auto;width:calc(100vw - 69px);max-width:360px}}
+/* 選取段落以連續的黑線識別，避免每句都出現厚重的方框。 */
+.txrow.selected,.txrow.selected:not(.mark-cut):not(.range-yellow):not(.range-green):not(.range-highlight){outline:none!important;border-top-color:transparent!important;border-right-color:transparent!important;border-bottom-color:transparent!important;border-left:4px solid #111!important;border-radius:0!important}
+.txrow.selected.sel-first{border-top:1px solid #111!important}
+.txrow.selected.sel-last{border-bottom:1px solid #111!important}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -471,7 +505,10 @@ html,body,.shell{background:#fff!important}
 <div class="body">
  <section class="left">
   <div class="workspace card" id="workArea">
-   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿"><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
+   <div class="toolbar"><div class="toolbarleft"><span class="section-name">逐字稿</span><span class="count" id="rowCount">0 段</span><span class="titledivider" aria-hidden="true"></span><input id="docTitle" class="titlefield" aria-label="節目名稱" value="未命名節目" title="點選修改節目名稱"><button type="button" id="newTextNoteBtn" class="add-red-note" hidden title="在目前選取的台詞後插入紅字註記">＋ 文字註記</button></div><div class="toolbarright"><button type="button" id="undoBtn" class="undo-btn" title="復原上一步標示（Ctrl+Z）" disabled>↶</button><button type="button" id="redoBtn" class="undo-btn" title="重做標示（Ctrl+Shift+Z）" disabled>↷</button><div class="search-wrap" id="searchWrap"><input class="search" id="searchInput" placeholder="搜尋台詞或時間碼" aria-label="搜尋逐字稿" autocomplete="off" aria-controls="searchPanel"><div class="search-panel" id="searchPanel" role="region" aria-label="搜尋與取代">
+ <div class="search-panel-head"><span id="searchCount" aria-live="polite">輸入關鍵字搜尋</span><div class="search-panel-nav"><button type="button" id="searchPrev" title="上一處" aria-label="上一處">↑</button><button type="button" id="searchNext" title="下一處" aria-label="下一處">↓</button><button type="button" id="replaceToggle" title="開啟取代功能">取代</button></div></div>
+ <div class="search-replace" id="searchReplace"><label for="replaceInput">取代為</label><input id="replaceInput" type="text" placeholder="輸入正確文字" autocomplete="off"><div class="search-replace-actions"><button type="button" id="replaceOne">取代這一筆</button><button type="button" id="replaceAll">全部取代</button></div><span class="search-replace-hint">僅修改台詞，不更動字幕編號與時間碼 · 可復原</span></div>
+ </div></div><button class="iconbtn" title="取消選取" id="clearBtn">×</button></div></div>
    <div class="tools" id="toolBar" role="toolbar" aria-label="選取文字後的標示工具">
     <button class="tool" data-kind="cut" title="灰底、台詞刪除線">✕ <span>剪掉</span></button>
     <button class="tool" data-kind="highlight" title="選取精彩片段">✧ <span>精彩片段</span></button><button class="tool" data-kind="short" title="選取短影音範圍；以文字顏色標記，不額外增加底色">▸ <span>短影音</span></button><button class="tool" data-kind="textcard" title="指定插入字卡及文字內容">▤ <span>插入字卡</span></button>
@@ -516,6 +553,7 @@ const PRESET='一般口誤、停頓、重講、設備測試及場外對話由剪
 let rows=[],annotations=[],assets=[],selected=new Set(),anchor=-1,kindId='card',editId=null,sourceName='',assetChoice='',draftRevision=0,saveTimer=null,processingFiles=false,dragCount=0;
 let activeAssetDrag=false,rangeDrag=null,lastSelectionRect=null,suppressClickOnce=false,previewOpen=false;
 let redNotes=[],referenceChoice='',referenceTemp=[],draggingNoteId='',undoStack=[],redoStack=[];
+let searchRecords=[],searchActiveIndex=0,searchOpen=false,replaceExpanded=false,transcriptPointerRange=null;
 const HISTORY_MAX=60;
 function historySnapshot(){return JSON.stringify({annotations,redNotes,editedRows:rows.map(r=>({uid:r.uid,text:r.text,editedText:r.editedText}))});}
 function updateUndoButtons(){if($('undoBtn'))$('undoBtn').disabled=!undoStack.length;if($('redoBtn'))$('redoBtn').disabled=!redoStack.length}
@@ -552,7 +590,7 @@ function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').v
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
 function selectionIndices(){return [...selected].sort((a,b)=>a-b)}
 function setSelection(set){selected=new Set(set);paintSelection();renderInspector()}
-function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0);if(s.length&&rows.length)positionSelectionTools();$('pickedCount').textContent=s.length+' 段';$('selectionInfo').textContent=s.length?(s.length+' 段已選取 · '+(rows[s[0]]?.start?asClock(rows[s[0]].start)+' → '+asClock(rows[s.at(-1)].end):'段 '+(s[0]+1)+'–'+(s.at(-1)+1))):'點選台詞 · Shift 可連選';$('clearBtn').style.visibility=s.length?'visible':'hidden';$('selectAllBtn').classList.toggle('hidden',!rows.length);for(const el of $('transcript').querySelectorAll('.txrow'))el.classList.toggle('selected',selected.has(+el.dataset.i));}
+function paintSelection(){const s=selectionIndices();$('toolBar').classList.toggle('open',s.length>0&&rows.length>0);if(s.length&&rows.length)positionSelectionTools();$('pickedCount').textContent=s.length+' 段';$('selectionInfo').textContent=s.length?(s.length+' 段已選取 · '+(rows[s[0]]?.start?asClock(rows[s[0]].start)+' → '+asClock(rows[s.at(-1)].end):'段 '+(s[0]+1)+'–'+(s.at(-1)+1))):'點選台詞 · Shift 可連選';$('clearBtn').style.visibility=s.length?'visible':'hidden';$('selectAllBtn').classList.toggle('hidden',!rows.length);for(const el of $('transcript').querySelectorAll('.txrow')){const i=+el.dataset.i,hit=selected.has(i);el.classList.toggle('selected',hit);el.classList.toggle('sel-first',hit&&!selected.has(i-1));el.classList.toggle('sel-last',hit&&!selected.has(i+1));}}
 function toggleRow(index,e={}){if(e.shiftKey&&anchor>=0){const a=Math.min(anchor,index),b=Math.max(anchor,index),n=e.metaKey||e.ctrlKey?new Set(selected):new Set();for(let x=a;x<=b;x++)n.add(x);setSelection(n)}else if(e.metaKey||e.ctrlKey){let n=new Set(selected);n.has(index)?n.delete(index):n.add(index);setSelection(n);anchor=index}else{if(selected.size===1&&selected.has(index)){setSelection([])}else setSelection([index]);anchor=index}}
 function annotationsForRow(id){return noteOrder().filter(a=>a.rowIds.includes(id))}
 function visualCardFor(uid){return noteOrder().find(a=>(a.kind==='card'||a.kind==='visual')&&a.rowIds.includes(uid))}
@@ -577,7 +615,7 @@ function rowMarkup(r,i){
  const noteDetails=firstMarks.filter(a=>a.detail||(!a.assetId&&a.title)||a.referenceAssetId);
  return `<div class="txrow${anns.length?' hasmarks':''}${cut?' mark-cut':''}${shade}${graphicSeparator}${highlightClass}${isShort?' range-short':''}${selected.has(i)?' selected':''}" data-i="${i}" draggable="false">
  <div class="time">${r.start?escapeHtml(asClock(r.start)):'—'}<div class="line-number">${escapeHtml(r.seq||i+1)}</div></div>
- <div class="txbody">${head}<div class="speech" data-speech-index="${i}" title="雙擊即可修改錯字">${escapeHtml(r.text||'（無台詞）')}</div>
+ <div class="txbody">${head}<div class="speech" data-speech-index="${i}" title="雙擊即可修改錯字">${renderSearchSpeech(r.text||'（無台詞）',i)}</div>
  ${otherMarks.length?`<div class="rowtags">${otherMarks.map(a=>`<button class="tag ${a.kind}" data-cue="${escapeHtml(a.id)}" title="點選修改或移除">${escapeHtml(findKind(a.kind).label)}${assetById(a.assetId)?' · '+escapeHtml(window._exportCodes?.get(a.assetId)||assetById(a.assetId).code):''}</button>`).join('')}</div>`:''}
  ${noteDetails.length?noteDetails.map(a=>`<div class="cue-inline-note" data-cue="${escapeHtml(a.id)}" title="點選修改標示">${a.detail?`<span class="cue-inline-text">${escapeHtml(a.detail)}</span>`:(!a.assetId&&a.title)?`<span class="cue-inline-text">${escapeHtml(a.title)}</span>`:''}${a.referenceAssetId&&assetById(a.referenceAssetId)?`<img src="${assetById(a.referenceAssetId).dataUrl}" alt="特殊需求參考圖片" class="cue-inline-image">`:''}</div>`).join(''):''}
  ${r.images?.length?'<div>'+r.images.slice(0,4).map(src=>`<img class="sourceimg" src="${src}" alt="原始參考圖片">`).join('')+'</div>':''}</div>
@@ -589,7 +627,72 @@ function redNoteMarkup(note){return `<div class="red-note" data-red-id="${escape
  <textarea data-red-edit="${escapeHtml(note.id)}" aria-label="紅字註記內容" placeholder="輸入需要提醒剪輯師的重點">${escapeHtml(note.text||'')}</textarea>
  <button class="red-note-remove" type="button" data-red-remove="${escapeHtml(note.id)}" title="刪除這則文字註記">×</button>
  </div>`;}
+// 搜尋所有台詞中出現的字詞；時間碼只供搜尋，不會被文字取代。
+function recomputeSearchRecords(){
+ const q=$('searchInput').value.trim();searchRecords=[];
+ if(!q)return;
+ const needle=q.toLocaleLowerCase();
+ rows.forEach((r,rowIndex)=>{
+  const hay=String(r.text||'').toLocaleLowerCase();let pos=0;
+  while(pos<hay.length){const start=hay.indexOf(needle,pos);if(start<0)break;
+   searchRecords.push({rowIndex,start,end:start+q.length});pos=start+Math.max(1,q.length);
+  }
+ });
+ searchActiveIndex=Math.max(0,Math.min(searchActiveIndex,Math.max(0,searchRecords.length-1)));
+}
+function renderSearchSpeech(text,rowIndex){
+ const matches=searchRecords.map((r,i)=>({...r,index:i})).filter(r=>r.rowIndex===rowIndex);
+ if(!matches.length)return escapeHtml(text);
+ let html='',pos=0;
+ for(const m of matches){html+=escapeHtml(text.slice(pos,m.start));
+  html+=`<span class="search-match${m.index===searchActiveIndex?' active':''}" data-search-match="${m.index}">${escapeHtml(text.slice(m.start,m.end))}</span>`;
+  pos=m.end;
+ }
+ return html+escapeHtml(text.slice(pos));
+}
+function refreshSearchPanel(){
+ const q=$('searchInput').value.trim(),visible=rows.filter(r=>`${r.start} ${r.end} ${r.seq} ${r.text}`.toLocaleLowerCase().includes(q.toLocaleLowerCase())).length;
+ $('searchPanel').classList.toggle('open',searchOpen&&rows.length>0);
+ $('searchReplace').classList.toggle('open',replaceExpanded);
+ $('replaceToggle').setAttribute('aria-expanded',String(replaceExpanded));
+ $('replaceToggle').textContent=replaceExpanded?'收合':'取代';
+ const count=searchRecords.length;
+ $('searchCount').textContent=q?`找到 ${visible} 段 · ${count} 處文字${count?'（'+(searchActiveIndex+1)+' / '+count+'）':''}`:'輸入關鍵字搜尋';
+ for(const id of ['searchPrev','searchNext','replaceOne','replaceAll'])$(id).disabled=!count;
+}
+function gotoSearchMatch(step=0){
+ if(!searchRecords.length){refreshSearchPanel();return}
+ searchActiveIndex=(searchActiveIndex+step+searchRecords.length)%searchRecords.length;
+ renderRows();
+ requestAnimationFrame(()=>{const el=$('transcript').querySelector('.search-match.active');el?.scrollIntoView({behavior:'smooth',block:'center'});});
+}
+function applyTranscriptReplacement(all=false){
+ const needle=$('searchInput').value.trim(),replacement=$('replaceInput').value;
+ if(!needle||!searchRecords.length){toast('沒有可以取代的台詞');return}
+ const targets=all?[...searchRecords]:[searchRecords[searchActiveIndex]];
+ const indices=new Set(targets.map(m=>m.rowIndex));
+ const previous=new Map(indices.size?Array.from(indices,i=>[i,rows[i].text]):[]);
+ const changed=new Map();
+ if(all){
+  const escaped=needle.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const re=new RegExp(escaped,'gi');
+  for(const [i,original] of previous){const next=original.replace(re,()=>replacement);if(next!==original)changed.set(i,next)}
+ }else{
+  const rec=targets[0],original=rows[rec.rowIndex].text;
+  const next=original.slice(0,rec.start)+replacement+original.slice(rec.end);
+  if(next!==original)changed.set(rec.rowIndex,next);
+ }
+ if(!changed.size){toast('取代文字與原文相同');return}
+ pushUndo();
+ for(const [i,value] of changed){const r=rows[i];r.originalText??=r.text;r.text=value;r.editedText=value;}
+ setSelection([]);
+ // 全部取代後直接顯示修正後的文字，避免因舊關鍵字消失而出現空白頁。
+ if(all){$('searchInput').value='';searchActiveIndex=0;replaceExpanded=false;searchOpen=false;}
+ recomputeSearchRecords();renderRows();markDirty();
+ toast(`已取代 ${all?targets.length:1} 處 · 可按 Ctrl+Z 復原`);
+}
 function renderRows(){const host=$('transcript');if(!rows.length){host.innerHTML=`<div class="blank" id="emptyState"><div class="blankicon"><svg class="ic" style="width:29px;height:29px"><use href="#i-file"/></svg></div><h2>請上傳檔案</h2><label class="blankbtn native-upload">選擇檔案<input class="native-upload-input" type="file" data-native-upload="all" accept=".docx,.srt,.vtt,.txt,.json,.pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple aria-label="選擇檔案上傳"></label><span class="blanksmall">可上傳逐字稿、圖片、PPTX、PDF 與工作檔（JSON）</span></div>`;return}
+ recomputeSearchRecords();refreshSearchPanel();
  const q=$('searchInput').value.trim().toLowerCase();let html='',found=0;
  // 每個文字註記都定位在原始字幕間，匯出不改動任何原字幕內容。
  if(!q)html+=redNotes.filter(n=>!n.afterUid).map(redNoteMarkup).join('');
@@ -657,7 +760,7 @@ function insertGraphic(id,inds=selectionIndices()){
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
 }
 function editCue(id){const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
-function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';refreshAll();markDirty()}
+function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
 function importText(text,name='Pasted transcript'){const s=safeText(text);if(!s.trim())return; if(rows.length&&!confirm('Replace current transcript with pasted text? Save your draft first if needed.'))return;parsePlain(s);const loadedRows=rows;loadContent({title:name,source:name,loadedRows,rawSource:s,inputType:'txt'});toast(loadedRows.length+' 段已匯入')}
 function saveProject(){if(!rows.length&&!assets.length){toast('尚無可儲存的資料');return}download(cleanFileName($('docTitle').value)+'.editcue.json',new Blob([JSON.stringify(serializable())],{type:'application/json;charset=utf-8'}));toast('工作檔已儲存')}
 
@@ -1074,17 +1177,38 @@ function quickCue(type){
 }
 
 $('toolBar').addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b)return;const k=b.dataset.kind;editId=null;setKind(k);if(k==='red-note'){insertRedNote();return}if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)});
-// 反白文字即時出現工具列，不需要按右鍵。
-$('transcript').addEventListener('mouseup',e=>{
- if(e.target.closest('.red-note'))return;
- const sel=window.getSelection();if(!sel||sel.isCollapsed||!sel.toString().trim())return;
- const a=sel.anchorNode?.parentElement?.closest('.txrow'),b=sel.focusNode?.parentElement?.closest('.txrow');
- if(!a||!b)return;
- const start=+a.dataset.i,end=+b.dataset.i;if(!Number.isFinite(start)||!Number.isFinite(end))return;
- const indices=[];for(let i=Math.min(start,end);i<=Math.max(start,end);i++)indices.push(i);
- window._selectedQuote=sel.toString().trim();lastSelectionRect=sel.getRangeAt(0).getBoundingClientRect();
- suppressClickOnce=true;setSelection(indices);
+// 按住滑鼠拖曳字幕列即可選取整個段落範圍；時間碼、編號不被原生反白。
+$('transcript').addEventListener('pointerdown',e=>{
+ if(e.button!==0||e.pointerType==='touch'||!rows.length)return;
+ if(e.target.closest('button,input,textarea,select,[data-cue],[data-range-id],.red-note,.sourceimg'))return;
+ const el=e.target.closest('.txrow');if(!el)return;
+ transcriptPointerRange={start:+el.dataset.i,end:+el.dataset.i,x:e.clientX,y:e.clientY,active:false,pointerId:e.pointerId};
 });
+document.addEventListener('pointermove',e=>{
+ const p=transcriptPointerRange;if(!p||e.pointerId!==p.pointerId||activeAssetDrag||rangeDrag||pointerNoteDrag)return;
+ if(!p.active&&Math.hypot(e.clientX-p.x,e.clientY-p.y)<6)return;
+ p.active=true;
+ const scroll=$('transcript'),box=scroll.getBoundingClientRect();
+ if(e.clientY>box.bottom-30)scroll.scrollTop+=16;else if(e.clientY<box.top+30)scroll.scrollTop-=16;
+ const el=document.elementFromPoint(e.clientX,e.clientY)?.closest('.txrow');
+ if(!el||!scroll.contains(el))return;
+ const index=+el.dataset.i;
+ if(index===p.end&&selected.size)return;
+ p.end=index;
+ const next=[];for(let i=Math.min(p.start,p.end);i<=Math.max(p.start,p.end);i++)next.push(i);
+ selected=new Set(next);anchor=p.start;paintSelection();
+});
+document.addEventListener('pointerup',e=>{
+ const p=transcriptPointerRange;if(!p||e.pointerId!==p.pointerId)return;
+ transcriptPointerRange=null;
+ if(!p.active)return;
+ const next=[];for(let i=Math.min(p.start,p.end);i<=Math.max(p.start,p.end);i++)next.push(i);
+ window.getSelection()?.removeAllRanges();window._selectedQuote=next.map(i=>rows[i].text).join(' ');
+ suppressClickOnce=true;anchor=p.start;
+ lastSelectionRect=$('transcript').querySelector(`.txrow[data-i="${Math.min(p.start,p.end)}"]`)?.getBoundingClientRect()||null;
+ setSelection(next);
+});
+document.addEventListener('pointercancel',()=>{transcriptPointerRange=null});
 $('transcript').addEventListener('click',e=>{
  if(e.target.closest('.red-note'))return;
  const h=e.target.closest('[data-range-id]');if(h)return;
@@ -1191,7 +1315,16 @@ document.addEventListener('pointerup',e=>{
  if(next.length)end=Math.min(end,Math.min(...next)-1);
  pushUndo();a.rowIds=rows.slice(range.start,end+1).map(r=>r.uid);refreshAll();markDirty();toast('圖卡顯示範圍已更新');
 });
-$('searchInput').addEventListener('input',()=>{renderRows()});
+$('searchInput').addEventListener('focus',()=>{searchOpen=true;refreshSearchPanel()});
+$('searchInput').addEventListener('input',()=>{searchActiveIndex=0;searchOpen=true;renderRows()});
+$('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();gotoSearchMatch(e.shiftKey?-1:1)}else if(e.key==='Escape'){e.stopPropagation();searchOpen=false;refreshSearchPanel();$('searchInput').blur()}});
+$('searchPrev').onclick=()=>gotoSearchMatch(-1);
+$('searchNext').onclick=()=>gotoSearchMatch(1);
+$('replaceToggle').onclick=()=>{replaceExpanded=!replaceExpanded;searchOpen=true;refreshSearchPanel();if(replaceExpanded)$('replaceInput').focus()};
+$('replaceOne').onclick=()=>applyTranscriptReplacement(false);
+$('replaceAll').onclick=()=>applyTranscriptReplacement(true);
+$('replaceInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyTranscriptReplacement(false)}});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#searchWrap')){searchOpen=false;refreshSearchPanel()}});
 $('clearBtn').onclick=()=>{setSelection([]);anchor=-1};
 $('newTextNoteBtn').onclick=insertRedNote;$('undoBtn').onclick=undoAction;$('redoBtn').onclick=redoAction;
 $('selectAllBtn').onclick=()=>setSelection(rows.map((_,i)=>i));
@@ -1287,7 +1420,7 @@ $('referenceImageInput').onchange=async e=>{const fs=Array.from(e.target.files||
 $('saveBtn').onclick=saveProject;
 $('exportWordBtn').onclick=exportPackage;
 $('resetBtn').onclick=resetWorkspace;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(previewOpen){closeAssetPreview();return}setSelection([]);editId=null;window._showInspector=false;renderInspector();return}if(isEditingTarget(e))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click();return}if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&/^[1-4]$/.test(e.key)){const k=['cut','highlight','captions','red-note'][+e.key-1];if(k){editId=null;if(k==='red-note'){insertRedNote();return}setKind(k);if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)}}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();$('searchInput').focus();$('searchInput').select();searchOpen=true;refreshSearchPanel();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='h'){e.preventDefault();$('searchInput').focus();searchOpen=true;replaceExpanded=true;refreshSearchPanel();$('replaceInput').focus();return}if(e.key==='Escape'){if(previewOpen){closeAssetPreview();return}setSelection([]);editId=null;window._showInspector=false;renderInspector();return}if(isEditingTarget(e))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click();return}if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&/^[1-4]$/.test(e.key)){const k=['cut','highlight','captions','red-note'][+e.key-1];if(k){editId=null;if(k==='red-note'){insertRedNote();return}setKind(k);if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)}}});
 // 可以把 Word、字幕、工作檔或圖卡拖到整個網頁；也支援剪貼簿中的圖片。
 document.addEventListener('dragover',e=>{if(activeAssetDrag)return;if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
 document.addEventListener('drop',async e=>{if(activeAssetDrag)return;if(e.dataTransfer?.files?.length){e.preventDefault();await ingestFiles(e.dataTransfer.files)}});
@@ -1336,7 +1469,7 @@ async function resetWorkspace(){
  if((rows.length||assets.length)&&!confirm('確定清除整個工作區嗎？逐字稿、圖片和全部標示會清空。'))return;
  clearTimeout(saveTimer);rows=[];annotations=[];assets=[];selected.clear();anchor=-1;kindId='card';editId=null;document.getSelection()?.removeAllRanges();$('toolBar').classList.remove('open');
  sourceName='';sourceType='';sourceRawText='';originalDocxBase64='';assetChoice='';referenceChoice='';redNotes=[];undoStack=[];redoStack=[];updateUndoButtons();lastSelectionRect=null;
- $('docTitle').value='未命名節目';$('searchInput').value='';$('pptStatus').textContent='';$('pptStatus').classList.add('hidden');
+ $('docTitle').value='未命名節目';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshSearchPanel();$('pptStatus').textContent='';$('pptStatus').classList.add('hidden');
  closeAssetPreview();window._showInspector=false;
  try{const db=await openDB();await new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite');const req=t.objectStore('drafts').delete('current');req.onsuccess=resolve;req.onerror=()=>reject(req.error);t.oncomplete=()=>db.close()})}catch(e){console.warn(e)}
  refreshAll();$('saveStatus').textContent='檔案僅在你的瀏覽器處理';toast('已清除工作區');
