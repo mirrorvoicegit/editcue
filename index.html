@@ -762,7 +762,7 @@ function cueRangeLabel(a){
 
 
 // 保留原稿本體，匯出時僅附加標示，不重建段落或合併字幕。
-let sourceType='',sourceRawText='',originalDocxBase64='';
+let sourceType='',sourceRawText='',originalDocxBase64='',originalSubtitleBase64='';
 const safeText=s=>String(s??'');
 function escapeHtml(s){return safeText(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function escXml(s){return safeText(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;')}
@@ -775,7 +775,7 @@ function assetById(id){return assets.find(a=>a.id===id)}
 function imageFormat(s){return (s||'').match(/^data:(image\/(?:png|jpeg|webp));base64,/)?.[1]||'image/png'}
 function nextAssetCode(){let n=1;while(assets.some(x=>x.code==='G'+String(n).padStart(2,'0')))n++;return 'G'+String(n).padStart(2,'0')}
 function prettyText(a){const i=rows.find(r=>r.uid===a.rowIds[0]),j=rows.find(r=>r.uid===a.rowIds.at(-1));return i?.start?asClock(i.start)+'–'+asClock(j?.end):'Lines '+(i?.seq||'?')+'–'+(j?.seq||'?')}
-function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').value||'未命名節目',sourceName,sourceType,sourceRawText,originalDocxBase64,rows,assets,annotations,redNotes,preset:PRESET}}
+function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').value||'未命名節目',sourceName,sourceType,sourceRawText,originalDocxBase64,originalSubtitleBase64,rows,assets,annotations,redNotes,preset:PRESET}}
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
 
 let jumpTimer=null;
@@ -1080,7 +1080,7 @@ function insertGraphic(id,inds=selectionIndices()){
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
 }
 function editCue(id){closeCueManager();const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;$('toolBar').classList.remove('open');const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
-function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
+function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',subtitleSourceB64='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;originalSubtitleBase64=subtitleSourceB64;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
 function importText(text,name='Pasted transcript'){const s=safeText(text);if(!s.trim())return; if(rows.length&&!confirm('Replace current transcript with pasted text? Save your draft first if needed.'))return;parsePlain(s);const loadedRows=rows;loadContent({title:name,source:name,loadedRows,rawSource:s,inputType:'txt'});toast(loadedRows.length+' 段已匯入')}
 function saveProject(){if(!rows.length&&!assets.length){toast('尚無可儲存的資料');return}download(cleanFileName($('docTitle').value)+'.editcue.json',new Blob([JSON.stringify(serializable())],{type:'application/json;charset=utf-8'}));toast('工作檔已儲存')}
 
@@ -1114,8 +1114,8 @@ async function importPptx(file){if(file.size>120*1024*1024)throw Error('簡報�
  }catch(e){status.textContent='PPTX 轉換失敗：'+e.message;toast('PPTX 轉換失敗：'+e.message);throw e}
 }
 
-async function importFile(f){if(!f)return;let ext=f.name.split('.').at(-1).toLowerCase();try{if(ext==='json'){const d=JSON.parse(await f.text());if(!Array.isArray(d.rows)||!Array.isArray(d.annotations))throw Error('Not an EditCue project');loadContent({title:d.title,source:d.sourceName||f.name,loadedRows:d.rows,loadedNotes:d.annotations,loadedRedNotes:d.redNotes||[],loadedAssets:d.assets||[],rawSource:d.sourceRawText||'',docxSource:d.originalDocxBase64||'',inputType:d.sourceType||''});toast('專案已恢復');return}
-let rawSource='',docxSource='';if(ext==='docx'){const buffer=await f.arrayBuffer();await parseDocx(buffer);docxSource=b64(new Uint8Array(buffer))}else if(['srt','vtt','txt'].includes(ext)){rawSource=await f.text();parsePlain(rawSource)}else throw Error('Unsupported file type');const loadedRows=rows;loadContent({loadedAssets:assets,title:f.name.replace(/\.[^.]+$/,''),source:f.name,loadedRows,rawSource,docxSource,inputType:ext});toast(loadedRows.length+' 段已匯入')}catch(e){console.error(e);toast('Import failed: '+e.message)}}
+async function importFile(f){if(!f)return;let ext=f.name.split('.').at(-1).toLowerCase();try{if(ext==='json'){const d=JSON.parse(await f.text());if(!Array.isArray(d.rows)||!Array.isArray(d.annotations))throw Error('Not an EditCue project');loadContent({title:d.title,source:d.sourceName||f.name,loadedRows:d.rows,loadedNotes:d.annotations,loadedRedNotes:d.redNotes||[],loadedAssets:d.assets||[],rawSource:d.sourceRawText||'',docxSource:d.originalDocxBase64||'',subtitleSourceB64:d.originalSubtitleBase64||'',inputType:d.sourceType||''});toast('專案已恢復');return}
+let rawSource='',docxSource='',subtitleSourceB64='';if(ext==='docx'){const buffer=await f.arrayBuffer();await parseDocx(buffer);docxSource=b64(new Uint8Array(buffer))}else if(['srt','vtt','txt'].includes(ext)){const bytes=new Uint8Array(await f.arrayBuffer());subtitleSourceB64=b64(bytes);rawSource=new TextDecoder().decode(bytes);parsePlain(rawSource)}else throw Error('Unsupported file type');const loadedRows=rows;loadContent({loadedAssets:assets,title:f.name.replace(/\.[^.]+$/,''),source:f.name,loadedRows,rawSource,docxSource,subtitleSourceB64,inputType:ext});toast(loadedRows.length+' 段已匯入')}catch(e){console.error(e);toast('Import failed: '+e.message)}}
 // 不依賴 FileReader：部分本機瀏覽器或擴充功能環境會覆寫它，導致 readAsDataURL 不存在。
 // 使用原生 Blob.arrayBuffer 產生 Data URL，所有圖片匯入入口共用。
 async function fileAsUrl(file){
@@ -1197,7 +1197,7 @@ function removeAsset(id){const a=assetById(id);if(!a)return;const refs=annotatio
 // IndexedDB 在瀏覽器本機儲存草稿，不傳送至任何伺服器。
 function openDB(){return new Promise((res,rej)=>{if(!('indexedDB'in window))return rej(Error('no IndexedDB'));const r=indexedDB.open('editcue-local-v1',1);r.onupgradeneeded=()=>{r.result.createObjectStore('drafts')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function saveLocal(data){const db=await openDB();return new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite'),q=t.objectStore('drafts').put(data,'current');q.onsuccess=()=>resolve();q.onerror=()=>reject(q.error);t.oncomplete=()=>db.close()})}
-async function restoreLocal(){try{const db=await openDB(),data=await new Promise((res,rej)=>{const t=db.transaction('drafts','readonly'),r=t.objectStore('drafts').get('current');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);t.oncomplete=()=>db.close()});if(data?.rows?.length||data?.assets?.length){loadContent({title:data.title,source:data.sourceName||'Last draft',loadedRows:data.rows||[],loadedNotes:data.annotations||[],loadedRedNotes:data.redNotes||[],loadedAssets:data.assets||[],rawSource:data.sourceRawText||'',docxSource:data.originalDocxBase64||'',inputType:data.sourceType||''});$('saveStatus').textContent='已恢復本機草稿 · 未上傳檔案';toast('已恢復上次的草稿')}}catch(e){console.warn('Draft restore',e)}}
+async function restoreLocal(){try{const db=await openDB(),data=await new Promise((res,rej)=>{const t=db.transaction('drafts','readonly'),r=t.objectStore('drafts').get('current');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);t.oncomplete=()=>db.close()});if(data?.rows?.length||data?.assets?.length){loadContent({title:data.title,source:data.sourceName||'Last draft',loadedRows:data.rows||[],loadedNotes:data.annotations||[],loadedRedNotes:data.redNotes||[],loadedAssets:data.assets||[],rawSource:data.sourceRawText||'',docxSource:data.originalDocxBase64||'',subtitleSourceB64:data.originalSubtitleBase64||'',inputType:data.sourceType||''});$('saveStatus').textContent='已恢復本機草稿 · 未上傳檔案';toast('已恢復上次的草稿')}}catch(e){console.warn('Draft restore',e)}}
 
 function parseTimeRange(s){const m=s.match(/((?:\d{2}:)?\d{2}:\d{2}[.,]\d{3})\s*-->\s*((?:\d{2}:)?\d{2}:\d{2}[.,]\d{3})/);return m?{start:m[1],end:m[2]}:null}
 function makeRow(seq,time,text,extra='',imgs=[],paragraphIndices=[]){return {uid:'r'+rows.length+'_'+Math.random().toString(36).slice(2,6),seq:safeText(seq),start:time?.start||'',end:time?.end||'',text:safeText(text),sourceNotes:extra?[safeText(extra)]:[],images:imgs||[],paragraphIndices}}
@@ -1354,30 +1354,51 @@ function addWordMixedCueBorder(p,xml){
 }
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
 function cueGroupParagraph(group){
- const first=sourceRowAt(group[0]);const start=first?.first;
- const intro=`後製指示｜字幕 ${start?.seq||'?'}｜${start?.start||''}`;
- const run=(text,color='333333',bold=false,fill=null)=>`<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>${bold?'<w:b/>':''}${fill?'<w:shd w:val="clear" w:fill="'+fill+'"/>':''}<w:color w:val="${color}"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r>`;
- const br='<w:r><w:br/></w:r>';
- const cueColor={cut:'555555',card:'171717',visual:'171717',textcard:'0054C8',highlight:'171717',short:'E00000',captions:'B12B32',other:'B12B32',move:'333333'};
- const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
- let contents=run(intro,'555555',true);
- for(const cue of group){
-  const x=sourceRowAt(cue),range=x?`字幕 ${x.first.seq||x.firstIndex+1}${x.firstIndex===x.lastIndex?'':'–'+(x.last.seq||x.lastIndex+1)}｜${x.first.start}–${x.last.end}`:'';
-  const t=names[cue.kind]||findKind(cue.kind).label;
-  const asset=assetById(cue.assetId);const name=asset?'｜圖卡_'+deliveryAssetNumber(cue).padStart(3,'0')+'.png'+(asset.slideNumber?'（原稿第'+asset.slideNumber+'頁）':''):'';
-  const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
-  contents+=br+run('■ '+t+(cue.kind==='card'||cue.kind==='visual'?' '+deliveryAssetNumber(cue):cue.kind==='textcard'?' '+cueOrdinal(cue):''),cueColor[cue.kind]||'333333',true,cue.kind==='highlight'?'FFEB00':(cue.kind==='card'||cue.kind==='visual')?'B8F0D2':null)+run('｜'+range+name,'555555')+(detail?run('｜'+detail,cueColor[cue.kind]||'333333'): '');
- }
- return `<w:p><w:pPr><w:spacing w:before="90" w:after="70" w:line="305"/></w:pPr>${contents}</w:p>`;
+  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
+  const style={
+    cut:{fill:'E4E4E4',ink:'292929',edge:'676767'},
+    card:{fill:'B8F0D2',ink:'104732',edge:'27785B'},
+    visual:{fill:'B8F0D2',ink:'104732',edge:'27785B'},
+    highlight:{fill:'FFEB00',ink:'171717',edge:'A78E00'},
+    textcard:{fill:'E6F0FF',ink:'0054C8',edge:'0054C8'},
+    short:{fill:'FFE6E6',ink:'C00000',edge:'E00000'},
+    captions:{fill:'FFF1F1',ink:'B12B32',edge:'B12B32'},
+    other:{fill:'FFF1F1',ink:'B12B32',edge:'B12B32'},
+    move:{fill:'EEEEEE',ink:'171717',edge:'666666'}
+  };
+  return group.map(cue=>{
+    const x=sourceRowAt(cue);
+    const start=x?String(x.first.seq||x.firstIndex+1):'?';
+    const end=x?String(x.last.seq||x.lastIndex+1):start;
+    const range='字幕 '+start+(start===end?'':'–'+end);
+    const isCard=cue.kind==='card'||cue.kind==='visual';
+    const asset=isCard?assetById(cue.assetId):null;
+    const file=asset?'圖卡_'+String(deliveryAssetNumber(cue)).padStart(3,'0')+'.png':'';
+    const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
+    const name=names[cue.kind]||findKind(cue.kind).label;
+    const msg='■ '+name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'');
+    const c=style[cue.kind]||style.other;
+    return '<w:p><w:pPr><w:spacing w:before="95" w:after="95" w:line="380"/>'
+      +'<w:pBdr><w:left w:val="single" w:sz="22" w:space="6" w:color="'+c.edge+'"/></w:pBdr>'
+      +'<w:shd w:val="clear" w:fill="'+c.fill+'"/></w:pPr>'
+      +'<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>'
+      +'<w:b/><w:color w:val="'+c.ink+'"/><w:sz w:val="30"/><w:szCs w:val="30"/></w:rPr>'
+      +'<w:t xml:space="preserve">'+escXml(msg)+'</w:t></w:r></w:p>';
+  }).join('');
 }
 function cueParagraph(a){return cueGroupParagraph([a])}
 
 function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
 
 function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null,mixed=false){
- if(!text)return `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>`;
- let pr=(isMarked?`<w:shd w:val="clear" w:color="auto" w:fill="${color}"/>`:'')+(strike?'<w:strike/>':'')+(inkColor?`<w:color w:val="${inkColor}"/><w:b/>`:'');
- return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>${wordRowBorderPr(divider,mixed)}</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/>${pr}</w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
+  if(!text&&!isMarked&&!divider&&!mixed)return '<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>';
+  const border=wordRowBorderPr(divider,mixed);
+  const shade=isMarked?'<w:shd w:val="clear" w:fill="'+color+'"/>':'';
+  const run=(strike?'<w:strike/>':'')+(inkColor?'<w:color w:val="'+inkColor+'"/><w:b/>':'');
+  return '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="345"/>'
+    +border+shade+'</w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>'
+    +'<w:sz w:val="28"/><w:szCs w:val="28"/>'+run+'</w:rPr>'
+    +'<w:t xml:space="preserve">'+escXml(text||' ')+'</w:t></w:r></w:p>';
 }
 function sourceLineMap(lines){const out=new Map();let i=0,idx=0;
  // 同步字幕編號與時間碼定位。不是字幕行的內容一律原樣保留。
@@ -1412,7 +1433,7 @@ function addRedNotesAfterRow(after,rowId){for(const n of redNotes){if(n.afterUid
 async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.seq,r.start+' --> '+r.end,r.text,''].join('\n')).join('\n');
  const lines=raw.replace(/\r\n?/g,'\n').split('\n'),sourceMap=sourceLineMap(lines),rowPerLine=new Map(),notesAfter=new Map(),notesBefore=new Map(),media=await prepareReferenceMedia();
  const mediaById=new Map(media.map(x=>[x.id,x]));
- for(const [i,rec] of sourceMap.entries()){for(let n=rec.from;n<=rec.to;n++)rowPerLine.set(n,rows[i].uid)}
+ for(const [i,rec] of sourceMap.entries()){for(let n=rec.from;n<=rec.to;n++)rowPerLine.set(n,rows[i].uid);if(lines[rec.to+1]?.trim()==='')rowPerLine.set(rec.to+1,rows[i].uid)}
  for(const a of noteOrder()){const bound=sourceRowAt(a);if(!bound)continue;let rec=sourceMap.get(bound.firstIndex);if(!rec)continue;let key=rec.to;
  if(!notesBefore.has(rec.from))notesBefore.set(rec.from,[]);notesBefore.get(rec.from).push(a);}
  for(const n of redNotes){let target=n.afterUid?rows.findIndex(r=>r.uid===n.afterUid):-1;
@@ -1428,7 +1449,7 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const modified=isSpeech&&uid?rows.find(r=>r.uid===uid)?.editedText:null;
  const rowIndex=uid?rows.findIndex(r=>r.uid===uid):-1,rec=rowIndex>=0?sourceMap.get(rowIndex):null;
  const divider=!!(rec&&i===rec.from&&isGraphicBoundary(uid));
- parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!(clr&&isSpeech),clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null,!!(isSpeech&&uid&&isMixedCueRow(uid))));insertRed(notesAfter.get(i));});
+ parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!clr,clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null,!!(uid&&isMixedCueRow(uid))));insertRed(notesAfter.get(i));});
  return makeBlankWord(parts,media);
 }
 
@@ -1437,7 +1458,25 @@ function makeBlankWord(parts,media=[]){const xml=`<?xml version="1.0" encoding="
  const rel=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${REL}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
  return zipStored(addWordImagesToFiles({'[Content_Types].xml':ct,'_rels/.rels':rel,'word/document.xml':xml},media));
 }
-function appendShadingToParagraph(p,fill,xml,strike=false){const runs=[...p.getElementsByTagNameNS(W,'r')];for(const r of runs){let props=[...r.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='rPr');if(!props){props=xml.createElementNS(W,'w:rPr');r.insertBefore(props,r.firstChild)}let shading=[...props.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='shd');if(!shading){shading=xml.createElementNS(W,'w:shd');props.appendChild(shading)}shading.setAttributeNS(W,'w:val','clear');shading.setAttributeNS(W,'w:fill',fill);if(strike){let st=[...props.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='strike');if(!st){st=xml.createElementNS(W,'w:strike');props.appendChild(st)}st.setAttributeNS(W,'w:val','1')}}}
+function appendShadingToParagraph(p,fill,xml,strike=false){
+  let pr=[...p.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='pPr');
+  if(!pr){pr=xml.createElementNS(W,'w:pPr');p.insertBefore(pr,p.firstChild)}
+  let shade=[...pr.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='shd');
+  if(!shade){shade=xml.createElementNS(W,'w:shd');pr.appendChild(shade)}
+  shade.setAttributeNS(W,'w:val','clear');
+  shade.setAttributeNS(W,'w:fill',fill);
+  let spacing=[...pr.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='spacing');
+  if(!spacing){spacing=xml.createElementNS(W,'w:spacing');pr.insertBefore(spacing,shade)}
+  spacing.setAttributeNS(W,'w:before','0');
+  spacing.setAttributeNS(W,'w:after','0');
+  if(strike){for(const r of p.getElementsByTagNameNS(W,'r')){
+    let rp=[...r.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='rPr');
+    if(!rp){rp=xml.createElementNS(W,'w:rPr');r.insertBefore(rp,r.firstChild)}
+    let st=[...rp.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='strike');
+    if(!st){st=xml.createElementNS(W,'w:strike');rp.appendChild(st)}
+    st.setAttributeNS(W,'w:val','1');
+  }}
+}
 function appendTextColorToParagraph(p,color,xml){
  for(const r of p.getElementsByTagNameNS(W,'r')){
   let props=[...r.childNodes].find(n=>n.nodeType===1&&n.namespaceURI===W&&n.localName==='rPr');
@@ -1465,17 +1504,17 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
  }}}}}
  for(const r of rows){const clr=colorForRow(r.uid),parts=r.paragraphIndices||[];
  const speechIndex=parts.at(-1);
- if(clr&&speechIndex!==undefined&&ps[speechIndex])appendShadingToParagraph(ps[speechIndex],clr,xml,rowIsCut(r.uid));
+ if(clr)for(const index of parts){if(ps[index])appendShadingToParagraph(ps[index],clr,xml,rowIsCut(r.uid)&&index===speechIndex)}
  const textInk=textColorForRow(r.uid);if(textInk&&parts.length&&ps[parts.at(-1)])appendTextColorToParagraph(ps[parts.at(-1)],textInk,xml);
  if(isGraphicBoundary(r.uid)&&parts.length&&ps[parts[0]])addWordTopDivider(ps[parts[0]],xml);
   if(isMixedCueRow(r.uid)&&speechIndex!==undefined&&ps[speechIndex])addWordMixedCueBorder(ps[speechIndex],xml);
 }
- const toNode=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return xml.importNode(frag.getElementsByTagNameNS(W,'p')[0],true)};
- for(const [p,entries] of cueBefore){const cues=entries.map(e=>e.cue);const paras=[cueGroupParagraph(cues)];for(const a of cues){const ref=mediaById.get(a.referenceAssetId);if(ref)paras.push(wImagePara(ref))}for(const str of paras)p.parentNode.insertBefore(toNode(str),p)}
+ const toNodes=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return [...frag.getElementsByTagNameNS(W,'p')].map(p=>xml.importNode(p,true))};
+ for(const [p,entries] of cueBefore){const cues=entries.map(e=>e.cue);const paras=[cueGroupParagraph(cues)];for(const a of cues){const ref=mediaById.get(a.referenceAssetId);if(ref)paras.push(wImagePara(ref))}for(const str of paras)for(const node of toNodes(str))p.parentNode.insertBefore(node,p)}
  for(const [p,entries] of after){let last=p;for(const e of entries){let paras=e.type==='red'?[redNoteParagraph(e.note.text||'')]:[cueParagraph(e.cue)];
  const ref=e.type==='cue'?mediaById.get(e.cue.referenceAssetId):null;if(ref)paras.push(wImagePara(ref));
- for(const str of paras){const node=toNode(str);last.parentNode.insertBefore(node,last.nextSibling);last=node}}}
- if(before.length){const body=xml.getElementsByTagNameNS(W,'body')[0];const anchor=body?.firstChild;for(const e of before){const node=toNode(redNoteParagraph(e.note.text||''));body.insertBefore(node,anchor)}}
+ for(const str of paras)for(const node of toNodes(str)){last.parentNode.insertBefore(node,last.nextSibling);last=node}}}
+ if(before.length){const body=xml.getElementsByTagNameNS(W,'body')[0];const anchor=body?.firstChild;for(const e of before){const node=toNodes(redNoteParagraph(e.note.text||''))[0];body.insertBefore(node,anchor)}}
  const files={};for(const name of zip.entries){files[name]=name==='word/document.xml'?new TextEncoder().encode(new XMLSerializer().serializeToString(xml)):await zip.get(name)}
  return zipStored(addWordImagesToFiles(files,media));
 }
@@ -1494,6 +1533,15 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
  const used=orderedUsedAssets();const references=referenceImages().filter(a=>!used.some(u=>u.id===a.id));if(used.some(a=>a.needsReview)&&!confirm('部分 PPT 圖卡轉檔後與其他頁完全相同。請先逐張核對原始簡報，仍要匯出嗎？'))return;window._exportCodes=new Map(used.map((a,i)=>[a.id,'圖卡_'+String(i+1).padStart(3,'0')+'.png']));
  try{const docx=await makeDocxBlob(),docxData=new Uint8Array(await docx.arrayBuffer()),files={};
  files[cleanFileName($('docTitle').value)+'_後製需求單.docx']=docxData;
+  // 原始字幕另附在後製包中，供剪輯師直接匯入剪輯軟體。
+  const sourceExt=/\.(srt|vtt|txt|docx)$/i.test(sourceName)?'':'.'+(['srt','vtt','docx'].includes(sourceType)?sourceType:'txt');
+  const sourceFileName=cleanFileName(sourceName||'原始逐字稿')+sourceExt;
+  const sourceBytes=originalDocxBase64&&sourceType==='docx'
+    ?Uint8Array.from(atob(originalDocxBase64),c=>c.charCodeAt(0))
+    :originalSubtitleBase64
+      ?Uint8Array.from(atob(originalSubtitleBase64),c=>c.charCodeAt(0))
+      :enc.encode(sourceRawText||rows.map(r=>[r.seq,r.start+' --> '+r.end,r.text,''].join('\n')).join('\n'));
+  files['原始字幕/'+sourceFileName]=sourceBytes;
  // ZIP 同時附上可完整還原的工作檔，包含素材與所有逐字稿標示。
  files[cleanFileName($('docTitle').value)+'.editcue.json']=enc.encode(JSON.stringify(serializable()));
  const manifest=['後製圖卡清單','素材依照逐字稿首次使用順序編號','',...used.map((a,i)=>'圖卡_'+String(i+1).padStart(3,'0')+'.png'+'　→　'+a.name+(a.pptSource?'（'+a.pptSource+' 第'+a.slideNumber+'頁）':''))].join('\n');
@@ -1502,7 +1550,7 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
  pngData=await new Promise((resolve,reject)=>{let img=new Image;img.onload=()=>{let can=document.createElement('canvas');can.width=img.naturalWidth;can.height=img.naturalHeight;can.getContext('2d').drawImage(img,0,0);resolve(can.toDataURL('image/png'))};img.onerror=reject;img.src=a.dataUrl})}
  files['圖片/圖卡_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:pngData});}
  const zip=zipStored(files);download(cleanFileName($('docTitle').value)+'_剪輯交付包.zip',zip);
- toast('已匯出 ZIP：Word、JSON 工作檔及 '+used.length+' 張圖卡'+(references.length?'、'+references.length+' 張參考圖片':''));
+ toast('已匯出 ZIP：Word、原始字幕、JSON 工作檔及 '+used.length+' 張圖卡'+(references.length?'、'+references.length+' 張參考圖片':''));
  }catch(e){console.error(e);toast('匯出失敗：'+e.message)}finally{window._exportCodes=null}
 }
 
@@ -2107,7 +2155,7 @@ $('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))c
 async function resetWorkspace(){
  if((rows.length||assets.length)&&!confirm('確定清除整個工作區嗎？逐字稿、圖片和全部標示會清空。'))return;
  clearTimeout(saveTimer);rows=[];annotations=[];assets=[];selected.clear();anchor=-1;kindId='card';editId=null;document.getSelection()?.removeAllRanges();$('toolBar').classList.remove('open');
- sourceName='';sourceType='';sourceRawText='';originalDocxBase64='';assetChoice='';referenceChoice='';redNotes=[];undoStack=[];redoStack=[];updateUndoButtons();lastSelectionRect=null;
+ sourceName='';sourceType='';sourceRawText='';originalDocxBase64='';originalSubtitleBase64='';assetChoice='';referenceChoice='';redNotes=[];undoStack=[];redoStack=[];updateUndoButtons();lastSelectionRect=null;
  $('docTitle').value='未命名節目';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshSearchPanel();$('pptStatus').textContent='';$('pptStatus').classList.add('hidden');
  closeAssetPreview();window._showInspector=false;
  try{const db=await openDB();await new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite');const req=t.objectStore('drafts').delete('current');req.onsuccess=resolve;req.onerror=()=>reject(req.error);t.oncomplete=()=>db.close()})}catch(e){console.warn(e)}
