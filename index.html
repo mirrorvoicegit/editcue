@@ -1352,6 +1352,31 @@ function addWordMixedCueBorder(p,xml){
  if(!left){left=xml.createElementNS(W,'w:left');bd.appendChild(left)}
  for(const [key,val] of [['val','single'],['sz','20'],['space','4'],['color','B8F0D2']])left.setAttributeNS(W,'w:'+key,val)
 }
+// Word 匯出：每則指示及手動註記可直接跳轉至下一個工作項目。
+let wordNavIdBase=50000,wordNavPrefix='EditCueNext_';
+function wordNavItems(){
+  const cues=noteOrder().map((cue,i)=>({type:'cue',id:cue.id,position:sourceRowAt(cue)?.firstIndex*2,order:i})).filter(x=>Number.isFinite(x.position));
+  const notes=redNotes.filter(n=>(n.text||'').trim()).map((n,i)=>{
+    const p=n.afterUid?rows.findIndex(r=>r.uid===n.afterUid):-1;
+    return {type:'red',id:n.id,position:p<0?-1:p*2+1,order:i};
+  });
+  return [...cues,...notes].sort((a,b)=>a.position-b.position||a.order-b.order);
+}
+function wordNavMarkup(type,id){
+  const items=wordNavItems(),i=items.findIndex(x=>x.type===type&&x.id===id);
+  if(i<0)return {start:'',end:'',link:''};
+  const name=n=>wordNavPrefix+(n+1);
+  const bid=wordNavIdBase+i;
+  const start='<w:bookmarkStart w:id="'+bid+'" w:name="'+name(i)+'"/>';
+  const end='<w:bookmarkEnd w:id="'+bid+'"/>';
+  if(i===items.length-1)return {start,end,link:''};
+  const link='<w:r><w:t xml:space="preserve">　</w:t></w:r>'
+    +'<w:hyperlink w:anchor="'+name(i+1)+'" w:history="1">'
+    +'<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>'
+    +'<w:color w:val="0054C8"/><w:u w:val="single"/><w:sz w:val="23"/><w:szCs w:val="23"/>'
+    +'</w:rPr><w:t>下一個</w:t></w:r></w:hyperlink>';
+  return {start,end,link};
+}
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
 function cueGroupParagraph(group){
   const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
@@ -1378,17 +1403,25 @@ function cueGroupParagraph(group){
     const name=names[cue.kind]||findKind(cue.kind).label;
     const msg=name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'');
     const c=style[cue.kind]||style.other;
+    const jump=wordNavMarkup('cue',cue.id);
     return '<w:p><w:pPr><w:spacing w:before="95" w:after="95" w:line="380"/>'
       +'<w:pBdr><w:left w:val="single" w:sz="22" w:space="6" w:color="'+c.edge+'"/></w:pBdr>'
-      +'<w:shd w:val="clear" w:fill="'+c.fill+'"/></w:pPr>'
+      +'<w:shd w:val="clear" w:fill="'+c.fill+'"/></w:pPr>'+jump.start
       +'<w:r><w:rPr><w:rFonts w:eastAsia="Microsoft JhengHei" w:ascii="Aptos"/>'
       +'<w:b/><w:color w:val="'+c.ink+'"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr>'
-      +'<w:t xml:space="preserve">'+escXml(msg)+'</w:t></w:r></w:p>';
+      +'<w:t xml:space="preserve">'+escXml(msg)+'</w:t></w:r>'+jump.end+jump.link+'</w:p>';
   }).join('');
 }
 function cueParagraph(a){return cueGroupParagraph([a])}
 
-function redNoteParagraph(text){return pXml(text,{bold:true,color:'D00000'});}
+function redNoteParagraph(note){
+  const text=typeof note==='string'?note:note.text||'';
+  const base=pXml(text,{bold:true,color:'D00000'});
+  if(typeof note==='string')return base;
+  const jump=wordNavMarkup('red',note.id);
+  return base.replace('</w:pPr>','</w:pPr>'+jump.start)
+    .replace('</w:p>',jump.end+jump.link+'</w:p>');
+}
 
 function getWordParagraph(text,isMarked=false,color='E8EEFF',strike=false,divider=false,inkColor=null,mixed=false){
   if(!text&&!isMarked&&!divider&&!mixed)return '<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p>';
@@ -1440,7 +1473,7 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const key=target<0?-1:sourceMap.get(target)?.to;
  if(key===undefined)continue;if(!notesAfter.has(key))notesAfter.set(key,[]);notesAfter.get(key).push({type:'red',note:n});}
  const parts=[];const insertCues=(list)=>{if(!list?.length)return;parts.push(cueGroupParagraph(list));for(const a of list){const ref=mediaById.get(a.referenceAssetId);if(ref)parts.push(wImagePara(ref))}};
- const insertRed=(entries)=>{for(const entry of entries||[]){if(entry.note?.text?.trim())parts.push(redNoteParagraph(entry.note.text))}};
+ const insertRed=(entries)=>{for(const entry of entries||[]){if(entry.note?.text?.trim())parts.push(redNoteParagraph(entry.note))}};
  insertRed(notesAfter.get(-1));
  lines.forEach((text,i)=>{insertCues(notesBefore.get(i));const uid=rowPerLine.get(i),clr=uid?colorForRow(uid):null;const cut=uid&&rowIsCut(uid);
  // 原始編號、時間碼、空行維持原樣；刪除線只作用在台詞行。
@@ -1488,6 +1521,10 @@ function appendTextColorToParagraph(p,color,xml){
 }
 async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocxBase64),ch=>ch.charCodeAt(0)),zip=await unzipDocx(raw.buffer),bytes=await zip.get('word/document.xml');
  if(!bytes)throw Error('原始 Word 缺少文件正文');const xml=new DOMParser().parseFromString(new TextDecoder().decode(bytes),'application/xml');
+  const oldMarks=[...xml.getElementsByTagNameNS(W,'bookmarkStart')];
+  wordNavIdBase=Math.max(50000,...oldMarks.map(b=>Number(b.getAttributeNS(W,'id')||b.getAttribute('w:id'))||0))+1;
+  wordNavPrefix='EditCueNext_';
+  while(oldMarks.some(b=>(b.getAttributeNS(W,'name')||b.getAttribute('w:name')||'').startsWith(wordNavPrefix)))wordNavPrefix+='X_';
  if(xml.getElementsByTagName('parsererror').length)throw Error('原始 Word 的 XML 無法讀取');const ps=[...xml.getElementsByTagNameNS(W,'p')];
  const media=await prepareReferenceMedia(),mediaById=new Map(media.map(r=>[r.id,r]));
  // 有參考圖片時才加 XML namespace，不更動原始段落結構。
@@ -1511,16 +1548,17 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
 }
  const toNodes=(s)=>{const frag=new DOMParser().parseFromString(`<w:root ${wordNamespaces()}>${s}</w:root>`,'application/xml');if(frag.getElementsByTagName('parsererror').length)throw Error('Word 標示 XML 失敗');return [...frag.getElementsByTagNameNS(W,'p')].map(p=>xml.importNode(p,true))};
  for(const [p,entries] of cueBefore){const cues=entries.map(e=>e.cue);const paras=[cueGroupParagraph(cues)];for(const a of cues){const ref=mediaById.get(a.referenceAssetId);if(ref)paras.push(wImagePara(ref))}for(const str of paras)for(const node of toNodes(str))p.parentNode.insertBefore(node,p)}
- for(const [p,entries] of after){let last=p;for(const e of entries){let paras=e.type==='red'?[redNoteParagraph(e.note.text||'')]:[cueParagraph(e.cue)];
+ for(const [p,entries] of after){let last=p;for(const e of entries){let paras=e.type==='red'?[redNoteParagraph(e.note)]:[cueParagraph(e.cue)];
  const ref=e.type==='cue'?mediaById.get(e.cue.referenceAssetId):null;if(ref)paras.push(wImagePara(ref));
  for(const str of paras)for(const node of toNodes(str)){last.parentNode.insertBefore(node,last.nextSibling);last=node}}}
- if(before.length){const body=xml.getElementsByTagNameNS(W,'body')[0];const anchor=body?.firstChild;for(const e of before){const node=toNodes(redNoteParagraph(e.note.text||''))[0];body.insertBefore(node,anchor)}}
+ if(before.length){const body=xml.getElementsByTagNameNS(W,'body')[0];const anchor=body?.firstChild;for(const e of before){const node=toNodes(redNoteParagraph(e.note))[0];body.insertBefore(node,anchor)}}
  const files={};for(const name of zip.entries){files[name]=name==='word/document.xml'?new TextEncoder().encode(new XMLSerializer().serializeToString(xml)):await zip.get(name)}
  return zipStored(addWordImagesToFiles(files,media));
 }
 
 async function makeDocxBlob(){if(!rows.length){toast('尚無逐字稿');return null}
- if(sourceType==='docx'&&originalDocxBase64)return await makeWordPreservedDocx();
+ wordNavIdBase=50000;wordNavPrefix='EditCueNext_';
+ if(sourceType='docx'&&originalDocxBase64)return await makeWordPreservedDocx();
  return makeTextPreservedDocx();}
 async function exportDocx(){try{const blob=await makeDocxBlob();if(blob){download(cleanFileName($('docTitle').value)+'_後製需求單.docx',blob);toast('已匯出保留原稿結構的 Word')}}catch(e){console.error(e);toast('匯出失敗：'+e.message)}}
 
