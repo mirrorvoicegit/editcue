@@ -1376,7 +1376,7 @@ function cueGroupParagraph(group){
     const file=asset?'圖卡_'+String(deliveryAssetNumber(cue)).padStart(3,'0')+'.png':'';
     const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
     const name=names[cue.kind]||findKind(cue.kind).label;
-    const msg='■ '+name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'');
+    const msg=name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'');
     const c=style[cue.kind]||style.other;
     return '<w:p><w:pPr><w:spacing w:before="95" w:after="95" w:line="380"/>'
       +'<w:pBdr><w:left w:val="single" w:sz="22" w:space="6" w:color="'+c.edge+'"/></w:pBdr>'
