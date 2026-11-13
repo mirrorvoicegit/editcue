@@ -665,7 +665,7 @@ html,body,.shell{background:#fff!important}
 .txrow.range-preview.preview-card,.txrow.range-preview.preview-visual{background:#B8F0D2!important;box-shadow:inset 4px 0 #27785B!important}
 .txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 4px 0 #0054C8!important}
 
-/* 初剪核對頁：與原逐字稿工作區獨立，半視窗也能操作。 */
+/* 初剪核對頁：各類指示使用明顯不同的底色，清楚標示起點與終點。 */
 #reviewPage[hidden]{display:none!important}
 .shell.review-mode>.body{display:none!important}
 .review-page{grid-column:2;grid-row:1;min-width:0;min-height:0;background:#fff;display:flex;flex-direction:column}
@@ -682,20 +682,25 @@ html,body,.shell{background:#fff!important}
 .review-filter{display:inline-flex;border:1px solid #111}
 .review-filter button{border:0;background:#fff;color:#111;padding:8px 12px;font-size:12px;font-weight:700}
 .review-filter button+button{border-left:1px solid #111}.review-filter button.active{background:#111;color:#fff}
-.review-list{margin-top:4px}
-.review-item{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;padding:15px 12px;border-bottom:1px solid #ddd;border-left:4px solid #777;cursor:pointer;min-width:0}
-.review-item:hover{background:#f6f6f6}.review-item:focus-within{outline:2px solid #111;outline-offset:-2px}
-.review-item.done{opacity:.58}.review-item.done .review-name{text-decoration:line-through}
+.review-list{margin-top:5px;display:flex;flex-direction:column;gap:6px}
+.review-item{display:grid;grid-template-columns:24px minmax(0,1fr);gap:11px;padding:14px 12px 13px;border:1px solid #00000018;border-left:4px solid #777;cursor:pointer;min-width:0;background:#fff}
+.review-item:hover{filter:brightness(.975)}.review-item:focus-within{outline:2px solid #111;outline-offset:-2px}
+.review-item.done .review-name{text-decoration:line-through}.review-item.done .review-main{opacity:.76}
 .review-item input{width:20px;height:20px;accent-color:#111;margin:3px 0 0;cursor:pointer}
-.review-main{display:block;min-width:0}.review-line{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 8px}
-.review-name{font-size:14px;font-weight:800;color:#111;line-height:1.5;overflow-wrap:anywhere}
-.review-number{font-size:12px;color:#555;font-weight:600;white-space:nowrap}
-.review-time{display:block;color:#666;font-size:12px;font-variant-numeric:tabular-nums;margin-top:3px}
-.review-description{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#333;line-height:1.6;margin-top:6px}
-.review-quote{display:block;font-size:11px;color:#777;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.review-thumb{width:90px;height:58px;object-fit:contain;border:1px solid #ddd;background:#f7f7f7;display:block;margin-top:9px}
+.review-main{display:block;min-width:0}
+.review-line{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 8px}
+.review-name{font-size:14px;font-weight:800;color:#111;line-height:1.45;overflow-wrap:anywhere}
+.review-range{margin-top:9px;padding:7px 8px;display:flex;flex-direction:column;gap:5px;background:#ffffffb8;border:1px solid #0000001b;min-width:0;font-variant-numeric:tabular-nums}
+.review-boundary{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:7px;row-gap:2px;min-width:0;line-height:1.35}
+.review-boundary-label{display:inline-flex;justify-content:center;align-items:center;min-width:28px;padding:2px 3px;background:#111;color:#fff;font-size:10px;font-weight:800;flex-shrink:0}
+.review-boundary-number{font-size:12px;color:#111;font-weight:800;white-space:nowrap}
+.review-boundary-time{font-size:11px;color:#222;font-weight:600;white-space:nowrap;letter-spacing:-.2px}
+.review-boundary-quote{display:block;color:#4a4a4a;font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.5;padding-left:35px}
+.review-description{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#222;line-height:1.55;margin-top:8px;font-weight:550}
+.review-thumb{width:90px;height:58px;object-fit:contain;border:1px solid #0002;background:#ffffffb8;display:block;margin-top:9px}
 .review-empty{text-align:center;padding:48px 8px;color:#666;line-height:1.7;font-size:13px}
-@media(max-width:650px){.review-head{padding:12px}.review-scroll{padding:14px 9px 35px}.review-item{gap:9px;padding:13px 8px}.review-head h1{font-size:15px}}
+@media(max-width:650px){.review-head{padding:12px}.review-scroll{padding:12px 8px 35px}.review-item{gap:8px;padding:11px 8px}.review-head h1{font-size:15px}.review-range{padding:6px}.review-boundary{column-gap:5px}}
+
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -1106,7 +1111,9 @@ function reviewEntries(){
    signature:JSON.stringify([cue.kind,cue.rowIds,cue.title||'',cue.detail||'',cue.assetId||'',cue.referenceAssetId||'',cue.selectedQuote||'',asset?.name||'',reference?.name||'']),
    at:range.firstIndex*2,kind:cue.kind,
    name:name+(file?'｜'+file:''),number:'字幕 '+first+(first!==last?'–'+last:''),
-   time:range.first.start?(range.first.start+(first!==last?' – '+range.last.end:'')):'',
+   startNumber:first,endNumber:last,startTime:range.first.start||'',endTime:range.last.end||'',
+   startText:String(range.first.editedText??range.first.text??'').trim(),endText:String(range.last.editedText??range.last.text??'').trim(),
+   pointOnly:false,
    detail:(cue.detail||(!cue.assetId?cue.title:'')||'').trim(),
    quote:range.first.text||'',image:asset?.dataUrl||reference?.dataUrl||'',imageName:asset?.name||reference?.name||''});
  }
@@ -1115,13 +1122,35 @@ function reviewEntries(){
   const idx=rows.findIndex(r=>r.uid===note.afterUid),row=rows[idx];
   out.push({key:'note:'+note.id,signature:JSON.stringify([note.afterUid||'',note.text||'']),
    at:idx<0?-1:idx*2+1,kind:'other',name:'其他備註',
-   number:row?'字幕 '+(row.seq||idx+1)+' 後':'開頭',time:row?.start||'',
+   number:row?'字幕 '+(row.seq||idx+1)+' 後':'開頭',
+   startNumber:row?String(row.seq||idx+1):'',endNumber:'',startTime:row?.end||row?.start||'',endTime:'',
+   startText:'',endText:'',pointOnly:true,
    detail:note.text||'',quote:'',image:'',imageName:''});
  }
  return out.sort((a,b)=>a.at-b.at||a.key.localeCompare(b.key));
 }
 function isReviewChecked(x){return Object.prototype.hasOwnProperty.call(reviewChecks,x.key)&&reviewChecks[x.key]===x.signature}
-function reviewKindColor(k){return ({cut:'#777',card:'#27785B',visual:'#27785B',highlight:'#B59B00',textcard:'#0054C8',short:'#E00000',captions:'#B12B32',other:'#555'})[k]||'#777'}
+function reviewKindColor(k){
+ const colors={
+  cut:{bg:'#E4E4E4',edge:'#676767'},
+  card:{bg:'#B8F0D2',edge:'#27785B'},
+  visual:{bg:'#B8F0D2',edge:'#27785B'},
+  textcard:{bg:'#DEE9FF',edge:'#0054C8'},
+  highlight:{bg:'#FFEB00',edge:'#A78E00'},
+  short:{bg:'#FFE0E1',edge:'#D00000'},
+  captions:{bg:'#E9DFFF',edge:'#6D28D9'},
+  other:{bg:'#F1E8DB',edge:'#8D5A2A'},
+  move:{bg:'#DDEAF1',edge:'#476D86'}
+ };
+ return colors[k]||{bg:'#EEEEEE',edge:'#666666'};
+}
+function reviewBoundary(label,number,time,excerpt){
+ const content=number?'字幕 '+escapeHtml(String(number)):'';
+ return '<div class="review-boundary"><span class="review-boundary-label">'+label+'</span>'
+   +(content?'<span class="review-boundary-number">'+content+'</span>':'')
+   +(time?'<time class="review-boundary-time">'+escapeHtml(time)+'</time>':'')+'</div>'
+   +(excerpt?'<span class="review-boundary-quote" title="'+escapeHtml(excerpt)+'">「'+escapeHtml(excerpt)+'」</span>':'');
+}
 function renderReview(){
  if(!reviewMode)return;
  const items=reviewEntries(),done=items.filter(isReviewChecked).length,visible=reviewPendingOnly?items.filter(x=>!isReviewChecked(x)):items;
@@ -1130,13 +1159,15 @@ function renderReview(){
   $(id).classList.toggle('active',on);$(id).setAttribute('aria-pressed',String(on));
  }
  $('reviewList').innerHTML=visible.length?visible.map(x=>{
-  const checked=isReviewChecked(x),detail=x.detail||x.quote,quote=x.detail&&x.quote?'台詞：'+x.quote:'';
-  return '<label class="review-item'+(checked?' done':'')+'" style="border-left-color:'+reviewKindColor(x.kind)+'">'
+  const checked=isReviewChecked(x),palette=reviewKindColor(x.kind);
+  const source=x.startNumber||x.startTime?reviewBoundary(x.pointOnly?'位置':'起點',x.startNumber,x.startTime,x.startText):'';
+  const end=x.pointOnly?'':reviewBoundary('終點',x.endNumber,x.endTime,x.endText===x.startText?'':x.endText);
+  const range=source||end?'<div class="review-range">'+source+end+'</div>':'';
+  return '<label class="review-item'+(checked?' done':'')+'" style="background:'+palette.bg+';border-left-color:'+palette.edge+'">'
    +'<input type="checkbox" data-review-key="'+escapeHtml(x.key)+'" '+(checked?'checked':'')+' aria-label="核對 '+escapeHtml(x.name)+' '+escapeHtml(x.number)+'">'
-   +'<span class="review-main"><span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong><span class="review-number">'+escapeHtml(x.number)+'</span></span>'
-   +(x.time?'<span class="review-time">'+escapeHtml(x.time)+'</span>':'')
-   +(detail?'<span class="review-description">'+escapeHtml(detail)+'</span>':'')
-   +(quote?'<span class="review-quote">'+escapeHtml(quote)+'</span>':'')
+   +'<span class="review-main"><span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong></span>'
+   +range
+   +(x.detail?'<span class="review-description">'+escapeHtml(x.detail)+'</span>':'')
    +(x.image?'<img class="review-thumb" src="'+escapeHtml(x.image)+'" alt="'+escapeHtml(x.imageName)+'">':'')
    +'</span></label>';
  }).join(''):'<div class="review-empty">'+(items.length?'這一輪已全部核對。':'尚無後製指示，請先在逐字稿標記需要修改的位置。')+'</div>';
