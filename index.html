@@ -759,6 +759,18 @@ html,body,.shell{background:#fff!important}
 .review-head{padding:0 17px 0 22px}
 @media(max-width:1070px){.review-head{padding:0 10px}}
 @media(max-width:720px){.review-head{padding:0 10px}.review-head .toolbarleft .section-name{font-size:14px}}
+
+/* 剪掉區域的核對重點：刪除後真正相接的前文和後文。 */
+.review-cut-range{margin-top:9px;color:#444;font-size:12px;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
+.review-cut-join{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.review-cut-side{padding:11px 12px;background:#fff;border:1px solid #c2c2c2}
+.review-cut-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 10px;line-height:1.35;margin-bottom:6px}
+.review-cut-heading strong{font-size:13px;color:#111;font-weight:800}
+.review-cut-heading span{font-size:12px;color:#555;font-variant-numeric:tabular-nums}
+.review-cut-words{font-size:16px;line-height:1.7;font-weight:550;color:#111;white-space:pre-wrap;overflow-wrap:anywhere}
+.review-cut-arrow{color:#111;text-align:center;font-size:20px;font-weight:800;line-height:1.1}
+.review-item.expanded .review-cut-words{font-size:19px;line-height:1.75}
+@media(max-width:650px){.review-cut-side{padding:9px}.review-cut-words{font-size:16px}.review-item.expanded .review-cut-words{font-size:18px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -1157,6 +1169,28 @@ function refreshAll(){
 }
 
 // 初剪核對清單依字幕順序排列，只列原有後製指示及人工備註。
+// 剪輯核對時，顯示真正保留的兩側字幕，讓製作人直接看剪接後的語意銜接。
+function reviewCutContext(range){
+ const deleted=new Set(annotations.filter(a=>a.kind==='cut').flatMap(a=>a.rowIds||[]));
+ const collect=(step,index)=>{
+  const picked=[];let characters=0;
+  for(let i=index;i>=0&&i<rows.length;i+=step){
+   const row=rows[i];
+   if(!row||deleted.has(row.uid))continue;
+   const value=String(row.editedText??row.text??'').trim();
+   if(!value)continue;
+   picked.push({number:String(row.seq||i+1),text:value});
+   characters+=value.length;
+   if(picked.length>=8||(picked.length>=4&&characters>=55))break;
+  }
+  if(step<0)picked.reverse();
+  return picked.length?{
+   first:picked[0].number,last:picked[picked.length-1].number,
+   text:picked.map(x=>x.text).join('')
+  }:null;
+ };
+ return {before:collect(-1,range.firstIndex-1),after:collect(1,range.lastIndex+1)};
+}
 function reviewEntries(){
  const out=[];
  for(const cue of noteOrder()){
@@ -1165,13 +1199,14 @@ function reviewEntries(){
   const file=graphic&&asset?'圖卡_'+String(deliveryAssetNumber(cue)).padStart(3,'0')+'.png':'';
   const name=graphic?'插入圖卡':cue.kind==='textcard'?'插入字卡':cue.kind==='captions'?'特殊需求':cue.kind==='other'?'其他備註':findKind(cue.kind).label;
   const first=String(range.first.seq||range.firstIndex+1),last=String(range.last.seq||range.lastIndex+1);
+  const cutContext=cue.kind==='cut'?reviewCutContext(range):null;
   out.push({key:'cue:'+cue.id,
-   signature:JSON.stringify([cue.kind,cue.rowIds,cue.title||'',cue.detail||'',cue.assetId||'',cue.referenceAssetId||'',cue.selectedQuote||'',asset?.name||'',reference?.name||'']),
+   signature:JSON.stringify([cue.kind,cue.rowIds,cue.title||'',cue.detail||'',cue.assetId||'',cue.referenceAssetId||'',cue.selectedQuote||'',asset?.name||'',reference?.name||'',cutContext]),
    at:range.firstIndex*2,kind:cue.kind,
    name:name+(file?'｜'+file:''),number:'字幕 '+first+(first!==last?'–'+last:''),
    startNumber:first,endNumber:last,startTime:range.first.start||'',endTime:range.last.end||'',
    startText:String(range.first.editedText??range.first.text??'').trim(),endText:String(range.last.editedText??range.last.text??'').trim(),
-   pointOnly:false,
+   pointOnly:false,cutContext,
    detail:(cue.detail||(!cue.assetId?cue.title:'')||'').trim(),
    quote:range.first.text||'',image:asset?.dataUrl||reference?.dataUrl||'',imageName:asset?.name||reference?.name||'',imageAssetId:asset?.id||reference?.id||''});
  }
@@ -1209,6 +1244,22 @@ function reviewBoundary(label,number,time,excerpt){
    +(content?'<span class="review-boundary-number">'+content+'</span>':'')
    +(time?'<time class="review-boundary-time">'+escapeHtml(time)+'</time>':'')+'</div>'
    +(excerpt?'<span class="review-boundary-quote" title="'+escapeHtml(excerpt)+'">「'+escapeHtml(excerpt)+'」</span>':'');
+}
+function reviewCutSide(label,side,empty){
+ const nums=side?'字幕 '+escapeHtml(side.first)+(side.first===side.last?'':'–'+escapeHtml(side.last)):'';
+ return '<div class="review-cut-side"><div class="review-cut-heading"><strong>'+label+'</strong>'
+  +(nums?'<span>'+nums+'</span>':'')+'</div>'
+  +'<div class="review-cut-words">'+(side?escapeHtml(side.text):empty)+'</div></div>';
+}
+function reviewCutMarkup(item){
+ const ctx=item.cutContext||{before:null,after:null};
+ const times=item.startTime&&item.endTime?'｜'+escapeHtml(item.startTime)+'–'+escapeHtml(item.endTime):'';
+ return '<div class="review-cut-range">剪掉｜'+escapeHtml(item.number)+times+'</div>'
+  +'<div class="review-cut-join">'
+  +reviewCutSide('保留前文',ctx.before,'片頭，沒有前文')
+  +'<div class="review-cut-arrow" aria-label="剪接後接續">↓</div>'
+  +reviewCutSide('接續後文',ctx.after,'片尾，沒有後文')
+  +'</div>';
 }
 function reviewCategory(kind){
  return kind==='card'||kind==='visual'?'card':['highlight','cut','textcard','short'].includes(kind)?kind:'other';
@@ -1255,7 +1306,7 @@ function renderReview(){
    +'<div class="review-main"><div class="review-text" tabindex="0" role="button" data-review-expand="'+escapeHtml(x.key)+'" aria-expanded="'+String(expanded)+'" aria-label="'+(expanded?'收合':'展開')+' '+escapeHtml(x.name)+'">'
    +'<span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong>'+(x.kind==='highlight'?'<span class="review-intro-tag">片頭</span>':'')+'</span>'
    +(x.kind==='highlight'?'<span class="review-original-hint">以下為原始素材位置，非成片時間</span>':'')
-   +range
+   +(x.kind==='cut'?reviewCutMarkup(x):range)
    +(x.detail?'<span class="review-description">'+escapeHtml(x.detail)+'</span>':'')
    +'</div>'
    +(x.image&&x.imageAssetId?'<button type="button" class="review-zoom-image" data-review-image="'+escapeHtml(x.imageAssetId)+'" title="查看圖片" aria-label="查看圖片：'+escapeHtml(x.imageName)+'"><img loading="lazy" src="'+escapeHtml(x.image)+'" alt="'+escapeHtml(x.imageName)+'"></button>':'')
