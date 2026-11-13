@@ -671,9 +671,7 @@ html,body,.shell{background:#fff!important}
 .review-page{grid-column:2;grid-row:1;min-width:0;min-height:0;background:#fff;display:flex;flex-direction:column}
 .railreview.is-active{background:#111!important;color:#fff!important}
 .review-head{min-height:66px;border-bottom:2px solid #111;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.review-head h1{font-size:17px;margin:0;font-weight:850}.review-head p{font-size:11px;color:#666;margin:5px 0 0}
-.review-back{background:#fff;color:#111;border:1px solid #111;padding:8px 12px;white-space:nowrap;font-size:12px;font-weight:700}
-.review-back:hover{background:#111;color:#fff}
+.review-head h1{font-size:16px;margin:0;font-weight:750;letter-spacing:-.3px}.review-head p{font-size:11px;color:#666;margin:5px 0 0}
 .review-scroll{overflow-y:auto;flex:1;min-height:0;padding:22px clamp(12px,3vw,38px) 60px}
 .review-inner{max-width:900px;margin:0 auto}
 .review-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:16px;border-bottom:1px solid #111}
@@ -699,13 +697,12 @@ html,body,.shell{background:#fff!important}
 .review-description{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#222;line-height:1.55;margin-top:8px;font-weight:550}
 .review-thumb{width:90px;height:58px;object-fit:contain;border:1px solid #0002;background:#ffffffb8;display:block;margin-top:9px}
 .review-empty{text-align:center;padding:48px 8px;color:#666;line-height:1.7;font-size:13px}
-@media(max-width:650px){.review-head{padding:12px}.review-scroll{padding:12px 8px 35px}.review-item{gap:8px;padding:11px 8px}.review-head h1{font-size:15px}.review-range{padding:6px}.review-boundary{column-gap:5px}}
+@media(max-width:650px){.review-head{padding:12px}.review-scroll{padding:12px 8px 35px}.review-item{gap:8px;padding:11px 8px}.review-head h1{font-size:16px}.review-range{padding:6px}.review-boundary{column-gap:5px}}
 
 
 /* v6.2：核對頁文字加大，圖卡縮圖放大，並支援單則展開閱讀。 */
-.review-head h1{font-size:19px}
 .review-head p{font-size:13px;line-height:1.5}
-.review-back,.review-filter button{font-size:13px}
+.review-filter button{font-size:13px}
 .review-summary strong{font-size:17px}
 .review-summary small{font-size:12px}
 .review-item{grid-template-columns:26px minmax(0,1fr);gap:12px;padding:16px 12px 15px}
@@ -736,7 +733,6 @@ html,body,.shell{background:#fff!important}
 .review-item.expanded .review-description{font-size:18px;line-height:1.7}
 .review-item.expanded .review-zoom-image img{width:min(100%,320px);height:auto;max-height:200px}
 @media(max-width:650px){
- .review-head h1{font-size:18px}
  .review-item{gap:9px;padding:13px 9px 14px}
  .review-name{font-size:16px}
  .review-range{padding:8px;gap:8px}
@@ -799,7 +795,7 @@ html,body,.shell{background:#fff!important}
  </aside>
 </div>
 <section class="review-page" id="reviewPage" hidden aria-label="初剪核對">
- <div class="review-head"><div><h1>初剪核對</h1></div><button type="button" id="reviewBack" class="review-back">返回逐字稿</button></div>
+ <div class="review-head"><h1>初剪核對</h1></div>
  <div class="review-scroll" id="reviewScroll"><div class="review-inner">
   <div class="review-summary"><div><strong id="reviewProgress">已核對 0 / 0</strong></div>
    <div class="review-filter" role="group" aria-label="篩選核對項目"><button type="button" id="reviewAll" class="active" aria-pressed="true">全部</button><button type="button" id="reviewPending" aria-pressed="false">未核對</button></div></div>
@@ -1276,7 +1272,6 @@ function setReviewMode(open){
  }
 }
 $('reviewBtn').addEventListener('click',()=>setReviewMode(!reviewMode));
-$('reviewBack').addEventListener('click',()=>setReviewMode(false));
 $('reviewAll').addEventListener('click',()=>{reviewPendingOnly=false;renderReview()});
 $('reviewPending').addEventListener('click',()=>{reviewPendingOnly=true;renderReview()});
 $('reviewSearch').addEventListener('input',e=>{reviewKeyword=e.target.value.trim();renderReview()});
