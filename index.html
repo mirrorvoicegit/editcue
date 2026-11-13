@@ -664,6 +664,38 @@ html,body,.shell{background:#fff!important}
 .txrow.range-preview.preview-highlight{background:#FFEB00!important;box-shadow:inset 4px 0 #111!important}
 .txrow.range-preview.preview-card,.txrow.range-preview.preview-visual{background:#B8F0D2!important;box-shadow:inset 4px 0 #27785B!important}
 .txrow.range-preview.preview-textcard{background:#fff!important;box-shadow:inset 4px 0 #0054C8!important}
+
+/* 初剪核對頁：與原逐字稿工作區獨立，半視窗也能操作。 */
+#reviewPage[hidden]{display:none!important}
+.shell.review-mode>.body{display:none!important}
+.review-page{grid-column:2;grid-row:1;min-width:0;min-height:0;background:#fff;display:flex;flex-direction:column}
+.railreview.is-active{background:#111!important;color:#fff!important}
+.review-head{min-height:66px;border-bottom:2px solid #111;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.review-head h1{font-size:17px;margin:0;font-weight:850}.review-head p{font-size:11px;color:#666;margin:5px 0 0}
+.review-back{background:#fff;color:#111;border:1px solid #111;padding:8px 12px;white-space:nowrap;font-size:12px;font-weight:700}
+.review-back:hover{background:#111;color:#fff}
+.review-scroll{overflow-y:auto;flex:1;min-height:0;padding:22px clamp(12px,3vw,38px) 60px}
+.review-inner{max-width:900px;margin:0 auto}
+.review-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:16px;border-bottom:1px solid #111}
+.review-summary strong{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.review-summary small{display:block;margin-top:4px;color:#666;font-size:11px}
+.review-filter{display:inline-flex;border:1px solid #111}
+.review-filter button{border:0;background:#fff;color:#111;padding:8px 12px;font-size:12px;font-weight:700}
+.review-filter button+button{border-left:1px solid #111}.review-filter button.active{background:#111;color:#fff}
+.review-list{margin-top:4px}
+.review-item{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;padding:15px 12px;border-bottom:1px solid #ddd;border-left:4px solid #777;cursor:pointer;min-width:0}
+.review-item:hover{background:#f6f6f6}.review-item:focus-within{outline:2px solid #111;outline-offset:-2px}
+.review-item.done{opacity:.58}.review-item.done .review-name{text-decoration:line-through}
+.review-item input{width:20px;height:20px;accent-color:#111;margin:3px 0 0;cursor:pointer}
+.review-main{display:block;min-width:0}.review-line{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 8px}
+.review-name{font-size:14px;font-weight:800;color:#111;line-height:1.5;overflow-wrap:anywhere}
+.review-number{font-size:12px;color:#555;font-weight:600;white-space:nowrap}
+.review-time{display:block;color:#666;font-size:12px;font-variant-numeric:tabular-nums;margin-top:3px}
+.review-description{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#333;line-height:1.6;margin-top:6px}
+.review-quote{display:block;font-size:11px;color:#777;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.review-thumb{width:90px;height:58px;object-fit:contain;border:1px solid #ddd;background:#f7f7f7;display:block;margin-top:9px}
+.review-empty{text-align:center;padding:48px 8px;color:#666;line-height:1.7;font-size:13px}
+@media(max-width:650px){.review-head{padding:12px}.review-scroll{padding:14px 9px 35px}.review-item{gap:9px;padding:13px 8px}.review-head h1{font-size:15px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -673,7 +705,7 @@ html,body,.shell{background:#fff!important}
   <div class="railmark" title="EditCue｜逐字稿工作台" aria-label="EditCue">EC<span>EDITCUE</span></div>
   <div class="railactions">
    <button class="railbtn" id="saveBtn" title="儲存工作檔（JSON）" aria-label="儲存工作檔"><span class="railicon" aria-hidden="true">▤</span><span>儲存</span></button>
-   <button class="railbtn railmain" id="exportWordBtn" title="匯出 Word 與圖片素材 ZIP" aria-label="匯出 ZIP"><span class="railicon" aria-hidden="true">↓</span><span>匯出</span></button>
+   <button class="railbtn railmain" id="exportWordBtn" title="匯出 Word 與圖片素材 ZIP" aria-label="匯出 ZIP"><span class="railicon" aria-hidden="true">↓</span><span>匯出</span></button><button class="railbtn railreview" id="reviewBtn" type="button" aria-pressed="false" title="開啟初剪核對頁"><span class="railicon" aria-hidden="true">☑</span><span id="reviewBtnLabel">核對</span></button>
   </div>
   <button class="railbtn railreset" id="resetBtn" title="清空逐字稿、圖片與全部標示" aria-label="清除全部"><span class="railicon" aria-hidden="true">×</span><span>清空</span></button>
 </nav>
@@ -703,6 +735,14 @@ html,body,.shell{background:#fff!important}
   <section class="card asidecard notes-card" hidden><div class="asidehead" style="margin-bottom:8px"><h2>已標示</h2><span class="countbadge" id="cueCount">0</span></div><div class="notes-list" id="notesList"><div class="notes-empty">尚無標示</div></div></section>
  </aside>
 </div>
+<section class="review-page" id="reviewPage" hidden aria-label="初剪核對">
+ <div class="review-head"><div><h1>初剪核對</h1><p>對照 Frame.io，確認已完成的修改</p></div><button type="button" id="reviewBack" class="review-back">返回逐字稿</button></div>
+ <div class="review-scroll" id="reviewScroll"><div class="review-inner">
+  <div class="review-summary"><div><strong id="reviewProgress">已核對 0 / 0</strong><small>指示若有修改，會自動恢復為未核對</small></div>
+   <div class="review-filter" role="group" aria-label="篩選核對項目"><button type="button" id="reviewAll" class="active" aria-pressed="true">全部</button><button type="button" id="reviewPending" aria-pressed="false">未核對</button></div></div>
+  <div class="review-list" id="reviewList"></div>
+ </div></div>
+</section>
 </div>
 
 <div id="fastMarkPanel" class="fast-mark-panel hidden" role="dialog" aria-label="快速標示字幕範圍" aria-modal="false">
@@ -742,6 +782,7 @@ const PRESET='一般口誤、停頓、重講、設備測試及場外對話由剪
 let rows=[],annotations=[],assets=[],selected=new Set(),anchor=-1,kindId='card',editId=null,sourceName='',assetChoice='',draftRevision=0,saveTimer=null,processingFiles=false,dragCount=0;
 let activeAssetDrag=false,rangeDrag=null,lastSelectionRect=null,suppressClickOnce=false,previewOpen=false;
 let redNotes=[],referenceChoice='',referenceTemp=[],draggingNoteId='',undoStack=[],redoStack=[];
+let reviewChecks={},reviewMode=false,reviewPendingOnly=false;
 let searchRecords=[],searchActiveIndex=0,searchOpen=false,replaceExpanded=false,transcriptPointerRange=null;
 const HISTORY_MAX=60;
 function historySnapshot(){return JSON.stringify({annotations,redNotes,editedRows:rows.map(r=>({uid:r.uid,text:r.text,editedText:r.editedText}))});}
@@ -775,7 +816,7 @@ function assetById(id){return assets.find(a=>a.id===id)}
 function imageFormat(s){return (s||'').match(/^data:(image\/(?:png|jpeg|webp));base64,/)?.[1]||'image/png'}
 function nextAssetCode(){let n=1;while(assets.some(x=>x.code==='G'+String(n).padStart(2,'0')))n++;return 'G'+String(n).padStart(2,'0')}
 function prettyText(a){const i=rows.find(r=>r.uid===a.rowIds[0]),j=rows.find(r=>r.uid===a.rowIds.at(-1));return i?.start?asClock(i.start)+'–'+asClock(j?.end):'Lines '+(i?.seq||'?')+'–'+(j?.seq||'?')}
-function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').value||'未命名節目',sourceName,sourceType,sourceRawText,originalDocxBase64,originalSubtitleBase64,rows,assets,annotations,redNotes,preset:PRESET}}
+function serializable(){return{app:'EditCue',version:'1.0',title:$('docTitle').value||'未命名節目',sourceName,sourceType,sourceRawText,originalDocxBase64,originalSubtitleBase64,rows,assets,annotations,redNotes,reviewChecks,preset:PRESET}}
 function markDirty(){draftRevision++;$('saveStatus').textContent='正在儲存到本機…';clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{await saveLocal(serializable());$('saveStatus').textContent='已儲存於本機 · 未上傳檔案'}catch(e){console.warn(e);$('saveStatus').textContent='自動儲存未啟用 · 請下載專案檔'}},750)}
 
 let jumpTimer=null;
@@ -1049,8 +1090,81 @@ function refreshAll(){
  cachedNoteOrder=null;
  if(!rows.length){selected.clear();anchor=-1;lastSelectionRect=null;window._showInspector=false;editId=null;}
  else selected=new Set([...selected].filter(i=>Number.isInteger(i)&&i>=0&&i<rows.length));
- renderRows();renderCounters();renderAssets();renderCueList();paintSelection();renderInspector();if(cueIndexOpen)renderCueIndex();
+ renderRows();renderCounters();renderAssets();renderCueList();paintSelection();renderInspector();if(cueIndexOpen)renderCueIndex();if(reviewMode)renderReview();
 }
+
+// 初剪核對清單依字幕順序排列，只列原有後製指示及人工備註。
+function reviewEntries(){
+ const out=[];
+ for(const cue of noteOrder()){
+  const range=sourceRowAt(cue);if(!range)continue;
+  const graphic=['card','visual'].includes(cue.kind),asset=assetById(cue.assetId),reference=assetById(cue.referenceAssetId);
+  const file=graphic&&asset?'圖卡_'+String(deliveryAssetNumber(cue)).padStart(3,'0')+'.png':'';
+  const name=graphic?'插入圖卡':cue.kind==='textcard'?'插入字卡':cue.kind==='captions'?'特殊需求':cue.kind==='other'?'其他備註':findKind(cue.kind).label;
+  const first=String(range.first.seq||range.firstIndex+1),last=String(range.last.seq||range.lastIndex+1);
+  out.push({key:'cue:'+cue.id,
+   signature:JSON.stringify([cue.kind,cue.rowIds,cue.title||'',cue.detail||'',cue.assetId||'',cue.referenceAssetId||'',cue.selectedQuote||'',asset?.name||'',reference?.name||'']),
+   at:range.firstIndex*2,kind:cue.kind,
+   name:name+(file?'｜'+file:''),number:'字幕 '+first+(first!==last?'–'+last:''),
+   time:range.first.start?(range.first.start+(first!==last?' – '+range.last.end:'')):'',
+   detail:(cue.detail||(!cue.assetId?cue.title:'')||'').trim(),
+   quote:range.first.text||'',image:asset?.dataUrl||reference?.dataUrl||'',imageName:asset?.name||reference?.name||''});
+ }
+ for(const note of redNotes){
+  if(!(note.text||'').trim())continue;
+  const idx=rows.findIndex(r=>r.uid===note.afterUid),row=rows[idx];
+  out.push({key:'note:'+note.id,signature:JSON.stringify([note.afterUid||'',note.text||'']),
+   at:idx<0?-1:idx*2+1,kind:'other',name:'其他備註',
+   number:row?'字幕 '+(row.seq||idx+1)+' 後':'開頭',time:row?.start||'',
+   detail:note.text||'',quote:'',image:'',imageName:''});
+ }
+ return out.sort((a,b)=>a.at-b.at||a.key.localeCompare(b.key));
+}
+function isReviewChecked(x){return Object.prototype.hasOwnProperty.call(reviewChecks,x.key)&&reviewChecks[x.key]===x.signature}
+function reviewKindColor(k){return ({cut:'#777',card:'#27785B',visual:'#27785B',highlight:'#B59B00',textcard:'#0054C8',short:'#E00000',captions:'#B12B32',other:'#555'})[k]||'#777'}
+function renderReview(){
+ if(!reviewMode)return;
+ const items=reviewEntries(),done=items.filter(isReviewChecked).length,visible=reviewPendingOnly?items.filter(x=>!isReviewChecked(x)):items;
+ $('reviewProgress').textContent='已核對 '+done+' / '+items.length;
+ for(const [id,on] of [['reviewAll',!reviewPendingOnly],['reviewPending',reviewPendingOnly]]){
+  $(id).classList.toggle('active',on);$(id).setAttribute('aria-pressed',String(on));
+ }
+ $('reviewList').innerHTML=visible.length?visible.map(x=>{
+  const checked=isReviewChecked(x),detail=x.detail||x.quote,quote=x.detail&&x.quote?'台詞：'+x.quote:'';
+  return '<label class="review-item'+(checked?' done':'')+'" style="border-left-color:'+reviewKindColor(x.kind)+'">'
+   +'<input type="checkbox" data-review-key="'+escapeHtml(x.key)+'" '+(checked?'checked':'')+' aria-label="核對 '+escapeHtml(x.name)+' '+escapeHtml(x.number)+'">'
+   +'<span class="review-main"><span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong><span class="review-number">'+escapeHtml(x.number)+'</span></span>'
+   +(x.time?'<span class="review-time">'+escapeHtml(x.time)+'</span>':'')
+   +(detail?'<span class="review-description">'+escapeHtml(detail)+'</span>':'')
+   +(quote?'<span class="review-quote">'+escapeHtml(quote)+'</span>':'')
+   +(x.image?'<img class="review-thumb" src="'+escapeHtml(x.image)+'" alt="'+escapeHtml(x.imageName)+'">':'')
+   +'</span></label>';
+ }).join(''):'<div class="review-empty">'+(items.length?'這一輪已全部核對。':'尚無後製指示，請先在逐字稿標記需要修改的位置。')+'</div>';
+}
+function setReviewMode(open){
+ reviewMode=!!open;
+ $('shell').classList.toggle('review-mode',reviewMode);
+ $('reviewPage').hidden=!reviewMode;
+ $('reviewBtn').classList.toggle('is-active',reviewMode);
+ $('reviewBtn').setAttribute('aria-pressed',String(reviewMode));
+ $('reviewBtnLabel').textContent=reviewMode?'逐字稿':'核對';
+ if(reviewMode){
+  setCueIndexOpen(false);if(typeof setFastMarkOpen==='function')setFastMarkOpen(false);
+  closeCueManager();$('toolBar').classList.remove('open');
+  $('reviewScroll').scrollTop=0;renderReview();
+ }
+}
+$('reviewBtn').addEventListener('click',()=>setReviewMode(!reviewMode));
+$('reviewBack').addEventListener('click',()=>setReviewMode(false));
+$('reviewAll').addEventListener('click',()=>{reviewPendingOnly=false;renderReview()});
+$('reviewPending').addEventListener('click',()=>{reviewPendingOnly=true;renderReview()});
+$('reviewList').addEventListener('change',e=>{
+ const input=e.target.closest('input[data-review-key]');if(!input)return;
+ const item=reviewEntries().find(x=>x.key===input.dataset.reviewKey);if(!item)return;
+ if(input.checked)reviewChecks[item.key]=item.signature;else delete reviewChecks[item.key];
+ markDirty();renderReview();
+});
+
 function setKind(k){kindId=k;window._showInspector=['move','card','captions','visual','other','textcard'].includes(k);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===k));if(window._showInspector)$('toolBar').classList.remove('open');renderInspector()}
 function renderInspector(){const host=$('inspectorBody');$('inspector').classList.toggle('hasselection',!!editId||!!window._showInspector);const s=selectionIndices(),editing=annotations.find(a=>a.id===editId);$('pickedCount').textContent=s.length+' 段';$('inspectorTitle').textContent=editing?'修改標示':'標示需求';if(!s.length&&!editing){$('inspector').classList.remove('hasselection');window._showInspector=false;host.className='emptyedit';host.innerHTML='先選取台詞，再新增標示';return}host.className='';if(window._showInspector||editing){$('inspector').classList.add('hasselection');positionInspector()} const first=rows[s[0]],last=rows[s.at(-1)];const interval=first?.start?asClock(first.start)+' – '+asClock(last.end):s.length+' 段';const chosen=editing?.kind||kindId;
 host.innerHTML=`<div class="clipmeta"><span style="font-size:20px">${chosen==='cut'?'✕':chosen==='card'?'▣':chosen==='move'?'↔':'✦'}</span><div><strong>${escapeHtml(findKind(chosen).label)}</strong><br><span>${escapeHtml(interval)}</span></div></div>
@@ -1080,7 +1194,7 @@ function insertGraphic(id,inds=selectionIndices()){
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
 }
 function editCue(id){closeCueManager();const a=annotations.find(x=>x.id===id);if(!a)return;editId=id;kindId=a.kind;window._showInspector=true;$('toolBar').classList.remove('open');const inds=a.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(i=>i>=0);setSelection(inds);$('toolBar').querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.kind===a.kind));renderInspector();let first=$('transcript').querySelector('.txrow.selected');first?.scrollIntoView({block:'center',behavior:'smooth'})}
-function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],rawSource='',docxSource='',subtitleSourceB64='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;originalSubtitleBase64=subtitleSourceB64;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
+function loadContent({title,source,loadedRows,loadedNotes=[],loadedAssets=[],loadedRedNotes=[],loadedReviewChecks={},rawSource='',docxSource='',subtitleSourceB64='',inputType=''}){rows=loadedRows;redNotes=loadedRedNotes||[];reviewChecks=loadedReviewChecks&&typeof loadedReviewChecks==='object'&&!Array.isArray(loadedReviewChecks)?loadedReviewChecks:{};undoStack=[];redoStack=[];updateUndoButtons();annotations=loadedNotes.map(a=>({...a,rowIds:[...new Set(a.rowIds||[])]}));assets=loadedAssets;sourceName=source;sourceType=inputType;sourceRawText=rawSource;originalDocxBase64=docxSource;originalSubtitleBase64=subtitleSourceB64;$('docTitle').value=title||'未命名節目';selected.clear();anchor=-1;editId=null;lastSelectionRect=null;window._showInspector=false;assetChoice='';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshAll();markDirty()}
 function importText(text,name='Pasted transcript'){const s=safeText(text);if(!s.trim())return; if(rows.length&&!confirm('Replace current transcript with pasted text? Save your draft first if needed.'))return;parsePlain(s);const loadedRows=rows;loadContent({title:name,source:name,loadedRows,rawSource:s,inputType:'txt'});toast(loadedRows.length+' 段已匯入')}
 function saveProject(){if(!rows.length&&!assets.length){toast('尚無可儲存的資料');return}download(cleanFileName($('docTitle').value)+'.editcue.json',new Blob([JSON.stringify(serializable())],{type:'application/json;charset=utf-8'}));toast('工作檔已儲存')}
 
@@ -1114,7 +1228,7 @@ async function importPptx(file){if(file.size>120*1024*1024)throw Error('簡報�
  }catch(e){status.textContent='PPTX 轉換失敗：'+e.message;toast('PPTX 轉換失敗：'+e.message);throw e}
 }
 
-async function importFile(f){if(!f)return;let ext=f.name.split('.').at(-1).toLowerCase();try{if(ext==='json'){const d=JSON.parse(await f.text());if(!Array.isArray(d.rows)||!Array.isArray(d.annotations))throw Error('Not an EditCue project');loadContent({title:d.title,source:d.sourceName||f.name,loadedRows:d.rows,loadedNotes:d.annotations,loadedRedNotes:d.redNotes||[],loadedAssets:d.assets||[],rawSource:d.sourceRawText||'',docxSource:d.originalDocxBase64||'',subtitleSourceB64:d.originalSubtitleBase64||'',inputType:d.sourceType||''});toast('專案已恢復');return}
+async function importFile(f){if(!f)return;let ext=f.name.split('.').at(-1).toLowerCase();try{if(ext==='json'){const d=JSON.parse(await f.text());if(!Array.isArray(d.rows)||!Array.isArray(d.annotations))throw Error('Not an EditCue project');loadContent({title:d.title,source:d.sourceName||f.name,loadedRows:d.rows,loadedNotes:d.annotations,loadedRedNotes:d.redNotes||[],loadedReviewChecks:d.reviewChecks||{},loadedAssets:d.assets||[],rawSource:d.sourceRawText||'',docxSource:d.originalDocxBase64||'',subtitleSourceB64:d.originalSubtitleBase64||'',inputType:d.sourceType||''});toast('專案已恢復');return}
 let rawSource='',docxSource='',subtitleSourceB64='';if(ext==='docx'){const buffer=await f.arrayBuffer();await parseDocx(buffer);docxSource=b64(new Uint8Array(buffer))}else if(['srt','vtt','txt'].includes(ext)){const bytes=new Uint8Array(await f.arrayBuffer());subtitleSourceB64=b64(bytes);rawSource=new TextDecoder().decode(bytes);parsePlain(rawSource)}else throw Error('Unsupported file type');const loadedRows=rows;loadContent({loadedAssets:assets,title:f.name.replace(/\.[^.]+$/,''),source:f.name,loadedRows,rawSource,docxSource,subtitleSourceB64,inputType:ext});toast(loadedRows.length+' 段已匯入')}catch(e){console.error(e);toast('Import failed: '+e.message)}}
 // 不依賴 FileReader：部分本機瀏覽器或擴充功能環境會覆寫它，導致 readAsDataURL 不存在。
 // 使用原生 Blob.arrayBuffer 產生 Data URL，所有圖片匯入入口共用。
@@ -1197,7 +1311,7 @@ function removeAsset(id){const a=assetById(id);if(!a)return;const refs=annotatio
 // IndexedDB 在瀏覽器本機儲存草稿，不傳送至任何伺服器。
 function openDB(){return new Promise((res,rej)=>{if(!('indexedDB'in window))return rej(Error('no IndexedDB'));const r=indexedDB.open('editcue-local-v1',1);r.onupgradeneeded=()=>{r.result.createObjectStore('drafts')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function saveLocal(data){const db=await openDB();return new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite'),q=t.objectStore('drafts').put(data,'current');q.onsuccess=()=>resolve();q.onerror=()=>reject(q.error);t.oncomplete=()=>db.close()})}
-async function restoreLocal(){try{const db=await openDB(),data=await new Promise((res,rej)=>{const t=db.transaction('drafts','readonly'),r=t.objectStore('drafts').get('current');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);t.oncomplete=()=>db.close()});if(data?.rows?.length||data?.assets?.length){loadContent({title:data.title,source:data.sourceName||'Last draft',loadedRows:data.rows||[],loadedNotes:data.annotations||[],loadedRedNotes:data.redNotes||[],loadedAssets:data.assets||[],rawSource:data.sourceRawText||'',docxSource:data.originalDocxBase64||'',subtitleSourceB64:data.originalSubtitleBase64||'',inputType:data.sourceType||''});$('saveStatus').textContent='已恢復本機草稿 · 未上傳檔案';toast('已恢復上次的草稿')}}catch(e){console.warn('Draft restore',e)}}
+async function restoreLocal(){try{const db=await openDB(),data=await new Promise((res,rej)=>{const t=db.transaction('drafts','readonly'),r=t.objectStore('drafts').get('current');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);t.oncomplete=()=>db.close()});if(data?.rows?.length||data?.assets?.length){loadContent({title:data.title,source:data.sourceName||'Last draft',loadedRows:data.rows||[],loadedNotes:data.annotations||[],loadedRedNotes:data.redNotes||[],loadedReviewChecks:data.reviewChecks||{},loadedAssets:data.assets||[],rawSource:data.sourceRawText||'',docxSource:data.originalDocxBase64||'',subtitleSourceB64:data.originalSubtitleBase64||'',inputType:data.sourceType||''});$('saveStatus').textContent='已恢復本機草稿 · 未上傳檔案';toast('已恢復上次的草稿')}}catch(e){console.warn('Draft restore',e)}}
 
 function parseTimeRange(s){const m=s.match(/((?:\d{2}:)?\d{2}:\d{2}[.,]\d{3})\s*-->\s*((?:\d{2}:)?\d{2}:\d{2}[.,]\d{3})/);return m?{start:m[1],end:m[2]}:null}
 function makeRow(seq,time,text,extra='',imgs=[],paragraphIndices=[]){return {uid:'r'+rows.length+'_'+Math.random().toString(36).slice(2,6),seq:safeText(seq),start:time?.start||'',end:time?.end||'',text:safeText(text),sourceNotes:extra?[safeText(extra)]:[],images:imgs||[],paragraphIndices}}
@@ -1558,7 +1672,7 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
 
 async function makeDocxBlob(){if(!rows.length){toast('尚無逐字稿');return null}
  wordNavIdBase=50000;wordNavPrefix='EditCueNext_';
- if(sourceType='docx'&&originalDocxBase64)return await makeWordPreservedDocx();
+ if(sourceType==='docx'&&originalDocxBase64)return await makeWordPreservedDocx();
  return makeTextPreservedDocx();}
 async function exportDocx(){try{const blob=await makeDocxBlob();if(blob){download(cleanFileName($('docTitle').value)+'_後製需求單.docx',blob);toast('已匯出保留原稿結構的 Word')}}catch(e){console.error(e);toast('匯出失敗：'+e.message)}}
 
@@ -2145,7 +2259,7 @@ $('referenceImageInput').onchange=async e=>{const fs=Array.from(e.target.files||
 $('saveBtn').onclick=saveProject;
 $('exportWordBtn').onclick=exportPackage;
 $('resetBtn').onclick=resetWorkspace;
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();$('searchInput').focus();$('searchInput').select();searchOpen=true;refreshSearchPanel();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='h'){e.preventDefault();$('searchInput').focus();searchOpen=true;replaceExpanded=true;refreshSearchPanel();$('replaceInput').focus();return}if(e.key==='Escape'){if(previewOpen){closeAssetPreview();return}setSelection([]);editId=null;window._showInspector=false;renderInspector();return}if(isEditingTarget(e))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click();return}if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&/^[1-4]$/.test(e.key)){const k=['cut','highlight','captions','red-note'][+e.key-1];if(k){editId=null;if(k==='red-note'){insertRedNote();return}setKind(k);if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)}}});
+document.addEventListener('keydown',e=>{if(reviewMode){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject()}return;}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();$('searchInput').focus();$('searchInput').select();searchOpen=true;refreshSearchPanel();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='h'){e.preventDefault();$('searchInput').focus();searchOpen=true;replaceExpanded=true;refreshSearchPanel();$('replaceInput').focus();return}if(e.key==='Escape'){if(previewOpen){closeAssetPreview();return}setSelection([]);editId=null;window._showInspector=false;renderInspector();return}if(isEditingTarget(e))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click();return}if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&/^[1-4]$/.test(e.key)){const k=['cut','highlight','captions','red-note'][+e.key-1];if(k){editId=null;if(k==='red-note'){insertRedNote();return}setKind(k);if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)}}});
 // 可以把 Word、字幕、工作檔或圖卡拖到整個網頁；也支援剪貼簿中的圖片。
 document.addEventListener('dragover',e=>{if(activeAssetDrag)return;if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
 document.addEventListener('drop',async e=>{if(activeAssetDrag)return;if(e.dataTransfer?.files?.length){e.preventDefault();await ingestFiles(e.dataTransfer.files)}});
@@ -2193,9 +2307,9 @@ $('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))c
 async function resetWorkspace(){
  if((rows.length||assets.length)&&!confirm('確定清除整個工作區嗎？逐字稿、圖片和全部標示會清空。'))return;
  clearTimeout(saveTimer);rows=[];annotations=[];assets=[];selected.clear();anchor=-1;kindId='card';editId=null;document.getSelection()?.removeAllRanges();$('toolBar').classList.remove('open');
- sourceName='';sourceType='';sourceRawText='';originalDocxBase64='';originalSubtitleBase64='';assetChoice='';referenceChoice='';redNotes=[];undoStack=[];redoStack=[];updateUndoButtons();lastSelectionRect=null;
+ sourceName='';sourceType='';sourceRawText='';originalDocxBase64='';originalSubtitleBase64='';assetChoice='';referenceChoice='';redNotes=[];reviewChecks={};undoStack=[];redoStack=[];updateUndoButtons();lastSelectionRect=null;
  $('docTitle').value='未命名節目';$('searchInput').value='';$('replaceInput').value='';searchRecords=[];searchActiveIndex=0;searchOpen=false;replaceExpanded=false;refreshSearchPanel();$('pptStatus').textContent='';$('pptStatus').classList.add('hidden');
- closeAssetPreview();window._showInspector=false;
+ closeAssetPreview();window._showInspector=false;setReviewMode(false);
  try{const db=await openDB();await new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite');const req=t.objectStore('drafts').delete('current');req.onsuccess=resolve;req.onerror=()=>reject(req.error);t.oncomplete=()=>db.close()})}catch(e){console.warn(e)}
  refreshAll();$('saveStatus').textContent='檔案僅在你的瀏覽器處理';toast('已清除工作區');
 }
