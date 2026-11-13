@@ -746,6 +746,16 @@ html,body,.shell{background:#fff!important}
  .review-description{font-size:15px}
  .review-item.expanded .review-boundary-number,.review-item.expanded .review-boundary-time{font-size:16px}
 }
+
+/* v6.3：核對清單改以成片核對順序顯示，並支援字幕搜尋與類型篩選。 */
+.review-find{display:flex;align-items:center;gap:8px;margin:12px 0 10px}
+.review-search{height:39px;flex:1;min-width:0;border:1px solid #777;border-radius:0;background:#fff;color:#111;font-size:14px;padding:8px 10px}
+.review-search:focus{border-color:#111;outline:2px solid #111;outline-offset:1px}
+.review-kind-filter{height:39px;width:138px;flex-shrink:0;min-width:0;border:1px solid #777;border-radius:0;background:#fff;color:#111;font-size:13px;padding:6px}
+.review-match-count{font-size:11px;color:#555;margin:0 0 8px;min-height:14px}
+.review-intro-tag{display:inline-block;background:#161616;color:#fff;font-size:11px;font-weight:750;line-height:1.4;padding:2px 6px;margin-left:8px;vertical-align:middle}
+.review-original-hint{display:block;font-size:11px;color:#444;line-height:1.4;margin-top:7px}
+@media(max-width:650px){.review-find{gap:6px}.review-kind-filter{width:104px;font-size:12px}.review-search{font-size:13px}.review-intro-tag{font-size:10px;margin-left:5px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -790,7 +800,7 @@ html,body,.shell{background:#fff!important}
  <div class="review-scroll" id="reviewScroll"><div class="review-inner">
   <div class="review-summary"><div><strong id="reviewProgress">已核對 0 / 0</strong></div>
    <div class="review-filter" role="group" aria-label="篩選核對項目"><button type="button" id="reviewAll" class="active" aria-pressed="true">全部</button><button type="button" id="reviewPending" aria-pressed="false">未核對</button></div></div>
-  <div class="review-list" id="reviewList"></div>
+  <div class="review-find"><input id="reviewSearch" class="review-search" type="search" autocomplete="off" placeholder="搜尋字幕編號、時間或台詞" aria-label="搜尋核對指示"><select id="reviewKind" class="review-kind-filter" aria-label="依後製指示類型篩選"><option value="all">全部類型</option><option value="highlight">精彩片段</option><option value="cut">剪掉</option><option value="card">插入圖卡</option><option value="textcard">插入字卡</option><option value="short">短影音</option><option value="other">其他需求</option></select></div><div class="review-match-count" id="reviewMatchCount" aria-live="polite"></div><div class="review-list" id="reviewList"></div>
  </div></div>
 </section>
 </div>
@@ -832,7 +842,7 @@ const PRESET='一般口誤、停頓、重講、設備測試及場外對話由剪
 let rows=[],annotations=[],assets=[],selected=new Set(),anchor=-1,kindId='card',editId=null,sourceName='',assetChoice='',draftRevision=0,saveTimer=null,processingFiles=false,dragCount=0;
 let activeAssetDrag=false,rangeDrag=null,lastSelectionRect=null,suppressClickOnce=false,previewOpen=false;
 let redNotes=[],referenceChoice='',referenceTemp=[],draggingNoteId='',undoStack=[],redoStack=[];
-let reviewChecks={},reviewMode=false,reviewPendingOnly=false,reviewExpanded=new Set();
+let reviewChecks={},reviewMode=false,reviewPendingOnly=false,reviewExpanded=new Set(),reviewKeyword='',reviewKind='all';
 let searchRecords=[],searchActiveIndex=0,searchOpen=false,replaceExpanded=false,transcriptPointerRange=null;
 const HISTORY_MAX=60;
 function historySnapshot(){return JSON.stringify({annotations,redNotes,editedRows:rows.map(r=>({uid:r.uid,text:r.text,editedText:r.editedText}))});}
@@ -1172,7 +1182,8 @@ function reviewEntries(){
    startText:'',endText:'',pointOnly:true,
    detail:note.text||'',quote:'',image:'',imageName:'',imageAssetId:''});
  }
- return out.sort((a,b)=>a.at-b.at||a.key.localeCompare(b.key));
+ // 片頭先核對精彩片段，其餘後製指示仍依原始字幕先後排列。
+ return out.sort((a,b)=>Number(b.kind==='highlight')-Number(a.kind==='highlight')||a.at-b.at||a.key.localeCompare(b.key));
 }
 function isReviewChecked(x){return Object.prototype.hasOwnProperty.call(reviewChecks,x.key)&&reviewChecks[x.key]===x.signature}
 function reviewKindColor(k){
@@ -1196,9 +1207,37 @@ function reviewBoundary(label,number,time,excerpt){
    +(time?'<time class="review-boundary-time">'+escapeHtml(time)+'</time>':'')+'</div>'
    +(excerpt?'<span class="review-boundary-quote" title="'+escapeHtml(excerpt)+'">「'+escapeHtml(excerpt)+'」</span>':'');
 }
+function reviewCategory(kind){
+ return kind==='card'||kind==='visual'?'card':['highlight','cut','textcard','short'].includes(kind)?kind:'other';
+}
+function reviewMatches(item,keyword){
+ const q=keyword.trim().toLocaleLowerCase('zh-Hant');
+ if(!q)return true;
+ // 直接輸入字幕編號時，可找到包含該字幕的範圍。
+ if(/^\d{1,6}$/.test(q)){
+  const num=Number(q),start=Number(item.startNumber),end=Number(item.endNumber||item.startNumber);
+  if(Number.isFinite(start)&&Number.isFinite(end)&&start<=num&&num<=end)return true;
+ }
+ const searchable=[item.name,item.number,item.startNumber,item.endNumber,item.startTime,item.endTime,item.startText,item.endText,item.detail,item.imageName].join(' ').toLocaleLowerCase('zh-Hant');
+ if(searchable.includes(q))return true;
+ // 搜尋標記區間中間的台詞，毋須先回逐字稿找位置。
+ if(item.key.startsWith('cue:')){
+  const cue=annotations.find(a=>a.id===item.key.slice(4));
+  if(cue){
+   const positions=cue.rowIds.map(uid=>rows.findIndex(r=>r.uid===uid)).filter(n=>n>=0);
+   if(positions.length){
+    const start=Math.min(...positions),end=Math.max(...positions);
+    for(let i=start;i<=end;i++)if(String(rows[i].editedText??rows[i].text??'').toLocaleLowerCase('zh-Hant').includes(q))return true;
+   }
+  }
+ }
+ return false;
+}
 function renderReview(){
  if(!reviewMode)return;
- const items=reviewEntries(),done=items.filter(isReviewChecked).length,visible=reviewPendingOnly?items.filter(x=>!isReviewChecked(x)):items;
+ const items=reviewEntries(),done=items.filter(isReviewChecked).length;
+ const visible=items.filter(x=>(!reviewPendingOnly||!isReviewChecked(x))&&(reviewKind==='all'||reviewCategory(x.kind)===reviewKind)&&reviewMatches(x,reviewKeyword));
+ $('reviewMatchCount').textContent=(reviewKeyword||reviewKind!=='all'||reviewPendingOnly)?'找到 '+visible.length+' 則指示':'';
  $('reviewProgress').textContent='已核對 '+done+' / '+items.length;
  for(const [id,on] of [['reviewAll',!reviewPendingOnly],['reviewPending',reviewPendingOnly]]){
   $(id).classList.toggle('active',on);$(id).setAttribute('aria-pressed',String(on));
@@ -1211,7 +1250,8 @@ function renderReview(){
   return '<div class="review-item'+(checked?' done':'')+(expanded?' expanded':'')+'" style="background:'+palette.bg+';border-left-color:'+palette.edge+'">'
    +'<input type="checkbox" data-review-key="'+escapeHtml(x.key)+'" '+(checked?'checked':'')+' aria-label="核對 '+escapeHtml(x.name)+' '+escapeHtml(x.number)+'">'
    +'<div class="review-main"><div class="review-text" tabindex="0" role="button" data-review-expand="'+escapeHtml(x.key)+'" aria-expanded="'+String(expanded)+'" aria-label="'+(expanded?'收合':'展開')+' '+escapeHtml(x.name)+'">'
-   +'<span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong></span>'
+   +'<span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong>'+(x.kind==='highlight'?'<span class="review-intro-tag">片頭</span>':'')+'</span>'
+   +(x.kind==='highlight'?'<span class="review-original-hint">以下為原始素材位置，非成片時間</span>':'')
    +range
    +(x.detail?'<span class="review-description">'+escapeHtml(x.detail)+'</span>':'')
    +'</div>'
@@ -1236,6 +1276,8 @@ $('reviewBtn').addEventListener('click',()=>setReviewMode(!reviewMode));
 $('reviewBack').addEventListener('click',()=>setReviewMode(false));
 $('reviewAll').addEventListener('click',()=>{reviewPendingOnly=false;renderReview()});
 $('reviewPending').addEventListener('click',()=>{reviewPendingOnly=true;renderReview()});
+$('reviewSearch').addEventListener('input',e=>{reviewKeyword=e.target.value.trim();renderReview()});
+$('reviewKind').addEventListener('change',e=>{reviewKind=e.target.value;renderReview()});
 // 點擊「放大」時只展開這則指示；點圖片時沿用現有的原圖預覽，不會勾選核對框。
 // 指示內容點一下展開、再點收合；圖片直接開啟原圖，核對框則獨立操作。
 $('reviewList').addEventListener('click',e=>{
