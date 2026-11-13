@@ -712,8 +712,10 @@ html,body,.shell{background:#fff!important}
 .review-item input{width:22px;height:22px}
 .review-name{font-size:16px;line-height:1.5}
 .review-line{align-items:center}
-.review-expand-btn{border:1px solid #0006;background:#fffe;color:#111;padding:4px 9px;font-size:13px;font-weight:750;line-height:1.5;white-space:nowrap;flex:none}
-.review-expand-btn:hover,.review-expand-btn:focus-visible{background:#111;color:#fff;outline:2px solid #111;outline-offset:2px}
+.review-item{cursor:default}
+.review-text{display:block;cursor:zoom-in;min-width:0;border-radius:2px}
+.review-item.expanded .review-text{cursor:zoom-out}
+.review-text:focus-visible{outline:2px solid #111;outline-offset:3px}
 .review-range{padding:10px;gap:10px;margin-top:11px}
 .review-boundary{column-gap:9px;row-gap:4px;line-height:1.5}
 .review-boundary-label{font-size:12px;min-width:36px;padding:3px 6px}
@@ -724,7 +726,7 @@ html,body,.shell{background:#fff!important}
 .review-zoom-image{margin-top:10px;display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid #0004;background:#fff9;padding:5px;cursor:zoom-in;text-align:left;max-width:100%}
 .review-zoom-image:hover,.review-zoom-image:focus-visible{outline:2px solid #111;outline-offset:1px}
 .review-zoom-image img{width:145px;height:94px;max-width:100%;display:block;object-fit:contain}
-.review-zoom-image span{font-size:12px;font-weight:750;color:#222}
+
 .review-item.expanded{padding:19px 15px}
 .review-item.expanded .review-name{font-size:19px}
 .review-item.expanded .review-range{padding:13px;gap:13px}
@@ -1206,14 +1208,15 @@ function renderReview(){
   const source=x.startNumber||x.startTime?reviewBoundary(x.pointOnly?'位置':'起點',x.startNumber,x.startTime,x.startText):'';
   const end=x.pointOnly?'':reviewBoundary('終點',x.endNumber,x.endTime,x.endText===x.startText?'':x.endText);
   const range=source||end?'<div class="review-range">'+source+end+'</div>':'';
-  return '<label class="review-item'+(checked?' done':'')+(expanded?' expanded':'')+'" style="background:'+palette.bg+';border-left-color:'+palette.edge+'">'
+  return '<div class="review-item'+(checked?' done':'')+(expanded?' expanded':'')+'" style="background:'+palette.bg+';border-left-color:'+palette.edge+'">'
    +'<input type="checkbox" data-review-key="'+escapeHtml(x.key)+'" '+(checked?'checked':'')+' aria-label="核對 '+escapeHtml(x.name)+' '+escapeHtml(x.number)+'">'
-   +'<span class="review-main"><span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong>'
-   +'<button type="button" class="review-expand-btn" data-review-expand="'+escapeHtml(x.key)+'" aria-expanded="'+String(expanded)+'" aria-label="'+(expanded?'收合':'放大')+' '+escapeHtml(x.name)+'">'+(expanded?'收合':'放大')+'</button></span>'
+   +'<div class="review-main"><div class="review-text" tabindex="0" role="button" data-review-expand="'+escapeHtml(x.key)+'" aria-expanded="'+String(expanded)+'" aria-label="'+(expanded?'收合':'展開')+' '+escapeHtml(x.name)+'">'
+   +'<span class="review-line"><strong class="review-name">'+escapeHtml(x.name)+'</strong></span>'
    +range
    +(x.detail?'<span class="review-description">'+escapeHtml(x.detail)+'</span>':'')
-   +(x.image&&x.imageAssetId?'<button type="button" class="review-zoom-image" data-review-image="'+escapeHtml(x.imageAssetId)+'" title="點擊放大原始圖片" aria-label="放大圖片：'+escapeHtml(x.imageName)+'"><img loading="lazy" src="'+escapeHtml(x.image)+'" alt="'+escapeHtml(x.imageName)+'"><span>點圖放大</span></button>':'')
-   +'</span></label>';
+   +'</div>'
+   +(x.image&&x.imageAssetId?'<button type="button" class="review-zoom-image" data-review-image="'+escapeHtml(x.imageAssetId)+'" title="查看圖片" aria-label="查看圖片：'+escapeHtml(x.imageName)+'"><img loading="lazy" src="'+escapeHtml(x.image)+'" alt="'+escapeHtml(x.imageName)+'"></button>':'')
+   +'</div></div>';
  }).join(''):'<div class="review-empty">'+(items.length?'這一輪已全部核對。':'尚無後製指示，請先在逐字稿標記需要修改的位置。')+'</div>';
 }
 function setReviewMode(open){
@@ -1234,20 +1237,26 @@ $('reviewBack').addEventListener('click',()=>setReviewMode(false));
 $('reviewAll').addEventListener('click',()=>{reviewPendingOnly=false;renderReview()});
 $('reviewPending').addEventListener('click',()=>{reviewPendingOnly=true;renderReview()});
 // 點擊「放大」時只展開這則指示；點圖片時沿用現有的原圖預覽，不會勾選核對框。
+// 指示內容點一下展開、再點收合；圖片直接開啟原圖，核對框則獨立操作。
 $('reviewList').addEventListener('click',e=>{
- const btn=e.target.closest('[data-review-expand],[data-review-image]');
- if(!btn)return;
+ const target=e.target.closest('[data-review-expand],[data-review-image]');
+ if(!target)return;
  e.preventDefault();e.stopPropagation();
- if(btn.dataset.reviewImage){openAssetPreview(btn.dataset.reviewImage);return}
- const key=btn.dataset.reviewExpand;
+ if(target.dataset.reviewImage){openAssetPreview(target.dataset.reviewImage);return}
+ const key=target.dataset.reviewExpand;
  if(!key)return;
  const expanded=!reviewExpanded.has(key);
  if(expanded)reviewExpanded.add(key);else reviewExpanded.delete(key);
- const item=btn.closest('.review-item');
+ const item=target.closest('.review-item');
  item?.classList.toggle('expanded',expanded);
- btn.textContent=expanded?'收合':'放大';
- btn.setAttribute('aria-expanded',String(expanded));
- btn.setAttribute('aria-label',(expanded?'收合':'放大')+' '+(item?.querySelector('.review-name')?.textContent||'後製指示'));
+ target.setAttribute('aria-expanded',String(expanded));
+ target.setAttribute('aria-label',(expanded?'收合':'展開')+' '+(item?.querySelector('.review-name')?.textContent||'後製指示'));
+});
+$('reviewList').addEventListener('keydown',e=>{
+ if(e.key!=='Enter'&&e.key!==' ')return;
+ const target=e.target.closest('[data-review-expand]');
+ if(!target)return;
+ e.preventDefault();target.click();
 });
 $('reviewList').addEventListener('change',e=>{
  const input=e.target.closest('input[data-review-key]');if(!input)return;
