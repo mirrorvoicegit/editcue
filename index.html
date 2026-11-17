@@ -129,7 +129,7 @@ html,body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",Arial,sa
 .asset-alert{position:absolute;right:4px;bottom:4px;border-radius:50%;width:19px;height:19px;background:#b65337;color:white;display:grid;place-items:center;font-size:12px;font-weight:bold}
 
 
-/* 標示邏輯：剪掉使用灰底與刪除線，精彩片段不重複顯示標籤。 */
+/* 標示邏輯：剪掉使用灰底與刪除線，片頭預告不重複顯示標籤。 */
 .txrow.mark-cut,.txrow.mark-cut:hover{background:#e9eaec!important;box-shadow:inset 3px 0 #868d98}
 .txrow.mark-cut .speech{text-decoration:line-through;text-decoration-thickness:1.4px;text-decoration-color:#767e89;color:#5c626b}
 .txrow.mark-cut.selected{outline:1px solid #7c8795}
@@ -520,7 +520,7 @@ html,body,.shell{background:#fff!important}
 .cue-manage-help{font-size:11px;color:#555;padding:10px 14px;border-top:1px solid #111}
 @media(max-width:720px){.cue-manage-panel{max-height:55vh;box-shadow:3px 3px 0 #111}}
 
-/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，精彩片段=亮綠字。 */
+/* v5.6：顏色只負責清楚的工作意義。刪除=灰底，圖卡=黃底，字卡=藍字，片頭預告=亮綠字。 */
 .txrow.range-highlight:not(.mark-cut):not(.range-yellow):not(.range-green),.txrow.range-highlight:hover:not(.mark-cut):not(.range-yellow):not(.range-green){background:#fff!important;box-shadow:inset 4px 0 #009B3E!important}
 .txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:#FFF26B!important;box-shadow:inset 5px 0 #009B3E!important}
 .txrow.ink-textcard:not(.mark-cut) .speech{color:#0047FF!important;font-weight:700!important}
@@ -648,7 +648,7 @@ html,body,.shell{background:#fff!important}
 .cue-index-empty{font-size:12px;text-align:center;color:#777;padding:30px 16px}
 @media(max-width:720px){.cue-index-panel{max-height:min(80dvh,710px)}.cue-index-trigger{padding:4px;font-size:10.5px}}
 
-/* v5.7：黃色代表精彩片段；薄荷綠色代表圖卡。 */
+/* v5.7：黃色代表片頭預告；薄荷綠色代表圖卡。 */
 .txrow.range-yellow:not(.mark-cut),.txrow.range-yellow:hover:not(.mark-cut),.txrow.range-green:not(.mark-cut){background:#B8F0D2!important;box-shadow:inset 4px 0 #27785B!important}
 .txrow.range-highlight:not(.mark-cut),.txrow.range-highlight:hover:not(.mark-cut){background:#FFEB00!important;box-shadow:inset 4px 0 #171717!important}
 .txrow.range-yellow.range-highlight:not(.mark-cut),.txrow.range-yellow.range-highlight:hover:not(.mark-cut){background:linear-gradient(90deg,#B8F0D2 0 15px,#FFEB00 15px 100%)!important;box-shadow:inset 4px 0 #27785B!important}
@@ -794,7 +794,7 @@ html,body,.shell{background:#fff!important}
    <div class="tools" id="toolBar" role="toolbar" aria-label="選取文字後的標示工具">
     <button class="tool cue-manage-trigger" id="manageCuesBtn" type="button" aria-expanded="false" aria-controls="cueManagePanel" title="查看、修改或取消這一段的標示" hidden>☷ <span>管理／取消標示</span></button>
      <button class="tool" data-kind="cut" title="未標示時剪掉；已標示時可取消" aria-label="剪掉">✕ <span>剪掉</span></button>
-    <button class="tool" data-kind="highlight" title="選取精彩片段">✧ <span>精彩片段</span></button><button class="tool" data-kind="short" title="選取短影音範圍；以文字顏色標記，不額外增加底色">▸ <span>短影音</span></button><button class="tool" data-kind="textcard" title="指定插入字卡及文字內容">▤ <span>插入字卡</span></button>
+    <button class="tool" data-kind="highlight" title="選取片頭預告">✧ <span>片頭預告</span></button><button class="tool" data-kind="short" title="選取短影音範圍；以文字顏色標記，不額外增加底色">▸ <span>短影音</span></button><button class="tool" data-kind="textcard" title="指定插入字卡及文字內容">▤ <span>插入字卡</span></button>
     <button class="tool" data-kind="captions" title="說明後製特效，也可以附上參考圖片">✎ <span>特殊需求</span></button>
     <button class="tool" data-kind="red-note" title="在選取段落後插入醒目備註">＋ <span>其他備註</span></button>
      
@@ -815,7 +815,7 @@ html,body,.shell{background:#fff!important}
  <div class="review-scroll" id="reviewScroll"><div class="review-inner">
   <div class="review-summary"><div><strong id="reviewProgress">已核對 0 / 0</strong></div>
    <div class="review-filter" role="group" aria-label="篩選核對項目"><button type="button" id="reviewAll" class="active" aria-pressed="true">全部</button><button type="button" id="reviewPending" aria-pressed="false">未核對</button></div></div>
-  <div class="review-find"><input id="reviewSearch" class="review-search" type="search" autocomplete="off" placeholder="搜尋字幕編號、時間或台詞" aria-label="搜尋核對指示"><select id="reviewKind" class="review-kind-filter" aria-label="依後製指示類型篩選"><option value="all">全部類型</option><option value="highlight">精彩片段</option><option value="cut">剪掉</option><option value="card">插入圖卡</option><option value="textcard">插入字卡</option><option value="short">短影音</option><option value="other">其他需求</option></select></div><div class="review-match-count" id="reviewMatchCount" aria-live="polite"></div><div class="review-list" id="reviewList"></div>
+  <div class="review-find"><input id="reviewSearch" class="review-search" type="search" autocomplete="off" placeholder="搜尋字幕編號、時間或台詞" aria-label="搜尋核對指示"><select id="reviewKind" class="review-kind-filter" aria-label="依後製指示類型篩選"><option value="all">全部類型</option><option value="highlight">片頭預告</option><option value="cut">剪掉</option><option value="card">插入圖卡</option><option value="textcard">插入字卡</option><option value="short">短影音</option><option value="other">其他需求</option></select></div><div class="review-match-count" id="reviewMatchCount" aria-live="polite"></div><div class="review-list" id="reviewList"></div>
  </div></div>
 </section>
 </div>
@@ -845,7 +845,7 @@ const KINDS=[
 {id:'move',label:'移位',short:'移位',help:'重新安排段落順序'},
 {id:'card',label:'圖卡',short:'圖卡',help:'指定圖卡、圖片或畫面'},
 {id:'captions',label:'特殊需求',short:'特殊',help:'特殊字幕與其他後製需求'},
-{id:'highlight',label:'精彩片段',short:'精華',help:'節目精彩片段'},
+{id:'highlight',label:'片頭預告',short:'預告',help:'挑選放在節目開頭的預告段落'},
 {id:'short',label:'短影音',short:'短影音',help:'標記短影音可用段落'},
 {id:'textcard',label:'插入字卡',short:'字卡',help:'影片中插入文字字卡'},
 
@@ -870,7 +870,7 @@ function rowIsCut(uid){return annotations.some(a=>a.kind==='cut'&&a.rowIds.inclu
 function rowIsShort(uid){return !rowIsCut(uid)&&annotations.some(a=>a.kind==='short'&&a.rowIds.includes(uid))}
 function cueRangeLabel(a){
  const x=sourceRowAt(a),code=a.assetId?(window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code||''):'';
- const title=a.kind==='short'?'短影音範圍':a.kind==='highlight'?'精彩片段':a.kind==='card'?'圖卡':a.kind==='textcard'?'字卡':findKind(a.kind).label;
+ const title=a.kind==='short'?'短影音範圍':a.kind==='highlight'?'片頭預告':a.kind==='card'?'圖卡':a.kind==='textcard'?'字卡':findKind(a.kind).label;
  const serial=x?(String(x.first.seq||x.firstIndex+1)+(x.firstIndex===x.lastIndex?'':'–'+String(x.last.seq||x.lastIndex+1))):'?';
  return title+(code?' · '+code:'')+'　字幕 '+serial+'　'+prettyText(a);
 }
@@ -963,7 +963,7 @@ function paintSelection(){const s=selectionIndices();$('toolBar').classList.togg
  // 快速標示的所有字幕已套用時，同一個按鈕會明確寫出「取消」，混合狀態只會補上標示。
  for(const kind of ['highlight','short']){const button=$('toolBar').querySelector(`[data-kind="${kind}"]`),text=button?.querySelector('span');if(!button||!text)continue;
   const count=s.filter(i=>annotations.some(a=>a.kind===kind&&a.rowIds.includes(rows[i].uid))).length;
-  const full=s.length>0&&count===s.length;const label=kind==='highlight'?'精彩片段':'短影音';
+  const full=s.length>0&&count===s.length;const label=kind==='highlight'?'片頭預告':'短影音';
   text.textContent=full?'取消'+label:label;button.title=full?'取消選取範圍的'+label:'標記'+label;
  }
  const manage=$('manageCuesBtn');if(manage)manage.hidden=!(s.length&&currentSelectionCues().length);
@@ -996,12 +996,12 @@ function rowMarkup(r,i){
  const orderedIntro=intro.slice().sort((a,b)=>(priority[a.kind]??9)-(priority[b.kind]??9));
  const otherMarks=firstMarks.filter(a=>!intro.includes(a));
  const head=orderedIntro.length?`<div class="cue-summary" aria-label="本段後製指示">${orderedIntro.map(a=>{
-  const range=sourceRowAt(a),asset=assetById(a.assetId);
-  const base=a.kind==='card'||a.kind==='visual'?'插入圖卡':a.kind==='textcard'?'插入字卡':a.kind==='highlight'?'精彩片段':a.kind==='short'?'短影音':'剪掉';
+  const range=sourceRowAt(a),asset=assetById(a.assetId),example=assetById(a.referenceAssetId);
+  const base=a.kind==='card'||a.kind==='visual'?'插入圖卡':a.kind==='textcard'?'插入字卡':a.kind==='highlight'?'片頭預告':a.kind==='short'?'短影音':'剪掉';
   const seq=range?String(range.first.seq||range.firstIndex+1)+(range.firstIndex===range.lastIndex?'':'–'+String(range.last.seq||range.lastIndex+1)):'?';
   const time=range?.first?.start?asClock(range.first.start)+'–'+asClock(range.last.end):'';
   const context=a.kind==='card'||a.kind==='visual'?(asset?(asset.slideNumber?'原始投影片第 '+asset.slideNumber+' 頁':asset.name):'未指定素材'):(a.detail||a.title||'').slice(0,50);
-  return `<div class="cue-summary-item kind-${a.kind}"><button class="cue-summary-title" type="button" data-cue="${escapeHtml(a.id)}" title="修改${base}">${escapeHtml(base)}${a.kind==='card'||a.kind==='visual'?' '+escapeHtml(deliveryAssetNumber(a)):a.kind==='textcard'?' '+escapeHtml(cueOrdinal(a)):''}</button><span class="cue-summary-range">字幕 ${escapeHtml(seq)} · ${escapeHtml(time)}</span>${context?`<span class="cue-summary-context">${escapeHtml(context)}</span>`:''}${asset?.dataUrl&&(a.kind==='card'||a.kind==='visual')?`<button class="cue-mini-preview" type="button" data-preview-cue="${escapeHtml(asset.id)}" title="預覽${escapeHtml(asset.name)}"><img src="${asset.dataUrl}" alt="${escapeHtml(asset.name)}"></button>`:''}</div>`;
+  return `<div class="cue-summary-item kind-${a.kind}"><button class="cue-summary-title" type="button" data-cue="${escapeHtml(a.id)}" title="修改${base}">${escapeHtml(base)}${a.kind==='card'||a.kind==='visual'?' '+escapeHtml(deliveryAssetNumber(a)):a.kind==='textcard'?' '+escapeHtml(cueOrdinal(a)):''}</button><span class="cue-summary-range">字幕 ${escapeHtml(seq)} · ${escapeHtml(time)}</span>${context?`<span class="cue-summary-context">${escapeHtml(context)}</span>`:''}${asset?.dataUrl&&(a.kind==='card'||a.kind==='visual')?`<button class="cue-mini-preview" type="button" data-preview-cue="${escapeHtml(asset.id)}" title="預覽${escapeHtml(asset.name)}"><img src="${asset.dataUrl}" alt="${escapeHtml(asset.name)}"></button>`:''}${a.kind==='textcard'&&example?.dataUrl?`<button class="cue-mini-preview" type="button" data-preview-cue="${escapeHtml(example.id)}" title="預覽字卡範例：${escapeHtml(example.name)}"><img src="${example.dataUrl}" alt="字卡範例：${escapeHtml(example.name)}"></button>`:''}</div>`;
  }).join('')}</div>`:'';
  const noteDetails=firstMarks.filter(a=>['captions','other','move'].includes(a.kind)&&(a.detail||a.title||a.referenceAssetId));
  return `<div class="txrow${anns.length?' hasmarks':''}${cut?' mark-cut':''}${shade}${graphicSeparator}${highlightClass}${isShort?' range-short':''}${inkClass}${selected.has(i)?' selected':''}" data-i="${i}" draggable="false">
@@ -1122,7 +1122,7 @@ function renderAssets(){
 
 // 標示索引只讀取目前已建立的標示，不修改工作檔。
 let cueIndexOpen=false,cueIndexFilter='all';
-const CUE_INDEX_TABS=[['all','全部'],['cut','剪掉'],['card','圖卡'],['textcard','字卡'],['highlight','精彩片段'],['short','短影音'],['other','其他']];
+const CUE_INDEX_TABS=[['all','全部'],['cut','剪掉'],['card','圖卡'],['textcard','字卡'],['highlight','片頭預告'],['short','短影音'],['other','其他']];
 function cueIndexCategory(kind){
  if(kind==='card'||kind==='visual')return 'card';
  return ['cut','textcard','highlight','short'].includes(kind)?kind:'other';
@@ -1257,7 +1257,7 @@ function reviewEntries(){
    startText:'',endText:'',pointOnly:true,
    detail:note.text||'',quote:'',image:'',imageName:'',imageAssetId:''});
  }
- // 片頭先核對精彩片段，其餘後製指示仍依原始字幕先後排列。
+ // 片頭先核對片頭預告，其餘後製指示仍依原始字幕先後排列。
  return out.sort((a,b)=>Number(b.kind==='highlight')-Number(a.kind==='highlight')||a.at-b.at||a.key.localeCompare(b.key));
 }
 function isReviewChecked(x){return Object.prototype.hasOwnProperty.call(reviewChecks,x.key)&&reviewChecks[x.key]===x.signature}
@@ -1405,12 +1405,12 @@ function renderInspector(){const host=$('inspectorBody');$('inspector').classLis
 host.innerHTML=`<div class="clipmeta"><span style="font-size:20px">${chosen==='cut'?'✕':chosen==='card'?'▣':chosen==='move'?'↔':'✦'}</span><div><strong>${escapeHtml(findKind(chosen).label)}</strong><br><span>${escapeHtml(interval)}</span></div></div>
 <div class="field"><label class="fieldlabel" for="noteDetail">處理說明 ${chosen==='cut'?'(optional)':''}</label><textarea id="noteDetail" placeholder="${chosen==='move'?'移到哪段後面？':chosen==='cut'?'刪除原因（可留空）':chosen==='card'?'顯示方式、圖卡文字（選填）':chosen==='textcard'?'輸入字卡上要顯示的文字':'需要怎麼處理？'}">${escapeHtml(editing?.detail||'')}</textarea></div>
 ${chosen==='card'||chosen==='visual'?`<div class="field"><label class="fieldlabel" for="noteAsset">圖卡</label><select id="noteAsset"><option value="">選擇圖卡（可選填）</option>${assets.map(a=>`<option value="${escapeHtml(a.id)}" ${(editing?.assetId||assetChoice)===a.id?'selected':''}>${escapeHtml(a.code+' · '+a.name)}</option>`).join('')}</select></div>`:''}
-${chosen==='captions'?`<div class="field"><span class="fieldlabel">參考圖片（選填）</span><div class="reference-drop" id="referenceDrop" tabindex="0">${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId))?`<img src="${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).dataUrl}" alt="參考圖片"><span> ${escapeHtml(assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).name)}</span><button type="button" id="clearReference">×</button>`:'拖曳、貼上參考圖，或按下面的按鈕上傳'}</div><div class="reference-actions"><label class="ref-native-pick" for="referenceImageInput" id="browseReference" role="button" tabindex="0" title="從電腦選取圖片">選取檔案</label><button class="subtle" type="button" id="pasteReference" title="貼上剪貼簿的圖片">貼上圖片</button></div><div class="reference-feedback" id="referenceFeedback" role="status">點一下虛線框後，按 Ctrl+V 也可以貼上圖片</div></div>`:''}
+${['captions','textcard'].includes(chosen)?`<div class="field"><span class="fieldlabel">${chosen==='textcard'?'字卡範例圖片':'參考圖片'}（選填）</span><div class="reference-drop" id="referenceDrop" tabindex="0">${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId))?`<img src="${assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).dataUrl}" alt="參考圖片"><span> ${escapeHtml(assetById(referenceChoice==='__CLEAR__'?'':(referenceChoice||editing?.referenceAssetId)).name)}</span><button type="button" id="clearReference">×</button>`:'拖曳、貼上參考圖，或按下面的按鈕上傳'}</div><div class="reference-actions"><label class="ref-native-pick" for="referenceImageInput" id="browseReference" role="button" tabindex="0" title="從電腦選取圖片">選取檔案</label><button class="subtle" type="button" id="pasteReference" title="貼上剪貼簿的圖片">貼上圖片</button></div><div class="reference-feedback" id="referenceFeedback" role="status">點一下虛線框後，按 Ctrl+V 也可以貼上圖片</div></div>`:''}
 <div class="field"><label class="fieldlabel" for="noteTitle">備註名稱（選填）</label><input id="noteTitle" placeholder="${chosen==='move'?'例如：移到第三段前':chosen==='card'?'圖卡標題':'備註名稱'}" value="${escapeHtml(editing?.title||'')}"></div>
 <div class="applyrow"><button class="apply" id="applyCue">${editing?'儲存修改':'新增標示'}</button><button class="subtle" id="cancelCue">取消</button></div>${editing?'<button class="delete" id="deleteCue" title="只取消這一則標示，其他需求不受影響">取消這則標示</button>':''}`;
 $('pasteReference')?.addEventListener('click',pasteReferenceFromClipboard);$('browseReference')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('referenceImageInput').click()}});$('referenceDrop')?.addEventListener('click',e=>{if(!e.target.closest('button'))e.currentTarget.focus()});$('clearReference')?.addEventListener('click',()=>{referenceChoice='__CLEAR__';renderInspector()});$('applyCue').onclick=applyCue;$('cancelCue').onclick=()=>{editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);renderInspector()};requestAnimationFrame(positionInspector);if(editing)$('deleteCue').onclick=()=>{pushUndo();annotations=annotations.filter(a=>a.id!==editing.id);editId=null;setSelection([]);refreshAll();markDirty();toast('標示已移除')};}
 function applyCue(){const s=selectionIndices(),previous=annotations.find(a=>a.id===editId);if(!s.length){toast('請先選取逐字稿段落');return}const type=previous?.kind||kindId,detail=$('noteDetail').value.trim(),assetId=$('noteAsset')?.value||'',title=$('noteTitle').value.trim();if(type==='move'&&!detail){toast('Specify where this section should move');$('noteDetail').focus();return}if(type==='card'&&!detail&&!assetId&&!title){toast('Choose a graphic or enter an instruction');return}
-const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail:(type==='card'&&assetId&&detail==='【待指定圖卡素材】')?'':detail,title,reference:'',assetId,referenceAssetId:type==='captions'?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
+const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail:(type==='card'&&assetId&&detail==='【待指定圖卡素材】')?'':detail,title,reference:'',assetId,referenceAssetId:['captions','textcard'].includes(type)?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
 function insertGraphic(id,inds=selectionIndices()){
  if(!inds.length){assetChoice=id;setKind('card');toast('請先選取逐字稿，或將圖片拖入指定台詞');return}
  const a=assetById(id);if(!a)return;
@@ -1625,7 +1625,7 @@ function cueShortName(a){
  }
  if(a.kind==='textcard')return '字卡 '+cueOrdinal(a);
  if(a.kind==='short')return '短影音 '+cueOrdinal(a);
- if(a.kind==='highlight')return '精彩片段 '+cueOrdinal(a);
+ if(a.kind==='highlight')return '片頭預告 '+cueOrdinal(a);
  if(a.kind==='cut')return '剪掉';
  return findKind(a.kind).label;
 }
@@ -1728,7 +1728,7 @@ function wordNavMarkup(type,id){
 }
 function docxNoteParagraph(text,color='FF0000'){return pXml(text,{bold:true,color});}
 function cueGroupParagraph(group){
-  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',cut:'剪掉'};
+  const names={card:'插入圖卡',visual:'插入圖卡',textcard:'插入字卡',highlight:'片頭預告',short:'短影音',cut:'剪掉'};
   const style={
     cut:{fill:'E4E4E4',ink:'292929',edge:'676767'},
     card:{fill:'B8F0D2',ink:'104732',edge:'27785B'},
@@ -1750,7 +1750,9 @@ function cueGroupParagraph(group){
     const file=asset?'圖卡_'+String(deliveryAssetNumber(cue)).padStart(3,'0')+'.png':'';
     const detail=(cue.detail||(!cue.assetId?cue.title:'')||'').trim();
     const name=names[cue.kind]||findKind(cue.kind).label;
-    const msg=name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'');
+    const refIndex=cue.referenceAssetId?referenceImages().findIndex(a=>a.id===cue.referenceAssetId):-1;
+    const refFile=refIndex>=0?'｜'+(cue.kind==='textcard'?'字卡範例：':'參考圖片：')+'參考_'+String(refIndex+1).padStart(3,'0')+'.png':'';
+    const msg=name+(isCard?'｜'+(file||'尚未指定圖卡'):'')+'｜'+range+(detail?'｜'+detail:'')+refFile;
     const c=style[cue.kind]||style.other;
     const jump=wordNavMarkup('cue',cue.id);
     return '<w:p><w:pPr><w:spacing w:before="95" w:after="95" w:line="380"/>'
@@ -1793,7 +1795,7 @@ function sourceLineMap(lines){const out=new Map();let i=0,idx=0;
  return out;
 }
 
-function referenceImages(){const found=new Set();return noteOrder().filter(a=>a.kind==='captions'&&a.referenceAssetId&&assetById(a.referenceAssetId)).map(a=>assetById(a.referenceAssetId)).filter(a=>{if(found.has(a.id))return false;found.add(a.id);return true})}
+function referenceImages(){const found=new Set();return noteOrder().filter(a=>['captions','textcard'].includes(a.kind)&&a.referenceAssetId&&assetById(a.referenceAssetId)).map(a=>assetById(a.referenceAssetId)).filter(a=>{if(found.has(a.id))return false;found.add(a.id);return true})}
 async function sourceAsPngData(asset){if(imageFormat(asset.dataUrl)==='image/png')return asset.dataUrl;
  return new Promise((res,rej)=>{const img=new Image;img.onload=()=>{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);res(c.toDataURL('image/png'))};img.onerror=rej;img.src=asset.dataUrl})}
 async function prepareReferenceMedia(){const arr=[];for(let i=0;i<referenceImages().length;i++){const a=referenceImages()[i],data=await sourceAsPngData(a);arr.push({id:a.id,file:'editcue_reference_'+(i+1)+'.png',rid:'rIdEditCueRef'+(i+1),bytes:assetBytes({dataUrl:data}),asset:a})}return arr;}
@@ -1917,7 +1919,7 @@ function orderedUsedAssets(){const used=new Set();return noteOrder().filter(a=>a
  const pos=x=>Math.min(...x.rowIds.map(id=>rows.findIndex(r=>r.uid===id)).filter(n=>n>=0));return pos(a)-pos(b)
  }).map(a=>assetById(a.assetId)).filter(a=>{if(used.has(a.id))return false;used.add(a.id);return true})}
 async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');return}
- const used=orderedUsedAssets();const references=referenceImages().filter(a=>!used.some(u=>u.id===a.id));if(used.some(a=>a.needsReview)&&!confirm('部分 PPT 圖卡轉檔後與其他頁完全相同。請先逐張核對原始簡報，仍要匯出嗎？'))return;window._exportCodes=new Map(used.map((a,i)=>[a.id,'圖卡_'+String(i+1).padStart(3,'0')+'.png']));
+ const used=orderedUsedAssets();const references=referenceImages();if(used.some(a=>a.needsReview)&&!confirm('部分 PPT 圖卡轉檔後與其他頁完全相同。請先逐張核對原始簡報，仍要匯出嗎？'))return;window._exportCodes=new Map(used.map((a,i)=>[a.id,'圖卡_'+String(i+1).padStart(3,'0')+'.png']));
  try{const docx=await makeDocxBlob(),docxData=new Uint8Array(await docx.arrayBuffer()),files={};
  files[cleanFileName($('docTitle').value)+'_後製需求單.docx']=docxData;
   // 原始字幕另附在後製包中，供剪輯師直接匯入剪輯軟體。
@@ -1932,7 +1934,12 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
  // ZIP 同時附上可完整還原的工作檔，包含素材與所有逐字稿標示。
  files[cleanFileName($('docTitle').value)+'.editcue.json']=enc.encode(JSON.stringify(serializable()));
  const manifest=['後製圖卡清單','素材依照逐字稿首次使用順序編號','',...used.map((a,i)=>'圖卡_'+String(i+1).padStart(3,'0')+'.png'+'　→　'+a.name+(a.pptSource?'（'+a.pptSource+' 第'+a.slideNumber+'頁）':''))].join('\n');
- files['圖卡清單.txt']=manifest;for(let i=0;i<references.length;i++){const a=references[i],src=await sourceAsPngData(a);files['參考圖片/參考_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:src})}
+ files['圖卡清單.txt']=manifest;
+ if(references.length)files['參考圖片清單.txt']=['後製參考圖片清單','下列圖片僅供剪輯參考畫面樣式','',...noteOrder().filter(a=>['captions','textcard'].includes(a.kind)&&a.referenceAssetId&&assetById(a.referenceAssetId)).map(a=>{
+   const n=references.findIndex(ref=>ref.id===a.referenceAssetId),range=sourceRowAt(a);
+   return '參考_'+String(n+1).padStart(3,'0')+'.png'+'｜'+(a.kind==='textcard'?'字卡範例':'特殊需求')+'｜字幕 '+(range?.first.seq||'?')+'–'+(range?.last.seq||'?')+'｜'+assetById(a.referenceAssetId).name;
+ })].join('\n');
+ for(let i=0;i<references.length;i++){const a=references[i],src=await sourceAsPngData(a);files['參考圖片/參考_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:src})}
  for(let i=0;i<used.length;i++){let a=used[i];let pngData=a.dataUrl;if(imageFormat(pngData)!=='image/png'){
  pngData=await new Promise((resolve,reject)=>{let img=new Image;img.onload=()=>{let can=document.createElement('canvas');can.width=img.naturalWidth;can.height=img.naturalHeight;can.getContext('2d').drawImage(img,0,0);resolve(can.toDataURL('image/png'))};img.onerror=reject;img.src=a.dataUrl})}
  files['圖片/圖卡_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:pngData});}
@@ -2052,7 +2059,7 @@ function quickCue(type){
  annotations.push(...splitContiguousCue({id:newCueId(),kind:type,detail:'',title:'',reference:'',assetId:'',rowIds:fresh},fresh));
  if(type==='cut')mergeContiguousCuts();
  if(['highlight','short'].includes(type))mergeAdjacentQuickCues(type);
- window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉（相鄰區間已合併）':type==='short'?'已標示短影音':'已標示精彩片段');
+ window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉（相鄰區間已合併）':type==='short'?'已標示短影音':'已標示片頭預告');
 }
 
 
@@ -2060,7 +2067,7 @@ function quickCue(type){
 let fastMarkOpen=false,fastMarkPlans=[];
 let fastRowNextId=1,fastRows=[newFastRow()];
 function newFastRow(){return {id:fastRowNextId++,from:'',to:'',kind:'cut',assetId:'',detail:''}}
-const FAST_ACTIONS={cut:'剪掉',card:'插入圖卡',textcard:'插入字卡',highlight:'精彩片段',short:'短影音',captions:'特殊需求',other:'其他備註'};
+const FAST_ACTIONS={cut:'剪掉',card:'插入圖卡',textcard:'插入字卡',highlight:'片頭預告',short:'短影音',captions:'特殊需求',other:'其他備註'};
 function renderFastInputs(){
  $('fastMarkRows').innerHTML=fastRows.map((r,n)=>{
   const options=Object.entries(FAST_ACTIONS).map(([k,label])=>`<option value="${k}" ${r.kind===k?'selected':''}>${label}</option>`).join('');
@@ -2138,9 +2145,9 @@ function parseFastMarkLine(line,lineNumber,seqIndex,ambiguous){
  if(start>end){base.errors.push('這份逐字稿的字幕編號順序不正確');return base}
  base.start=start;base.end=end;base.ids=rows.slice(start,end+1).map(r=>r.uid);
  const action=m[3].trim();
- const names=[['插入圖卡','card'],['插入圖片','card'],['圖卡','card'],['圖片','card'],['插入字卡','textcard'],['字卡','textcard'],['精彩片段','highlight'],['精華片段','highlight'],['精彩','highlight'],['短影音','short'],['剪掉','cut'],['刪除','cut'],['特殊需求','captions'],['其他備註','other']];
+ const names=[['插入圖卡','card'],['插入圖片','card'],['圖卡','card'],['圖片','card'],['插入字卡','textcard'],['字卡','textcard'],['片頭預告','highlight'],['精彩片段','highlight'],['精華片段','highlight'],['精彩','highlight'],['短影音','short'],['剪掉','cut'],['刪除','cut'],['特殊需求','captions'],['其他備註','other']];
  const found=names.find(([label])=>action===label||action.startsWith(label+' ')||action.startsWith(label+'：')||action.startsWith(label+':'));
- if(!found){base.errors.push('不支援的標示種類；請使用剪掉、圖卡、字卡、精彩片段、短影音或特殊需求');return base}
+ if(!found){base.errors.push('不支援的標示種類；請使用剪掉、圖卡、字卡、片頭預告、短影音或特殊需求');return base}
  base.kind=found[1];base.label=found[0];let extra=action.slice(found[0].length).trim().replace(/^[:：]\s*/,'').trim();
  if(base.kind==='card'){
   if(extra){const material=assets.find(a=>a.code?.toLowerCase()===extra.toLowerCase());if(!material){base.errors.push('找不到素材 '+extra+'；請輸入右側的 G 編號或先不指定');return base}base.assetId=material.id;base.assetLabel=material.code+' · '+material.name}
@@ -2463,7 +2470,7 @@ function clipboardImages(clipboard){
 }
 // 在編輯視窗的任何位置都可以貼上圖片，包含說明欄位內。
 $('inspector').addEventListener('paste',async e=>{
- if(!($('inspector').classList.contains('hasselection')&&(kindId==='captions'||annotations.find(a=>a.id===editId)?.kind==='captions')))return;
+ if(!($('inspector').classList.contains('hasselection')&&(['captions','textcard'].includes(annotations.find(a=>a.id===editId)?.kind||kindId))))return;
  const images=clipboardImages(e.clipboardData);
  if(!images.length)return;
  e.preventDefault();e.stopImmediatePropagation();await attachReferenceFiles(images);
@@ -2498,7 +2505,7 @@ document.addEventListener('keydown',e=>{if(reviewMode){if(e.key==='Escape'&&prev
 // 可以把 Word、字幕、工作檔或圖卡拖到整個網頁；也支援剪貼簿中的圖片。
 document.addEventListener('dragover',e=>{if(activeAssetDrag)return;if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
 document.addEventListener('drop',async e=>{if(activeAssetDrag)return;if(e.dataTransfer?.files?.length){e.preventDefault();await ingestFiles(e.dataTransfer.files)}});
-document.addEventListener('paste',async e=>{if(isEditingTarget(e))return;const refMode=$('inspector').classList.contains('hasselection')&&(kindId==='captions'||annotations.find(a=>a.id===editId)?.kind==='captions');if(refMode&&clipboardImages(e.clipboardData).length){e.preventDefault();await attachReferenceFiles(clipboardImages(e.clipboardData));return}const items=Array.from(e.clipboardData?.items||[]);const files=items.filter(i=>i.kind==='file').map(i=>i.getAsFile()).filter(Boolean);if(files.length){e.preventDefault();await ingestFiles(files);return}const text=e.clipboardData?.getData('text/plain')||'';if(text.trim()){e.preventDefault();importText(text)}});
+document.addEventListener('paste',async e=>{if(isEditingTarget(e))return;const refMode=$('inspector').classList.contains('hasselection')&&(['captions','textcard'].includes(annotations.find(a=>a.id===editId)?.kind||kindId));if(refMode&&clipboardImages(e.clipboardData).length){e.preventDefault();await attachReferenceFiles(clipboardImages(e.clipboardData));return}const items=Array.from(e.clipboardData?.items||[]);const files=items.filter(i=>i.kind==='file').map(i=>i.getAsFile()).filter(Boolean);if(files.length){e.preventDefault();await ingestFiles(files);return}const text=e.clipboardData?.getData('text/plain')||'';if(text.trim()){e.preventDefault();importText(text)}});
 
 function positionSelectionTools(){
  requestAnimationFrame(()=>{
