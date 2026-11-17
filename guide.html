@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EditCue 使用指南</title><meta name="description" content="EditCue 網頁版後製標示工具的使用指南：逐字稿選取、面板操作、圖卡字卡、剪輯包及初剪核對。">
+<style>
+:root{color-scheme:light;--ink:#171717;--edge:#d5d5d5;--light:#f6f6f6;--blue:#0054C8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--ink);font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;line-height:1.7;font-size:16px}
+a{color:#0047ad;text-underline-offset:3px}button{font:inherit}
+header{border-bottom:2px solid #171717;background:#fff;position:sticky;top:0;z-index:5}
+.header-row{max-width:1100px;margin:auto;padding:14px 24px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.brand{font-weight:900;letter-spacing:-.03em}.nav{display:flex;align-items:center;gap:15px;flex-wrap:wrap;font-size:13px;font-weight:700}.nav button{border:1px solid #171717;background:#fff;padding:6px 11px;cursor:pointer}
+main{max-width:1100px;margin:0 auto;padding:34px 24px 90px}
+.intro{max-width:720px;margin:0 0 35px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.12em;color:#666}.intro h1{font-size:clamp(27px,4vw,40px);line-height:1.3;letter-spacing:-1px;margin:8px 0}.intro p{color:#555;margin:0}
+.quicklinks{display:flex;gap:9px;flex-wrap:wrap;padding-bottom:30px;border-bottom:1px solid var(--edge)}.quicklinks a{padding:6px 10px;border:1px solid #999;text-decoration:none;font-size:13px;color:#171717}
+section{padding:32px 0;border-bottom:1px solid var(--edge);scroll-margin-top:80px}
+h2{font-size:23px;margin:0 0 8px;line-height:1.35;letter-spacing:-.5px}
+.lead{color:#555;margin:0 0 23px}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.steps{list-style:none;counter-reset:steps;padding:0;margin:0}.steps li{counter-increment:steps;display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;margin:0 0 19px}
+.steps li:before{content:counter(steps);width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#171717;color:#fff;font-size:13px;font-weight:800;line-height:1}
+.steps strong{display:block;margin-bottom:3px}.steps p{color:#505050;font-size:14px;margin:0}
+.panel{border:2px solid #171717;padding:17px;background:#fff}.panel-title{font-weight:900;border-bottom:1px solid #aaa;padding-bottom:10px;margin-bottom:12px}.mini-label{font-size:12px;font-weight:850;margin:10px 0 4px}.field{padding:9px;border:1px solid #999;background:#fff;min-height:40px;font-size:14px}
+.drop{border:2px dashed #aaa;background:#fafafa;padding:19px 12px;text-align:center;color:#555;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:5px 10px;border:1px solid #222;font-size:13px;font-weight:800}
+.note{border-left:4px solid #0054C8;background:#f3f5f9;padding:12px 15px;margin:20px 0 0;font-size:14px}
+.example{font-weight:700;background:#f3f3f3;padding:12px 15px;margin:15px 0}
+.two-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kind{border-left:5px solid #777;background:#eee;padding:13px 15px}.kind b{display:block;margin-bottom:3px}.kind p{font-size:13px;margin:0}.cut{background:#e4e4e4;border-left-color:#676767}.intro-clip{background:#ffeb00;border-left-color:#a78e00}.card{background:#b8f0d2;border-left-color:#27785b}.textcard{background:#dee9ff;border-left-color:#0054c8}.short{background:#ffe0e1;border-left-color:#d00000}.special{background:#e9dfff;border-left-color:#6d28d9}
+.rail-sample{display:flex;gap:8px;flex-wrap:wrap}.rail-sample span{font-weight:750;font-size:13px;border:1px solid #171717;padding:9px 12px}
+.review{display:grid;gap:8px}.review>div{padding:12px 14px;border-left:4px solid}.review .r1{background:#ffeb00;border-color:#a78e00}.review .r2{background:#e4e4e4;border-color:#676767}.review .r3{background:#b8f0d2;border-color:#27785b}
+.mock-fast{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px}.mock-fast div{background:#f7f7f7;border:1px solid #aaa;padding:10px;font-size:13px}.mock-fast strong{display:block;font-size:12px;color:#555;margin-bottom:5px}
+.footer{padding:28px 0;color:#666;font-size:12px}.footer a{color:#444}
+@media(max-width:720px){.layout,.two-cards{grid-template-columns:1fr}.mock-fast{grid-template-columns:1fr}.header-row{padding:12px 15px}.nav{gap:8px}main{padding:24px 16px 50px}section{padding:28px 0}.panel{padding:12px}}
+@media print{@page{size:A4;margin:16mm}header,.quicklinks,.nav{display:none!important}main{max-width:none;padding:0}.intro{margin-bottom:10mm}section{break-before:page;break-after:auto;break-inside:auto;border:0;padding:0}section:first-of-type{break-before:auto}.layout{gap:12mm}.steps li{break-inside:avoid}.kind,.note,.panel,.review>div{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2{font-size:19pt}.lead{font-size:11pt}}
+</style>
+</head>
+<body>
+<header><div class="header-row"><span class="brand">EC / EDITCUE　使用指南</span><div class="nav"><a href="index.html">回到 EditCue</a><button onclick="window.print()" type="button">列印／另存 PDF</button></div></div></header>
+<main>
+<div class="intro"><div class="eyebrow">EDITCUE / GUIDE</div><h1>EditCue 使用指南</h1><p>先從逐字稿選取範圍，用標示面板交代工作；完成後匯出剪輯包。快速標示放在最後，供需要時參考。</p></div>
+<nav class="quicklinks" aria-label="指南章節"><a href="#start">01 開始標示</a><a href="#panel">02 面板操作</a><a href="#kinds">03 圖卡與其他需求</a><a href="#delivery">04 交付與核對</a><a href="#quick">05 快速標示（選讀）</a></nav>
+<section id="start"><div class="eyebrow">01 / 05</div><h2>選一段逐字稿，就能開始下後製指示</h2><p class="lead">字幕和圖片素材可以一起匯入，系統會自動分到不同區塊。</p>
+<div class="layout">
+<ol class="steps">
+<li><div><strong>一次拖入字幕與圖卡素材</strong><p>可以同時拖曳字幕檔、圖片、PPT、PDF 到 EditCue；字幕出現在中間「逐字稿」，圖片與投影片自動進入右側「圖卡素材」。也能用「選擇檔案」一次選取多個檔案。</p></div></li>
+<li><div><strong>點選要處理的字幕</strong><p>選一則：點那一列。選整段：按住滑鼠左鍵跨列拖曳；也可先點第一列，再按 Shift 點最後一列。</p></div></li>
+<li><div><strong>使用選取後出現的工具列</strong><p>「剪掉／片頭預告／短影音」點一下就標示；「插入字卡／特殊需求」會打開編輯面板。</p></div></li>
+</ol>
+<div><div class="panel"><div class="panel-title">逐字稿選取後的工具列｜操作示意</div><div class="row"><span class="chip cut">剪掉</span><span class="chip intro-clip">片頭預告</span><span class="chip short">短影音</span><span class="chip textcard">插入字卡</span><span class="chip special">特殊需求</span><span class="chip">其他備註</span></div><div class="example">練習：選一段重講內容，按「剪掉」。該段出現灰色標示，代表告訴剪輯師刪掉，不是刪除原始字幕。</div></div></div>
+</div></section>
+<section id="panel"><div class="eyebrow">02 / 05</div><h2>「標示需求」面板：把畫面交代清楚</h2><p class="lead">例如講到重要數字，希望畫面出現醒目的文字，就選「插入字卡」。</p>
+<div class="layout">
+<div class="panel"><div class="panel-title">標示需求｜編輯面板示意</div><div style="font-size:12px;background:#f3f3f3;padding:7px;margin-bottom:8px">插入字卡｜字幕 141–227</div><div class="mini-label">處理說明</div><div class="field">畫面顯示「今年營收成長 25%」</div><div class="mini-label">字卡範例圖片（選填）</div><div class="drop">拖曳圖片到這裡<br>也可貼上或選取檔案</div><div class="mini-label">備註名稱（選填）</div><div class="field">營收重點字卡</div><div style="margin-top:12px;text-align:center;background:#111;color:#fff;font-weight:800;padding:10px">新增標示</div><p style="font-size:12px;color:#666;margin:8px 0 0">此圖為操作示意，實際以網站欄位為準。</p></div>
+<ol class="steps">
+<li><div><strong>選字幕後點「插入字卡」</strong><p>選取的範圍，就是字卡要出現的時間段。</p></div></li>
+<li><div><strong>填入字卡文字與處理說明</strong><p>例如「畫面顯示：今年營收成長 25%」，讓剪輯師知道要放哪些字。</p></div></li>
+<li><div><strong>必要時附上圖片範例</strong><p>如果想指定字型、排版或顏色，可以拖入或貼上參考圖片；它會跟著 Word 需求單與剪輯包交付。</p></div></li>
+<li><div><strong>按「新增標示」</strong><p>之後需要改內容，點逐字稿上的標示，再按「儲存修改」。特殊需求的操作方式也類似。</p></div></li>
+</ol></div></section>
+<section id="kinds"><div class="eyebrow">03 / 05</div><h2>每一種後製需求，對應一種標示</h2><p class="lead">日常以選字幕與編輯面板為主，需要圖卡時再用右側素材區。</p>
+<div class="two-cards">
+<div class="kind cut"><b>剪掉</b><p>重講、贅字等不需要的段落。</p></div>
+<div class="kind intro-clip"><b>片頭預告</b><p>挑出要放到節目開頭的片段。</p></div>
+<div class="kind card"><b>插入圖卡</b><p>在講到數據、圖表或投影片時顯示指定圖片。</p></div>
+<div class="kind textcard"><b>插入字卡</b><p>顯示文字；可附範例圖片，供剪輯師參考樣式。</p></div>
+<div class="kind short"><b>短影音</b><p>選出適合另外剪成短片的範圍。</p></div>
+<div class="kind special"><b>特殊需求</b><p>音效、特效、畫面示意等，可附參考圖片。</p></div></div>
+<div class="note"><strong>如何加入圖卡：</strong>按右側「圖卡素材」上方的＋，加入圖片、PPT 或 PDF；先選好字幕範圍，再按對應圖卡的＋。圖卡素材是要放進成片的圖片；字卡範例圖片只是供剪輯參考的樣式。</div>
+</section>
+<section id="delivery"><div class="eyebrow">04 / 05</div><h2>標示完成後：儲存、匯出、初剪核對</h2><p class="lead">儲存是自己繼續編輯，匯出才是交給剪輯師；收到第一版初剪，再核對。</p>
+<div class="layout">
+<div><div class="panel"><div class="panel-title">左側工具列的三個重要功能</div><div class="rail-sample"><span>▤　儲存</span><span>↓　匯出</span><span>☑　核對</span></div><ol class="steps" style="margin-top:20px"><li><div><strong>儲存</strong><p>下載 <code>.editcue.json</code> 工作檔，隔天或換電腦都可以繼續修改。</p></div></li><li><div><strong>匯出</strong><p>下載 <code>_剪輯包.zip</code> 交給剪輯師。裡面有 Word 後製需求單、圖卡、原始字幕、工作檔與參考圖片。</p></div></li><li><div><strong>核對</strong><p>打開初剪影片與 EditCue 核對頁，一邊看成片，一邊把完成的修改逐項打勾。</p></div></li></ol></div></div>
+<div><div class="panel"><div class="panel-title">初剪核對｜項目顏色示意</div><div class="review"><div class="r1"><b>□　片頭預告</b><p>確認片段是否移到成片最前面。</p></div><div class="r2"><b>□　剪掉</b><p>對照「保留前文 → 接續後文」，確認剪掉後語意是否順暢。</p></div><div class="r3"><b>□　插入圖卡</b><p>確認圖片內容與顯示起訖位置。</p></div></div><p style="font-size:13px;margin-top:12px;color:#555">核對頁可搜尋字幕編號、時間碼或台詞，也能依類型篩選。點文字可展開，點縮圖看原圖。</p></div></div>
+</div></section>
+<section id="quick"><div class="eyebrow">05 / 05　選讀</div><h2>快速標示：知道字幕編號時的另一種操作</h2><p class="lead">不是必學功能。已習慣「選字幕 → 用面板下指示」的人，繼續用前四節即可。</p>
+<div class="layout">
+<ol class="steps"><li><div><strong>點「＋ 快速標示」</strong><p>開啟直接填寫字幕編號的畫面，不必先選取逐字稿範圍。</p></div></li><li><div><strong>填入起點、終點及類型</strong><p>例如字幕 120–126 是重講，需要「剪掉」。</p></div></li><li><div><strong>確認後建立標示</strong><p>若有多個範圍，可再新增一列。建立後仍可回逐字稿調整。</p></div></li></ol>
+<div class="panel"><div class="panel-title">＋ 快速標示｜示意</div><div class="mock-fast"><div><strong>起點字幕</strong>120</div><div><strong>終點字幕</strong>126</div><div><strong>標示類型</strong>剪掉</div></div><div class="note">適合事先整理好「120–126 剪掉、835–849 片頭預告」等多筆指示，一次填入。</div></div></div>
+</section>
+<div class="footer">EC / EDITCUE　使用指南　｜　<a href="index.html">回到 EditCue</a>　｜　可透過瀏覽器列印功能另存 PDF。</div>
+</main></body></html>
