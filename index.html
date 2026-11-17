@@ -1938,8 +1938,11 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
   files['原始字幕/'+sourceFileName]=sourceBytes;
  // ZIP 同時附上可完整還原的工作檔，包含素材與所有逐字稿標示。
  files[cleanFileName($('docTitle').value)+'.editcue.json']=enc.encode(JSON.stringify(serializable()));
- const manifest=['後製圖卡清單','素材依照逐字稿首次使用順序編號','',...used.map((a,i)=>'圖卡_'+String(i+1).padStart(3,'0')+'.png'+'　→　'+a.name+(a.pptSource?'（'+a.pptSource+' 第'+a.slideNumber+'頁）':''))].join('\n');
- files['圖卡清單.txt']=manifest;
+ // 沒有實際使用圖卡時，不產生空的圖卡清單。
+ if(used.length){
+  const manifest=['後製圖卡清單','素材依照逐字稿首次使用順序編號','',...used.map((a,i)=>'圖卡_'+String(i+1).padStart(3,'0')+'.png'+'　→　'+a.name+(a.pptSource?'（'+a.pptSource+' 第'+a.slideNumber+'頁）':''))].join('\n');
+  files['圖卡清單.txt']=manifest;
+ }
  if(references.length)files['參考圖片清單.txt']=['後製參考圖片清單','下列圖片僅供剪輯參考畫面樣式','',...noteOrder().filter(a=>['captions','textcard'].includes(a.kind)&&a.referenceAssetId&&assetById(a.referenceAssetId)).map(a=>{
    const n=references.findIndex(ref=>ref.id===a.referenceAssetId),range=sourceRowAt(a);
    return '參考_'+String(n+1).padStart(3,'0')+'.png'+'｜'+(a.kind==='textcard'?'字卡範例':'特殊需求')+'｜字幕 '+(range?.first.seq||'?')+'–'+(range?.last.seq||'?')+'｜'+assetById(a.referenceAssetId).name;
