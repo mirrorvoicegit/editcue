@@ -873,6 +873,13 @@ function undoAction(){if(!undoStack.length)return;closeCueManager();redoStack.pu
 function redoAction(){if(!redoStack.length)return;undoStack.push(historySnapshot());const h=JSON.parse(redoStack.pop());annotations=h.annotations;redNotes=h.redNotes;if(h.editedRows){const byId=new Map(h.editedRows.map(r=>[r.uid,r]));for(const r of rows){const old=byId.get(r.uid);if(old){r.text=old.text;r.editedText=old.editedText}}}closeCueManager();setSelection([]);refreshAll();markDirty();updateUndoButtons();toast('已重做')}
 function newCueId(){return 'cue'+Date.now()+Math.random().toString(36).slice(2)}
 function rowIsCut(uid){return annotations.some(a=>a.kind==='cut'&&a.rowIds.includes(uid))}
+function isPicture(kind){return kind==='card'||kind==='visual'}
+function trimCutEdges(ids,isCut=rowIsCut){
+ const first=ids.findIndex(id=>!isCut(id));
+ if(first<0)return [];
+ let last=ids.length-1;while(isCut(ids[last]))last--;
+ return ids.slice(first,last+1);
+}
 function rowIsShort(uid){return !rowIsCut(uid)&&annotations.some(a=>a.kind==='short'&&a.rowIds.includes(uid))}
 function cueRangeLabel(a){
  const x=sourceRowAt(a),code=a.assetId?(window._exportCodes?.get(a.assetId)||assetById(a.assetId)?.code||''):'';
@@ -1439,20 +1446,22 @@ ${['captions','textcard'].includes(chosen)?`<div class="field"><span class="fiel
 <div class="applyrow"><button class="apply" id="applyCue">${editing?'儲存修改':'新增標示'}</button><button class="subtle" id="cancelCue">取消</button></div>${editing?'<button class="delete" id="deleteCue" title="只取消這一則標示，其他需求不受影響">取消這則標示</button>':''}`;
 $('pasteReference')?.addEventListener('click',pasteReferenceFromClipboard);$('browseReference')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('referenceImageInput').click()}});$('referenceDrop')?.addEventListener('click',e=>{if(!e.target.closest('button'))e.currentTarget.focus()});$('clearReference')?.addEventListener('click',()=>{referenceChoice='__CLEAR__';renderInspector()});$('applyCue').onclick=applyCue;$('cancelCue').onclick=()=>{editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);renderInspector()};requestAnimationFrame(positionInspector);if(editing)$('deleteCue').onclick=()=>{pushUndo();annotations=annotations.filter(a=>a.id!==editing.id);editId=null;setSelection([]);refreshAll();markDirty();toast('標示已移除')};}
 function applyCue(){const s=selectionIndices(),previous=annotations.find(a=>a.id===editId);if(!s.length){toast('請先選取逐字稿段落');return}const type=previous?.kind||kindId,detail=$('noteDetail').value.trim(),assetId=$('noteAsset')?.value||'',title=$('noteTitle').value.trim();if(type==='move'&&!detail){toast('Specify where this section should move');$('noteDetail').focus();return}if(type==='card'&&!detail&&!assetId&&!title){toast('Choose a graphic or enter an instruction');return}
-const ids=s.map(i=>rows[i].uid);if(type!=='cut'&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail:(type==='card'&&assetId&&detail==='【待指定圖卡素材】')?'':detail,title,reference:'',assetId,referenceAssetId:['captions','textcard'].includes(type)?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
+const selectedIds=s.map(i=>rows[i].uid),ids=isPicture(type)?trimCutEdges(selectedIds):selectedIds;if(!ids.length){toast('範圍內的字幕都已標為剪掉');return}if(type!=='cut'&&!isPicture(type)&&ids.some(rowIsCut)){toast('已剪掉的段落不能再加其他指示');return}const fields={kind:type,detail:(type==='card'&&assetId&&detail==='【待指定圖卡素材】')?'':detail,title,reference:'',assetId,referenceAssetId:['captions','textcard'].includes(type)?(referenceChoice==='__CLEAR__'?'':(referenceChoice||previous?.referenceAssetId||'')):'',rowIds:ids,selectedQuote:window._selectedQuote||''};window._selectedQuote='';if(previous){pushUndo();Object.assign(previous,fields)}else if(!identicalCue(type,fields.rowIds,fields.assetId)){pushUndo();annotations.push({id:newCueId(),...fields})}else{toast('這個位置已有相同標示');setSelection([]);return}if(type==='cut'){replaceExcludedIds(new Set(ids));mergeContiguousCuts()}editId=null;window._showInspector=false;assetChoice='';referenceChoice='';setSelection([]);refreshAll();markDirty();toast(previous?'標示已更新':'標示已新增')}
 function insertGraphic(id,inds=selectionIndices()){
  if(!inds.length){assetChoice=id;setKind('card');toast('請先選取逐字稿，或將圖片拖入指定台詞');return}
  const a=assetById(id);if(!a)return;
- const ids=inds.map(i=>rows[i].uid),same=identicalCue('card',ids,id);
+ const ids=trimCutEdges(inds.map(i=>rows[i].uid));
+ if(!ids.length){toast('範圍內的字幕都已標為剪掉');return}
+ const same=identicalCue('card',ids,id);
  if(same){toast('這張圖卡已插入相同位置');return}
- const start=inds[0];
- if(ids.some(rowIsCut)){toast('已剪掉的段落不能插入圖卡');return}pushUndo();
+ const start=rows.findIndex(r=>r.uid===ids[0]);
+ pushUndo();
  // 同一字幕起點只有一張圖卡；後加入的圖卡會取代先前的起點。
  annotations=annotations.filter(x=>!(x.kind==='card'&&sourceRowAt(x)?.firstIndex===start));
  // 如果新圖卡插入已使用圖卡的中段，上一張圖卡自動在此切換。
  for(const old of annotations.filter(x=>x.kind==='card')){
   const info=sourceRowAt(old);if(!info||info.firstIndex>=start||info.lastIndex<start)continue;
-  old.rowIds=rows.slice(info.firstIndex,start).map(r=>r.uid);
+  old.rowIds=trimCutEdges(rows.slice(info.firstIndex,start).map(r=>r.uid));
  }
  annotations.push({id:'cue'+Date.now()+Math.random().toString(36).slice(2),kind:'card',title:a.name,detail:'',reference:'',assetId:id,rowIds:ids});
  editId=null;window._showInspector=false;assetChoice='';setSelection([]);refreshAll();markDirty();toast(a.code+' 已插入');
@@ -1991,7 +2000,14 @@ function splitContiguousCue(a,ids){
 }
 function replaceExcludedIds(blockedIds){
  // 剪掉的台詞不再承載其他標示；被中斷的原有範圍自動分成兩段。
- annotations=annotations.flatMap(a=>a.kind==='cut'?[a]:splitContiguousCue(a,a.rowIds.filter(id=>!blockedIds.has(id))));
+ annotations=annotations.flatMap(a=>{
+  if(a.kind==='cut')return [a];
+  if(isPicture(a.kind)){
+   const ids=trimCutEdges(a.rowIds,id=>blockedIds.has(id)||rowIsCut(id));
+   return ids.length?[{...a,rowIds:ids}]:[];
+  }
+  return splitContiguousCue(a,a.rowIds.filter(id=>!blockedIds.has(id)));
+ });
 }
 function mergeContiguousCuts(){
  // 把互相重疊或相鄰的刪除範圍整理成一筆，保留原有剪輯說明及最早的標示 ID。
@@ -2083,7 +2099,7 @@ function quickCue(type){
  if(!fresh.length&&['cut','highlight','short'].includes(type)){cancelKindForIds(type,ids);return}
  if(!fresh.length){toast('這個範圍已標示過');setSelection([]);return}
  if(type==='cut'){
-  const other=annotations.filter(a=>a.kind!=='cut'&&a.rowIds.some(uid=>fresh.includes(uid)));
+  const other=annotations.filter(a=>a.kind!=='cut'&&(isPicture(a.kind)?a.rowIds.every(uid=>rowIsCut(uid)||fresh.includes(uid)):a.rowIds.some(uid=>fresh.includes(uid))));
   if(other.length&&!confirm(`所選字幕有 ${other.length} 則其他需求。標示「剪掉」會一併移除重疊部分，確定繼續？`))return;
  }
  pushUndo();
@@ -2187,13 +2203,14 @@ function parseFastMarkLine(line,lineNumber,seqIndex,ambiguous){
  } else if(base.kind==='textcard'||base.kind==='captions'||base.kind==='other'){
   base.detail=extra||'';if(!extra)base.warnings.push(base.kind==='textcard'?'字卡文字尚未填寫': '詳細需求尚未填寫');
  }else if(extra){base.errors.push('這項標示不需要附加參數');return base}
- if(base.kind!=='cut'&&base.ids.some(rowIsCut))base.errors.push('範圍包含已剪掉的字幕，請先取消刪除或調整編號');
+ if(isPicture(base.kind)){base.ids=trimCutEdges(base.ids);if(!base.ids.length)base.errors.push('範圍內的字幕都已標為剪掉')}
+ if(base.kind!=='cut'&&!isPicture(base.kind)&&base.ids.some(rowIsCut))base.errors.push('範圍包含已剪掉的字幕，請先取消刪除或調整編號');
  if(base.kind==='card'||base.kind==='textcard'){
   const overlaps=annotations.some(a=>a.kind===base.kind&&a.rowIds.some(id=>base.ids.includes(id)));
   if(overlaps)base.errors.push('範圍已有同類標示，請從原標示修改，避免重疊');
  }
  if(base.kind==='cut'){
-  base.collisionCount=annotations.filter(a=>a.kind!=='cut'&&a.rowIds.some(id=>base.ids.includes(id))).length;
+  base.collisionCount=annotations.filter(a=>a.kind!=='cut'&&(isPicture(a.kind)?a.rowIds.every(id=>rowIsCut(id)||base.ids.includes(id)):a.rowIds.some(id=>base.ids.includes(id)))).length;
   if(base.collisionCount)base.warnings.push('剪掉將移除 '+base.collisionCount+' 則重疊需求');
  }
  if(['cut','highlight','short'].includes(base.kind)){
@@ -2211,11 +2228,16 @@ function prepareFastMarkPlans(){
  rows.forEach((row,i)=>{const n=Number(row.seq||i+1);if(!Number.isSafeInteger(n))return;if(seqIndex.has(n))ambiguous.add(n);else seqIndex.set(n,i)});
  let plans=commands.slice(0,80).map(c=>parseFastMarkLine(c.value,c.line,seqIndex,ambiguous));
  if(commands.length>80)plans.push({lineNumber:81,raw:'…',errors:['一次最多輸入 80 則，請分批操作'],warnings:[]});
+ const batchCuts=new Set(plans.filter(p=>p.kind==='cut'&&!p.errors.length).flatMap(p=>p.ids));
+ for(const p of plans.filter(p=>isPicture(p.kind)&&!p.errors.length)){
+  p.ids=trimCutEdges(p.ids,id=>batchCuts.has(id)||rowIsCut(id));
+  if(!p.ids.length)p.errors.push('範圍內的字幕都已標為剪掉');
+ }
  // 批次內衝突提前攔下，避免一筆剪掉覆蓋另一筆新建的圖卡或字卡。
  for(let i=0;i<plans.length;i++){const a=plans[i];if(a.errors?.length||!a.ids)continue;
   for(let j=0;j<i;j++){const b=plans[j];if(b.errors?.length||!b.ids)continue;
    const intersect=a.start<=b.end&&b.start<=a.end;if(!intersect)continue;
-   if((a.kind==='cut'&&b.kind!=='cut')||(b.kind==='cut'&&a.kind!=='cut'))a.errors.push('與第 '+b.lineNumber+' 行的標示衝突：剪掉不可與其他需求重疊');
+   if((a.kind==='cut'&&b.kind!=='cut'&&!isPicture(b.kind))||(b.kind==='cut'&&a.kind!=='cut'&&!isPicture(a.kind)))a.errors.push('與第 '+b.lineNumber+' 行的標示衝突：剪掉不可與其他需求重疊');
    else if(a.kind===b.kind&&a.start===b.start&&a.end===b.end){a.skip=true;a.warnings.push('與第 '+b.lineNumber+' 行完全相同，將略過重複輸入')}
    else if(a.kind===b.kind&&['card','textcard'].includes(a.kind))a.errors.push('與第 '+b.lineNumber+' 行的同類標示重疊');
   }
@@ -2398,7 +2420,7 @@ document.addEventListener('pointermove',e=>{
  if(!hit)return;const target=+hit.dataset.i;if(rangeDrag.boundary==='start')rangeDrag.start=Math.min(target,rangeDrag.end);else rangeDrag.end=Math.max(rangeDrag.start,target);
  clearDropTargets();for(let i=rangeDrag.start;i<=rangeDrag.end;i++){
   const row=$('transcript').querySelector(`.txrow[data-i="${i}"]`);
-  if(row)row.classList.add('range-preview','preview-'+rangeDrag.kind);
+  if(row&&!(isPicture(rangeDrag.kind)&&row.classList.contains('mark-cut')))row.classList.add('range-preview','preview-'+rangeDrag.kind);
  }
 });
 document.addEventListener('pointerup',e=>{
@@ -2410,17 +2432,19 @@ document.addEventListener('pointerup',e=>{
   const graphics=['card','visual','textcard'];
   const next=annotations.filter(x=>x.id!==a.id&&(
     (graphics.includes(a.kind)&&graphics.includes(x.kind))||
-    (a.kind!=='cut'&&x.kind==='cut')||
+    (!isPicture(a.kind)&&x.kind==='cut')||
     x.kind===a.kind
   )).map(x=>sourceRowAt(x)?.firstIndex).filter(n=>Number.isInteger(n)&&n>range.originalEnd);
   if(next.length)end=Math.min(end,Math.min(...next)-1);
  }
  let start=range.start;
  if(start<range.originalStart&&a.kind!=='cut'){
-  const blockers=annotations.filter(x=>x.id!==a.id&&(x.kind==='cut'||x.kind===a.kind)).map(x=>sourceRowAt(x)?.lastIndex).filter(n=>Number.isInteger(n)&&n<range.originalStart);
+  const blockers=annotations.filter(x=>x.id!==a.id&&((!isPicture(a.kind)&&x.kind==='cut')||x.kind===a.kind)).map(x=>sourceRowAt(x)?.lastIndex).filter(n=>Number.isInteger(n)&&n<range.originalStart);
   if(blockers.length)start=Math.max(start,Math.max(...blockers)+1);
  }
- const newIds=rows.slice(start,end+1).map(r=>r.uid);
+ const span=rows.slice(start,end+1).map(r=>r.uid);
+ const newIds=isPicture(a.kind)?trimCutEdges(span):span;
+ if(!newIds.length)return;
  if(newIds.length===a.rowIds.length&&newIds.every((id,i)=>id===a.rowIds[i]))return;
  pushUndo();
  if(a.kind==='cut')replaceExcludedIds(new Set(newIds));
