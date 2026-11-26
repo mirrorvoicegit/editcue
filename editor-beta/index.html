@@ -44,7 +44,10 @@ function rowMarkup(c,n){
  }else{info='「'+first.text+'」'+(last.i!==first.i?' → 「'+last.text+'」':'')}
  const label=c.kind==='short'?'第 '+n+' 段':names[c.kind]||'其他需求';
  const extra=[...new Set([c.title,c.detail].filter(Boolean))].join('　');
- return '<article class="item'+(done?' done':'')+'"><div class="info"><div class="pair"><span class="tag '+(Object.hasOwn(names,c.kind)?c.kind:'other')+'">'+escape(label)+'</span><span class="meta">'+escape(range(c))+'</span></div><p class="line">'+escape(info)+'</p>'+(extra?'<p class="line">'+escape(extra)+'</p>':'')+assetMarkup(c.assetId)+assetMarkup(c.referenceAssetId)+'<details><summary>'+(c.kind==='cut'?'查看剪掉的台詞':'展開這段台詞')+'</summary><p class="line">'+escape(r.map(x=>x.text).join(' '))+'</p></details></div><button class="check" data-index="'+c.index+'" aria-label="'+escape(label+'，字幕 '+first.seq+'，完成')+'" aria-pressed="'+done+'">'+(done?'✓':'')+'</button></article>';
+ const speech=escape(r.map(x=>x.text).join(' '));
+ const removed=c.kind==='cut'?'<p class="line">要剪掉　［'+speech+'］</p>':'';
+ const context=c.kind==='cut'?'':'<details><summary>展開這段台詞</summary><p class="line">'+speech+'</p></details>';
+ return '<article class="item'+(done?' done':'')+'"><div class="info"><div class="pair"><span class="tag '+(Object.hasOwn(names,c.kind)?c.kind:'other')+'">'+escape(label)+'</span><span class="meta">'+escape(range(c))+'</span></div>'+removed+'<p class="line">'+escape(info)+'</p>'+(extra?'<p class="line">'+escape(extra)+'</p>':'')+assetMarkup(c.assetId)+assetMarkup(c.referenceAssetId)+context+'</div><button class="check" data-index="'+c.index+'" aria-label="'+escape(label+'，字幕 '+first.seq+'，完成')+'" aria-pressed="'+done+'">'+(done?'✓':'')+'</button></article>';
 }
 function progress(){el('progress').textContent='✓ 已完成　'+items.filter(c=>checks.has(c.signature)).length+' / '+items.length}
 function render(){
