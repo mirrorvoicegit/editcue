@@ -781,6 +781,22 @@ html,body,.shell{background:#fff!important}
 .cue-index-item.short-target{outline:2px solid #111;outline-offset:-2px}
 #shortTitleField:not([hidden]){display:grid;gap:5px;margin:8px 12px;font-weight:700;font-size:13px}
 #shortTitle{width:100%;min-width:0;padding:7px;border:1px solid #777;background:#fff;color:#111;font:inherit;font-weight:400}
+
+#deliveryDialog{box-sizing:border-box;width:min(94vw,460px);padding:24px;border:1px solid #230f0f;border-radius:12px;background:#fff;color:#201b1b;box-shadow:0 18px 58px #19131122}
+#deliveryDialog::backdrop{background:#16161655}
+#deliveryDialog .delivery-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+#deliveryDialog h2,#deliveryDialog h3{margin:0;font-weight:700;line-height:1.4}
+#deliveryDialog h2{font-size:22px}
+#deliveryDialog h3{font-size:16px}
+#deliveryDialog p{margin:5px 0 10px;color:#565353;font-size:14px}
+#deliveryDialog button{color:inherit;cursor:pointer;font:inherit}
+#deliveryDialog .delivery-top button{background:none;border:0;font-size:24px;padding:2px 10px}
+#deliveryDialog .delivery-share,#deliveryDialog .delivery-download{padding:13px 0;border-top:1px solid #e4e0e0}
+#deliveryDialog #deliveryStatus{margin:0;color:#6c6262;font-size:13px}
+#deliveryDialog .delivery-action{border:1px solid #201b1b;border-radius:5px;background:#fff;padding:7px 13px;font-size:14px;font-weight:700}
+#deliveryDialog .delivery-primary{background:#201b1b;color:#fff}
+#deliveryDialog .delivery-primary:disabled{opacity:.55;cursor:default}
+#deliveryDialog .delivery-preview{border:0;background:none;text-decoration:underline;padding:4px 0;font-size:13px}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -790,7 +806,7 @@ html,body,.shell{background:#fff!important}
   <div class="railmark" title="EditCue｜逐字稿工作台" aria-label="EditCue">EC<span>EDITCUE</span></div>
   <div class="railactions">
    <button class="railbtn" id="saveBtn" title="儲存工作檔（JSON）" aria-label="儲存工作檔"><span class="railicon" aria-hidden="true">▤</span><span>儲存</span></button>
-   <button class="railbtn railmain" id="exportWordBtn" title="匯出 Word 與圖片素材 ZIP" aria-label="匯出 ZIP"><span class="railicon" aria-hidden="true">↓</span><span>匯出</span></button><button type="button" class="railbtn" id="openEditorView" title="預覽本集剪輯師版"><span class="railicon" aria-hidden="true">▤</span><span>剪輯師版</span></button><button class="railbtn railreview" id="reviewBtn" type="button" aria-pressed="false" title="開啟初剪核對頁"><span class="railicon" aria-hidden="true">☑</span><span id="reviewBtnLabel">核對</span></button>
+   <button class="railbtn railmain" id="deliveryBtn" type="button" aria-haspopup="dialog"><span class="railicon" aria-hidden="true">↗</span><span>交件</span></button><button class="railbtn railreview" id="reviewBtn" type="button" aria-pressed="false" title="開啟初剪核對頁"><span class="railicon" aria-hidden="true">☑</span><span id="reviewBtnLabel">核對</span></button>
   </div>
   <a class="railbtn railhelp" id="guideBtn" href="guide.pdf" target="_blank" rel="noopener noreferrer" title="在新分頁開啟 EditCue 使用指南" aria-label="開啟使用指南"><span class="railicon" aria-hidden="true">?</span><span>使用指南</span></a>
   <button class="railbtn railreset" id="resetBtn" title="清空逐字稿、圖片與全部標示" aria-label="清除全部"><span class="railicon" aria-hidden="true">×</span><span>清空</span></button>
@@ -849,6 +865,22 @@ html,body,.shell{background:#fff!important}
 <input class="visually-hidden" type="file" id="fileInput" accept=".docx,.srt,.vtt,.txt,.json,.pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple>
 <input class="visually-hidden" type="file" id="imageInput" accept=".pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*,application/pdf" multiple>
 <input class="visually-hidden" type="file" id="referenceImageInput" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple>
+<dialog id="deliveryDialog" aria-labelledby="deliveryTitle">
+  <div class="delivery-top">
+    <h2 id="deliveryTitle">交件</h2>
+    <form method="dialog"><button type="submit" aria-label="關閉交件選單">×</button></form>
+  </div>
+  <div class="delivery-share">
+    <button type="button" class="delivery-action delivery-primary" disabled aria-describedby="deliveryStatus">分享連結</button>
+    <p>剪輯師用同一個網址看最新交件。</p>
+    <p id="deliveryStatus" role="status">雲端專案尚未連線</p>
+  </div>
+  <div class="delivery-download">
+    <button type="button" id="exportWordBtn" class="delivery-action">下載剪輯包</button>
+    <p>包含 Word、原始字幕、圖片及工作檔。</p>
+  </div>
+  <button type="button" class="delivery-preview" id="openEditorView">預覽剪輯師看到的畫面 ↗</button>
+</dialog>
 <script src="editor-view.js"></script>
 <script>
 'use strict';
@@ -2676,10 +2708,18 @@ $('imageInput').onchange=async e=>{const chosen=Array.from(e.target.files||[]);e
 $('addAssetBtn').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('imageInput').click()}});
 $('referenceImageInput').onchange=async e=>{const fs=Array.from(e.target.files||[]);e.target.value='';if(fs.length)await attachReferenceFiles(fs)};
 $('saveBtn').onclick=saveProject;
-$('exportWordBtn').onclick=exportPackage;
+$('deliveryBtn').onclick=()=>{
+ if(!rows.length){toast('請先匯入逐字稿');return}
+ $('deliveryDialog').showModal();
+};
+$('exportWordBtn').onclick=()=>{
+ $('deliveryDialog').close();
+ exportPackage();
+};
 $('openEditorView').onclick=()=>{
  if(!rows.length){toast('請先匯入逐字稿');return}
  if(typeof buildEditorPage!=='function'){toast('剪輯師版尚未載入，請重新整理頁面');return}
+ $('deliveryDialog').close();
  const url=URL.createObjectURL(new Blob([buildEditorPage(serializable())],{type:'text/html;charset=utf-8'}));
  window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),60000);
 };
