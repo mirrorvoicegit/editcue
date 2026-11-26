@@ -1005,8 +1005,13 @@ function rowMarkup(r,i){
  const adjustable=['cut','highlight','short','card','visual','textcard'];
  const startingCues=anns.filter(a=>adjustable.includes(a.kind)&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
  const endingCues=anns.filter(a=>adjustable.includes(a.kind)&&sourceRowAt(a)?.last?.uid===r.uid);
- const handles=[...startingCues.map(a=>({a,boundary:'start'})),...endingCues.map(a=>({a,boundary:'end'}))];
- const rangeControls=handles.length?`<div class="range-handle-group">${handles.map(({a,boundary})=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" data-range-boundary="${boundary}" type="button" aria-label="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}" title="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}">${isPicture(a.kind)?'圖卡':escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
+ const handles=[...startingCues.map(a=>({a,boundary:'start'})),...endingCues.map(a=>({a,boundary:isPicture(a.kind)&&isFirstCueRow(a,r.uid)?'expand':'end'}))];
+ const rangeControls=handles.length?`<div class="range-handle-group">${handles.map(({a,boundary})=>{
+  const name=isPicture(a.kind)?'圖卡':escapeHtml(findKind(a.kind).label);
+  const label=boundary==='expand'?'↕ 拉出範圍':name+(boundary==='start'?'起點':'終點');
+  const hint=boundary==='expand'?'往上或往下拖曳，設定圖卡範圍':'拖曳調整'+label;
+  return `<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" data-range-boundary="${boundary}" type="button" aria-label="${hint}" title="${hint}">${label}</button>`;
+ }).join('')}</div>`:'<div class="rowchev">›</div>';
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
  // 每個字幕起點只有一組後製指示。各需求仍保有自己的字幕範圍，重疊時不互相覆蓋。
  const intro=firstMarks.filter(a=>['cut','short','highlight','card','visual','textcard'].includes(a.kind));
@@ -2434,12 +2439,15 @@ function trackRangePointer(){
  if(hit&&host.contains(hit)){
   let target=Number(hit.dataset.i);
   if(isPicture(drag.kind)){
-   const direction=drag.boundary==='end'&&target>drag.originalEnd?1:drag.boundary==='start'&&target<drag.originalStart?-1:0;
+   const direction=drag.boundary!=='start'&&target>drag.originalEnd?1:drag.boundary!=='end'&&target<drag.originalStart?-1:0;
    while(direction&&rows[target+direction]&&rowIsCut(rows[target].uid))target+=direction;
   }
   if(target!==drag.target){
    drag.target=target;
-   if(drag.boundary==='start')drag.start=Math.min(target,drag.end);else drag.end=Math.max(drag.start,target);
+   if(drag.boundary==='expand'){
+    drag.start=Math.min(target,drag.originalStart);
+    drag.end=Math.max(target,drag.originalEnd);
+   }else if(drag.boundary==='start')drag.start=Math.min(target,drag.end);else drag.end=Math.max(drag.start,target);
    clearDropTargets();
    for(let i=drag.start;i<=drag.end;i++){
     const row=drag.elements[i];
