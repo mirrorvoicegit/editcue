@@ -777,6 +777,8 @@ html,body,.shell{background:#fff!important}
 @media(max-width:720px){.txrow:has(.range-handle-group)>.time{width:62px}}
 .txrow .range-handle-group{opacity:1}
 .range-handle-group .range-handle{width:auto!important;min-width:54px!important;white-space:nowrap;padding:0 5px}
+.cue-index-item[data-short-id]{cursor:grab}
+.cue-index-item.short-target{outline:2px solid #111;outline-offset:-2px}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -876,7 +878,7 @@ function redoAction(){if(!redoStack.length)return;undoStack.push(historySnapshot
 function newCueId(){return 'cue'+Date.now()+Math.random().toString(36).slice(2)}
 function rowIsCut(uid){return annotations.some(a=>a.kind==='cut'&&a.rowIds.includes(uid))}
 function isPicture(kind){return kind==='card'||kind==='visual'}
-function canSpanCuts(kind){return isPicture(kind)||kind==='highlight'}
+function canSpanCuts(kind){return isPicture(kind)||kind==='highlight'||kind==='short'}
 function trimCutEdges(ids,isCut=rowIsCut){
  const first=ids.findIndex(id=>!isCut(id));
  if(first<0)return [];
@@ -1189,18 +1191,32 @@ function cueIndexEntries(){
  }
  return items.sort((a,b)=>a.at-b.at||a.category.localeCompare(b.category));
 }
+function orderedShorts(){
+ return noteOrder().filter(a=>a.kind==='short').sort((a,b)=>(a.shortOrder??Infinity)-(b.shortOrder??Infinity));
+}
+function moveShort(id,to){
+ const list=orderedShorts(),from=list.findIndex(a=>a.id===id);
+ if(from<0||to<0||to>=list.length||from===to)return;
+ pushUndo();
+ list.splice(to,0,list.splice(from,1)[0]);
+ const ranks=new Map(list.map((a,i)=>[a.id,i]));
+ for(const cue of annotations)if(ranks.has(cue.id))cue.shortOrder=ranks.get(cue.id);
+ refreshAll();markDirty();
+}
 function renderCueIndex(){
  if(!cueIndexOpen)return;
  const items=cueIndexEntries(),visible=cueIndexFilter==='all'?items:items.filter(x=>x.category===cueIndexFilter);
- $('cueIndexTotal').textContent=items.length+' 則標示 · 點擊即可跳到對應字幕';
+ const sorting=cueIndexFilter==='short',shortRanks=new Map(orderedShorts().map((a,i)=>[a.id,i]));
+ if(sorting)visible.sort((a,b)=>(shortRanks.get(a.id)??Infinity)-(shortRanks.get(b.id)??Infinity));
+ $('cueIndexTotal').textContent=sorting?'短影音成片順序 · 拖曳調整順序':items.length+' 則標示 · 點擊即可跳到對應字幕';
  $('cueIndexFilters').innerHTML=CUE_INDEX_TABS.map(([kind,label])=>{
   const count=kind==='all'?items.length:items.filter(x=>x.category===kind).length;
   return '<button type="button" class="cue-index-filter'+(cueIndexFilter===kind?' active':'')+'" data-index-filter="'+kind+'" aria-pressed="'+String(cueIndexFilter===kind)+'">'+label+'<span>'+count+'</span></button>';
  }).join('');
  const ink={cut:'#555',card:'#27785B',textcard:'#0054C8',highlight:'#171717',short:'#E00000',other:'#555'};
  $('cueIndexItems').innerHTML=visible.length?visible.map(item=>
-  '<button class="cue-index-item" type="button" data-index-target="'+String(item.from)+'" style="border-left-color:'+ink[item.category]+'">'
-  +'<div class="cue-index-first"><span class="cue-index-name" style="color:'+ink[item.category]+'">'+escapeHtml(item.name)+'</span>'
+  '<button class="cue-index-item" type="button" '+(sorting?'draggable="true" data-short-id="'+escapeHtml(item.id)+'" title="拖曳排序，或按 Alt＋上下鍵" ':'')+'data-index-target="'+String(item.from)+'" style="border-left-color:'+ink[item.category]+'">'
+  +'<div class="cue-index-first"><span class="cue-index-name" style="color:'+ink[item.category]+'">'+(sorting?'⠿　第 '+(shortRanks.get(item.id)+1)+' 段':escapeHtml(item.name))+'</span>'
   +'<span class="cue-index-number">字幕 '+escapeHtml(String(item.from))+(item.from===item.to?'':'–'+escapeHtml(String(item.to)))+'</span></div>'
   +'<div class="cue-index-time">'+escapeHtml(item.time)+'</div>'
   +'<div class="cue-index-excerpt">'+escapeHtml(item.excerpt)+'</div></button>'
@@ -1229,6 +1245,34 @@ $('cueIndexClose').addEventListener('click',()=>setCueIndexOpen(false));
 $('cueIndexFilters').addEventListener('click',e=>{
  const b=e.target.closest('[data-index-filter]');if(!b)return;
  cueIndexFilter=b.dataset.indexFilter;renderCueIndex();
+});
+const shortList=$('cueIndexItems');
+let draggedShort='';
+shortList.addEventListener('dragstart',e=>{
+ const item=e.target.closest('[data-short-id]');if(!item)return;
+ draggedShort=item.dataset.shortId;e.dataTransfer.effectAllowed='move';
+ e.dataTransfer.setData('text/plain',draggedShort);
+});
+shortList.addEventListener('dragover',e=>{
+ if(!draggedShort)return;
+ const item=e.target.closest('[data-short-id]');if(!item)return;
+ e.preventDefault();e.dataTransfer.dropEffect='move';
+ shortList.querySelector('.short-target')?.classList.remove('short-target');
+ item.classList.add('short-target');
+});
+shortList.addEventListener('drop',e=>{
+ const item=e.target.closest('[data-short-id]');if(!item||!draggedShort)return;
+ e.preventDefault();
+ const id=draggedShort;draggedShort='';item.classList.remove('short-target');
+ moveShort(id,orderedShorts().findIndex(a=>a.id===item.dataset.shortId));
+});
+shortList.addEventListener('dragend',()=>{draggedShort='';shortList.querySelector('.short-target')?.classList.remove('short-target')});
+shortList.addEventListener('keydown',e=>{
+ const item=e.target.closest('[data-short-id]');
+ if(!item||!e.altKey||!['ArrowUp','ArrowDown'].includes(e.key))return;
+ e.preventDefault();const id=item.dataset.shortId;
+ moveShort(id,orderedShorts().findIndex(a=>a.id===id)+(e.key==='ArrowUp'?-1:1));
+ [...shortList.querySelectorAll('[data-short-id]')].find(el=>el.dataset.shortId===id)?.focus();
 });
 $('cueIndexItems').addEventListener('click',e=>{
  const b=e.target.closest('[data-index-target]');if(!b)return;
@@ -1661,6 +1705,7 @@ function deliveryAssetNumber(a){
  return String(pos>=0?pos+1:1).padStart(2,'0');
 }
 function cueOrdinal(a){
+ if(a.kind==='short')return String(orderedShorts().findIndex(x=>x.id===a.id)+1).padStart(2,'0');
  const group=a.kind==='card'||a.kind==='visual'?'card':a.kind;
  return String(noteOrder().filter(x=>(x.kind==='card'||x.kind==='visual'?'card':x.kind)===group).findIndex(x=>x.id===a.id)+1).padStart(2,'0');
 }
@@ -1880,9 +1925,19 @@ async function makeTextPreservedDocx(){const raw=sourceRawText||rows.map(r=>[r.s
  const rowIndex=uid?rows.findIndex(r=>r.uid===uid):-1,rec=rowIndex>=0?sourceMap.get(rowIndex):null;
  const divider=!!(rec&&i===rec.from&&isGraphicBoundary(uid));
  parts.push(getWordParagraph(modified!==undefined&&modified!==null?modified:text,!!clr,clr,!!(cut&&isSpeech),divider,isSpeech&&uid?textColorForRow(uid):null,!!(uid&&isMixedCueRow(uid))));insertRed(notesAfter.get(i));});
- return makeBlankWord(parts,media);
+ return makeBlankWord([...parts,...shortOrderParagraphs()],media);
 }
 
+function shortOrderParagraphs(){
+ const list=orderedShorts();if(!list.length)return [];
+ const parts=[pXml('短影音剪輯順序',{heading:true,bold:true})];
+ list.forEach((cue,i)=>{
+  const {first,last}=sourceRowAt(cue);
+  parts.push(pXml('第 '+(i+1)+' 段　字幕 '+first.seq+'–'+last.seq+'　'+asClock(first.start)+'–'+asClock(last.end),{bold:true}));
+  parts.push(pXml(cue.rowIds.map(id=>rows.find(r=>r.uid===id)?.text||'').join(' ')));
+ });
+ return parts;
+}
 function makeBlankWord(parts,media=[]){const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${wordNamespaces()}><w:body>${parts.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>`;
  const ct=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
  const rel=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${REL}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
@@ -1949,6 +2004,8 @@ async function makeWordPreservedDocx(){let raw=Uint8Array.from(atob(originalDocx
  const ref=e.type==='cue'?mediaById.get(e.cue.referenceAssetId):null;if(ref)paras.push(wImagePara(ref));
  for(const str of paras)for(const node of toNodes(str)){last.parentNode.insertBefore(node,last.nextSibling);last=node}}}
  if(before.length){const body=xml.getElementsByTagNameNS(W,'body')[0];const anchor=body?.firstChild;for(const e of before){const node=toNodes(redNoteParagraph(e.note))[0];body.insertBefore(node,anchor)}}
+ const body=xml.getElementsByTagNameNS(W,'body')[0],section=[...body.children].find(n=>n.localName==='sectPr')||null;
+ for(const part of shortOrderParagraphs())for(const node of toNodes(part))body.insertBefore(node,section);
  const files={};for(const name of zip.entries){files[name]=name==='word/document.xml'?new TextEncoder().encode(new XMLSerializer().serializeToString(xml)):await zip.get(name)}
  return zipStored(addWordImagesToFiles(files,media));
 }
@@ -2115,7 +2172,7 @@ function quickCue(type){
  if(type==='cut')replaceExcludedIds(new Set(fresh));
  annotations.push(...splitContiguousCue({id:newCueId(),kind:type,detail:'',title:'',reference:'',assetId:'',rowIds:fresh},fresh));
  if(type==='cut')mergeContiguousCuts();
- if(['highlight','short'].includes(type))mergeAdjacentQuickCues(type);
+ if(type==='highlight')mergeAdjacentQuickCues(type);
  window._selectedQuote='';setSelection([]);refreshAll();markDirty();toast(type==='cut'?'已標示剪掉（相鄰區間已合併）':type==='short'?'已標示短影音':'已標示片頭預告');
 }
 
@@ -2286,7 +2343,7 @@ function applyFastMarkPlans(){
   annotations.push(...splitContiguousCue(cue,ids));
   created++;if((kind==='card'&&!p.assetId)||(kind==='textcard'&&!p.detail))pending++;
  }
- mergeContiguousCuts();for(const k of ['highlight','short'])mergeAdjacentQuickCues(k);
+ mergeContiguousCuts();mergeAdjacentQuickCues('highlight');
  editId=null;window._showInspector=false;setSelection([]);refreshAll();markDirty();
  setFastMarkOpen(false);fastRows=[newFastRow()];$('fastMarkCommands').value='';
  const el=$('transcript').querySelector(`.txrow[data-i="${firstIndex}"]`);if(el)el.scrollIntoView({block:'center',behavior:'smooth'});
