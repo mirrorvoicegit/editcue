@@ -1,6 +1,7 @@
 <!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EditCue｜剪輯師版 Beta</title>
 <style>
 *{box-sizing:border-box}body{margin:0;color:#191919;font:16px/1.55 system-ui,"Microsoft JhengHei",sans-serif}header{border-bottom:1px solid #222}header div,main{max-width:920px;margin:auto;padding:16px 22px}header div,.bar,.pair{display:flex;align-items:center;gap:12px;flex-wrap:wrap}header b{margin-right:auto}button,select,.open{font:inherit;color:inherit;border:1px solid #999;background:white;padding:5px 10px;cursor:pointer}.open{background:#171717;color:white;border-color:#171717}button:focus-visible,summary:focus-visible,select:focus-visible,label:focus-within{outline:3px solid #3484b4}input[type=file]{position:absolute;width:1px;height:1px;opacity:0}h1{font-size:clamp(23px,4vw,32px);margin:12px 0}h2{font-size:20px;margin:26px 0 4px;border-bottom:2px solid;padding-bottom:6px}.bar{justify-content:space-between}.progress{font-variant-numeric:tabular-nums}.item{display:grid;grid-template-columns:1fr 36px;gap:8px;border-bottom:1px solid #ccc;padding:16px 0}.info{min-width:0}.tag{padding:1px 7px;font-weight:700;font-size:14px;background:#eee}.cut{background:#d9d9d9}.card,.visual{background:#b8f0d2}.highlight{background:#ffeb00}.textcard{color:#0054c8;background:#e5efff}.short{color:#bd001c;background:#ffe6ea}.meta,summary,small{font-size:14px;color:#555}.meta{font-variant-numeric:tabular-nums}.line{margin:7px 0;white-space:pre-wrap;overflow-wrap:anywhere}.check{border-radius:50%;width:28px;height:28px;padding:0;border:1.5px solid #666;margin:1px auto}.check[aria-pressed=true]{background:#191919;color:white}.item.done .tag{opacity:.7}summary{cursor:pointer;width:fit-content}details{margin-top:6px}.asset{display:flex;align-items:center;gap:10px;margin:8px 0;color:#111}.asset img{width:80px;max-height:54px;object-fit:contain}#message:empty{display:none}#message{color:#973f00}#subtitle{font-weight:700}button[hidden]{display:none}@media(max-width:520px){header div,main{padding:12px}.pair{gap:5px}.item{grid-template-columns:1fr 32px}}
+.cut-context{margin:12px 0;display:grid;gap:8px}.cut-context p{margin:0;padding:0 12px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}.cut-context .removed{background:#f2f2f2;border-radius:3px;padding-block:8px;color:#484848}
 </style><header><div><b>EditCue　剪輯師版 <small>Beta</small></b><button id="download" hidden>下載剪輯包</button><label class="open">開啟剪輯包<input id="file" type="file" accept=".zip,.json" aria-label="開啟剪輯包或工作檔"></label></div></header>
 <main><p id="message" role="status"></p><h1 id="title"></h1><div class="bar"><label>正片排序　<select id="sort"><option value="cut">先剪掉</option><option value="time">依原片時間</option></select></label><span class="progress" id="progress" aria-live="polite"></span></div><div id="list"></div></main>
 <script>
@@ -40,14 +41,15 @@ function rowMarkup(c,n){
  const r=c.rows,first=r[0],last=r.at(-1),done=checks.has(c.signature);let info='';
  if(c.kind==='cut'){
   let a=first.i-1,b=last.i+1;while(cuts.has(a))a--;while(cuts.has(b))b++;
-  info='剪後銜接　'+(project.rows[a]?'「'+project.rows[a].text+'」':'（片頭）')+' → '+(project.rows[b]?'「'+project.rows[b].text+'」':'（片尾）');
- }else{info='「'+first.text+'」'+(last.i!==first.i?' → 「'+last.text+'」':'')}
+  const previous=project.rows[a],next=project.rows[b];
+  const side=(row,edge)=>row?escape(row.text):'<small>'+edge+'</small>';
+  info='<div class="cut-context"><p>'+side(previous,'片頭')+'</p><p class="removed">（'+escape(r.map(x=>x.text).join(' '))+'）</p><p>'+side(next,'片尾')+'</p></div>';
+ }else{info='<p class="line">'+escape('「'+first.text+'」'+(last.i!==first.i?' → 「'+last.text+'」':''))+'</p>'}
  const label=c.kind==='short'?'第 '+n+' 段':names[c.kind]||'其他需求';
  const extra=[...new Set([c.title,c.detail].filter(Boolean))].join('　');
  const speech=escape(r.map(x=>x.text).join(' '));
- const removed=c.kind==='cut'?'<p class="line">要剪掉　［'+speech+'］</p>':'';
  const context=c.kind==='cut'?'':'<details><summary>展開這段台詞</summary><p class="line">'+speech+'</p></details>';
- return '<article class="item'+(done?' done':'')+'"><div class="info"><div class="pair"><span class="tag '+(Object.hasOwn(names,c.kind)?c.kind:'other')+'">'+escape(label)+'</span><span class="meta">'+escape(range(c))+'</span></div>'+removed+'<p class="line">'+escape(info)+'</p>'+(extra?'<p class="line">'+escape(extra)+'</p>':'')+assetMarkup(c.assetId)+assetMarkup(c.referenceAssetId)+context+'</div><button class="check" data-index="'+c.index+'" aria-label="'+escape(label+'，字幕 '+first.seq+'，完成')+'" aria-pressed="'+done+'">'+(done?'✓':'')+'</button></article>';
+ return '<article class="item'+(done?' done':'')+'"><div class="info"><div class="pair"><span class="tag '+(Object.hasOwn(names,c.kind)?c.kind:'other')+'">'+escape(label)+'</span><span class="meta">'+escape(range(c))+'</span></div>'+info+(extra?'<p class="line">'+escape(extra)+'</p>':'')+assetMarkup(c.assetId)+assetMarkup(c.referenceAssetId)+context+'</div><button class="check" data-index="'+c.index+'" aria-label="'+escape(label+'，字幕 '+first.seq+'，完成')+'" aria-pressed="'+done+'">'+(done?'✓':'')+'</button></article>';
 }
 function progress(){el('progress').textContent='✓ 已完成　'+items.filter(c=>checks.has(c.signature)).length+' / '+items.length}
 function render(){
