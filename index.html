@@ -790,7 +790,7 @@ html,body,.shell{background:#fff!important}
   <div class="railmark" title="EditCue｜逐字稿工作台" aria-label="EditCue">EC<span>EDITCUE</span></div>
   <div class="railactions">
    <button class="railbtn" id="saveBtn" title="儲存工作檔（JSON）" aria-label="儲存工作檔"><span class="railicon" aria-hidden="true">▤</span><span>儲存</span></button>
-   <button class="railbtn railmain" id="exportWordBtn" title="匯出 Word 與圖片素材 ZIP" aria-label="匯出 ZIP"><span class="railicon" aria-hidden="true">↓</span><span>匯出</span></button><button class="railbtn railreview" id="reviewBtn" type="button" aria-pressed="false" title="開啟初剪核對頁"><span class="railicon" aria-hidden="true">☑</span><span id="reviewBtnLabel">核對</span></button>
+   <button class="railbtn railmain" id="exportWordBtn" title="匯出 Word 與圖片素材 ZIP" aria-label="匯出 ZIP"><span class="railicon" aria-hidden="true">↓</span><span>匯出</span></button><button type="button" class="railbtn" id="openEditorView" title="預覽本集剪輯師版"><span class="railicon" aria-hidden="true">▤</span><span>剪輯師版</span></button><button class="railbtn railreview" id="reviewBtn" type="button" aria-pressed="false" title="開啟初剪核對頁"><span class="railicon" aria-hidden="true">☑</span><span id="reviewBtnLabel">核對</span></button>
   </div>
   <a class="railbtn railhelp" id="guideBtn" href="guide.pdf" target="_blank" rel="noopener noreferrer" title="在新分頁開啟 EditCue 使用指南" aria-label="開啟使用指南"><span class="railicon" aria-hidden="true">?</span><span>使用指南</span></a>
   <button class="railbtn railreset" id="resetBtn" title="清空逐字稿、圖片與全部標示" aria-label="清除全部"><span class="railicon" aria-hidden="true">×</span><span>清空</span></button>
@@ -849,6 +849,7 @@ html,body,.shell{background:#fff!important}
 <input class="visually-hidden" type="file" id="fileInput" accept=".docx,.srt,.vtt,.txt,.json,.pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple>
 <input class="visually-hidden" type="file" id="imageInput" accept=".pptx,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*,application/pdf" multiple>
 <input class="visually-hidden" type="file" id="referenceImageInput" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,image/*" multiple>
+<script src="editor-view.js"></script>
 <script>
 'use strict';
 const KINDS=[
@@ -2063,6 +2064,7 @@ async function exportPackage(){if(!rows.length){toast('請先匯入逐字稿');r
  for(let i=0;i<used.length;i++){let a=used[i];let pngData=a.dataUrl;if(imageFormat(pngData)!=='image/png'){
  pngData=await new Promise((resolve,reject)=>{let img=new Image;img.onload=()=>{let can=document.createElement('canvas');can.width=img.naturalWidth;can.height=img.naturalHeight;can.getContext('2d').drawImage(img,0,0);resolve(can.toDataURL('image/png'))};img.onerror=reject;img.src=a.dataUrl})}
  files['圖片/圖卡_'+String(i+1).padStart(3,'0')+'.png']=assetBytes({dataUrl:pngData});}
+ if(typeof buildEditorPage==='function')files[cleanFileName($('docTitle').value)+'_剪輯師版.html']=buildEditorPage(serializable());
  const zip=zipStored(files);download(cleanFileName($('docTitle').value)+'_剪輯包.zip',zip);
  toast('已匯出 ZIP：Word、原始字幕、JSON 工作檔及 '+used.length+' 張圖卡'+(references.length?'、'+references.length+' 張參考圖片':''));
  }catch(e){console.error(e);toast('匯出失敗：'+e.message)}finally{window._exportCodes=null}
@@ -2675,6 +2677,12 @@ $('addAssetBtn').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')
 $('referenceImageInput').onchange=async e=>{const fs=Array.from(e.target.files||[]);e.target.value='';if(fs.length)await attachReferenceFiles(fs)};
 $('saveBtn').onclick=saveProject;
 $('exportWordBtn').onclick=exportPackage;
+$('openEditorView').onclick=()=>{
+ if(!rows.length){toast('請先匯入逐字稿');return}
+ if(typeof buildEditorPage!=='function'){toast('剪輯師版尚未載入，請重新整理頁面');return}
+ const url=URL.createObjectURL(new Blob([buildEditorPage(serializable())],{type:'text/html;charset=utf-8'}));
+ window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),60000);
+};
 $('resetBtn').onclick=resetWorkspace;
 document.addEventListener('keydown',e=>{if(reviewMode){if(e.key==='Escape'&&previewOpen){e.preventDefault();closeAssetPreview();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject()}return;}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();$('searchInput').focus();$('searchInput').select();searchOpen=true;refreshSearchPanel();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='h'){e.preventDefault();$('searchInput').focus();searchOpen=true;replaceExpanded=true;refreshSearchPanel();$('replaceInput').focus();return}if(e.key==='Escape'){if(previewOpen){closeAssetPreview();return}setSelection([]);editId=null;window._showInspector=false;renderInspector();return}if(isEditingTarget(e))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redoAction();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click();return}if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&/^[1-4]$/.test(e.key)){const k=['cut','highlight','captions','red-note'][+e.key-1];if(k){editId=null;if(k==='red-note'){insertRedNote();return}setKind(k);if(selected.size&&['cut','highlight','short'].includes(k))quickCue(k)}}});
 // 可以把 Word、字幕、工作檔或圖卡拖到整個網頁；也支援剪貼簿中的圖片。
