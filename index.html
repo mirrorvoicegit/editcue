@@ -775,6 +775,11 @@ html,body,.shell{background:#fff!important}
 .railhelp{margin-top:auto;text-decoration:none!important;font:inherit;color:#111}
 .railhelp .railicon{font:800 23px/1 Arial,sans-serif}
 .railreset{margin-top:0}
+.txrow:has(.range-handle-group){grid-template-columns:auto minmax(0,1fr) max-content!important}
+.txrow:has(.range-handle-group)>.time{width:88px}
+@media(max-width:720px){.txrow:has(.range-handle-group)>.time{width:62px}}
+.txrow .range-handle-group{opacity:1}
+.range-handle-group .range-handle{width:auto!important;min-width:54px!important;white-space:nowrap;padding:0 5px}
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23FFFFFF%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20fill%3D%22none%22%20stroke%3D%22%23111111%22%20stroke-width%3D%226%22/%3E%3Cpath%20d%3D%22M15%2018h31M15%2031h31M15%2044h31%22%20stroke%3D%22%23111111%22%20stroke-width%3D%224%22/%3E%3C/svg%3E">
 </head><body>
@@ -1001,7 +1006,7 @@ function rowMarkup(r,i){
  const startingCues=anns.filter(a=>adjustable.includes(a.kind)&&isFirstCueRow(a,r.uid)&&sourceRowAt(a)?.last?.uid!==r.uid);
  const endingCues=anns.filter(a=>adjustable.includes(a.kind)&&sourceRowAt(a)?.last?.uid===r.uid);
  const handles=[...startingCues.map(a=>({a,boundary:'start'})),...endingCues.map(a=>({a,boundary:'end'}))];
- const rangeControls=handles.length?`<div class="range-handle-group">${handles.map(({a,boundary})=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" data-range-boundary="${boundary}" type="button" aria-label="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}" title="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}">${boundary==='start'?'起':'迄'}</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
+ const rangeControls=handles.length?`<div class="range-handle-group">${handles.map(({a,boundary})=>`<button class="range-handle" data-range-id="${escapeHtml(a.id)}" data-range-kind="${escapeHtml(a.kind)}" data-range-boundary="${boundary}" type="button" aria-label="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}" title="拖曳調整${escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}">${isPicture(a.kind)?'圖卡':escapeHtml(findKind(a.kind).label)}${boundary==='start'?'起點':'終點'}</button>`).join('')}</div>`:'<div class="rowchev">›</div>';
  const firstMarks=anns.filter(a=>isFirstCueRow(a,r.uid)&&(!cut||a.kind==='cut'));
  // 每個字幕起點只有一組後製指示。各需求仍保有自己的字幕範圍，重疊時不互相覆蓋。
  const intro=firstMarks.filter(a=>['cut','short','highlight','card','visual','textcard'].includes(a.kind));
@@ -2412,20 +2417,55 @@ $('transcript').addEventListener('pointerdown',e=>{
  const h=e.target.closest('[data-range-id]');if(!h)return;
  e.preventDefault();e.stopPropagation();let a=annotations.find(x=>x.id===h.dataset.rangeId),info=a&&sourceRowAt(a);
  if(!a||!info)return;
- rangeDrag={id:a.id,kind:a.kind,boundary:h.dataset.rangeBoundary||'end',start:info.firstIndex,end:info.lastIndex,originalStart:info.firstIndex,originalEnd:info.lastIndex};
+ h.setPointerCapture?.(e.pointerId);
+ rangeDrag={pointerId:e.pointerId,originY:e.clientY,frame:0,elements:$('transcript').querySelectorAll('.txrow'),id:a.id,kind:a.kind,boundary:h.dataset.rangeBoundary||'end',start:info.firstIndex,end:info.lastIndex,originalStart:info.firstIndex,originalEnd:info.lastIndex};
  document.body.classList.add('resizing-range');
 });
-document.addEventListener('pointermove',e=>{
- if(!rangeDrag)return;const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.txrow');
- if(!hit)return;const target=+hit.dataset.i;if(rangeDrag.boundary==='start')rangeDrag.start=Math.min(target,rangeDrag.end);else rangeDrag.end=Math.max(rangeDrag.start,target);
- clearDropTargets();for(let i=rangeDrag.start;i<=rangeDrag.end;i++){
-  const row=$('transcript').querySelector(`.txrow[data-i="${i}"]`);
-  if(row&&!(isPicture(rangeDrag.kind)&&row.classList.contains('mark-cut')))row.classList.add('range-preview','preview-'+rangeDrag.kind);
+function trackRangePointer(){
+ const drag=rangeDrag;if(!drag)return;
+ drag.frame=0;
+ const host=$('transcript'),box=host.getBoundingClientRect();
+ const offset=drag.y<box.top+44?drag.y-box.top-44:Math.max(0,drag.y-box.bottom+44);
+ const before=host.scrollTop;
+ if(offset)host.scrollTop+=Math.sign(offset)*Math.min(24,Math.ceil(Math.abs(offset)/3));
+ const x=Math.max(box.left+8,Math.min(drag.x,box.left+host.clientWidth-8));
+ const y=Math.max(box.top+2,Math.min(drag.y,box.bottom-2));
+ const hit=document.elementFromPoint(x,y)?.closest('.txrow');
+ if(hit&&host.contains(hit)){
+  let target=Number(hit.dataset.i);
+  if(isPicture(drag.kind)){
+   const direction=drag.boundary==='end'&&target>drag.originalEnd?1:drag.boundary==='start'&&target<drag.originalStart?-1:0;
+   while(direction&&rows[target+direction]&&rowIsCut(rows[target].uid))target+=direction;
+  }
+  if(target!==drag.target){
+   drag.target=target;
+   if(drag.boundary==='start')drag.start=Math.min(target,drag.end);else drag.end=Math.max(drag.start,target);
+   clearDropTargets();
+   for(let i=drag.start;i<=drag.end;i++){
+    const row=drag.elements[i];
+    if(row&&!(isPicture(drag.kind)&&row.classList.contains('mark-cut')))row.classList.add('range-preview','preview-'+drag.kind);
+   }
+  }
  }
+ if(host.scrollTop!==before)drag.frame=requestAnimationFrame(trackRangePointer);
+}
+document.addEventListener('pointermove',e=>{
+ if(!rangeDrag||e.pointerId!==rangeDrag.pointerId)return;
+ rangeDrag.x=e.clientX;rangeDrag.y=e.clientY;
+ if(!rangeDrag.frame)rangeDrag.frame=requestAnimationFrame(trackRangePointer);
 });
+function finishRangeDrag(){
+ const drag=rangeDrag;rangeDrag=null;cancelAnimationFrame(drag.frame);
+ document.body.classList.remove('resizing-range');clearDropTargets();return drag;
+}
+document.addEventListener('pointercancel',e=>{if(rangeDrag?.pointerId===e.pointerId)finishRangeDrag()});
 document.addEventListener('pointerup',e=>{
- if(!rangeDrag)return;const range=rangeDrag;rangeDrag=null;document.body.classList.remove('resizing-range');
- clearDropTargets();const a=annotations.find(x=>x.id===range.id);if(!a)return;
+ if(!rangeDrag||e.pointerId!==rangeDrag.pointerId)return;
+ cancelAnimationFrame(rangeDrag.frame);
+ rangeDrag.x=e.clientX;rangeDrag.y=e.clientY;
+ if(rangeDrag.target!==undefined||e.clientY!==rangeDrag.originY)trackRangePointer();
+ const range=finishRangeDrag();
+ const a=annotations.find(x=>x.id===range.id);if(!a)return;
  let end=range.end;
  // 延長剪掉時，允許與另一段剪掉相接並自動合併；非刪除需求沿用原本的衝突限制。
  if(end>range.originalEnd&&a.kind!=='cut'){
